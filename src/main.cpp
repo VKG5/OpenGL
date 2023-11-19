@@ -17,6 +17,8 @@
 
 // Width and Height
 const GLint width = 800, height = 600;
+// Converting to Radians
+const float toRadians = 3.14159265f / 180.0f;
 
 GLuint VAO, VBO, shader, uniformModel;
 
@@ -24,6 +26,9 @@ bool direction = true;
 float triOffset = 0.0f;
 float triMaxOffset = 0.7f;
 float triIncrement = 0.0005f;
+
+float currAngle = 0.0f;
+float currScale = 0.0f;
 
 // Vertex Shader
 // Uniform - Global to shader, not associated with a particular vertex
@@ -35,7 +40,7 @@ static const char* vertexShader = R"(
     uniform mat4 model;
 
     void main() {
-        gl_Position = model * vec4(0.5 * pos.x, 0.5 * pos.y, pos.z, 1.0);
+        gl_Position = model * vec4(pos, 1.0);
 
     }
 )";
@@ -226,6 +231,18 @@ int main() {
             direction = !direction;
         }
 
+        // Updating angle
+        currAngle += 0.01f;
+        if(currAngle >= 360) {
+            currAngle -= 360;
+        }
+
+        // Updaating scale
+        currScale += 0.001f;
+        if(currScale >= 1.0f) {
+            currScale -= 1.0f;
+        }
+
         // Clear window
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
         glClear(GL_COLOR_BUFFER_BIT);
@@ -234,9 +251,17 @@ int main() {
         glUseProgram(shader);
 
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(triOffset, 0.0f, 0.0f));
+            // Happens in a reverse order
+            // Rotate
+            // model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 
-            // Binding the uniform
+            // Translate
+            // model = glm::translate(model, glm::vec3(triOffset, 0.0f, 0.0f));
+
+            // Scale
+            model = glm::scale(model, glm::vec3(currScale, currScale, 1.0f));
+
+            // Binding the uniform using pointer (v)
             glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
             glBindVertexArray(VAO);
