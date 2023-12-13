@@ -20,7 +20,7 @@ const GLint width = 800, height = 600;
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
 
-GLuint VAO, VBO, shader, uniformModel;
+GLuint VAO, VBO, IBO, shader, uniformModel;
 
 bool direction = true;
 float triOffset = 0.0f;
@@ -62,9 +62,19 @@ static const char* fragmentShader = R"(
 )";
 
 void createTriangle() {
+    // Index Array
+    // Index of the vertices that are being drawn
+    unsigned int indices[] = {
+        0, 3, 1,
+        1, 3, 2,
+        2, 3, 0,
+        0, 1, 2
+    };
+
     // A VAO can hold multiple VBOs and other types of buffers
     GLfloat vertices[] = {
         -1.0f, -1.0f, 0.0f,
+        0.0f, -1.0f, 1.0f,
         1.0f, -1.0f, 0.0f,
         0.0f, 1.0f, 0.0f
     };
@@ -72,9 +82,14 @@ void createTriangle() {
     // Creating and gettting the vertex ID of a VAO
     glCreateVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
+        // Creating the Index Buffer Object
+        glGenBuffers(1, &IBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
-        // Creating the buffer object instide VAO
-        glCreateBuffers(1, &VBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+        // Creating the buffer object inside VAO
+        glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
             // STATIC DRAW - Not chaning the values in the array
@@ -89,6 +104,9 @@ void createTriangle() {
 
     // Un-Binding Vertex Array
     glBindVertexArray(0);
+
+    // Un-Binding IBO/EBO after VAO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void addShader(GLuint program, const char* shaderCode, GLenum shaderType) {
@@ -208,6 +226,8 @@ int main() {
         glfwTerminate();
         return -1;
     }
+    // Enabling Depth Buffer
+    glEnable(GL_DEPTH_TEST);
 
     // Setup Viewport size
     // x,y - Top left corner position
@@ -250,7 +270,7 @@ int main() {
 
         // Clear window
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Binding the program
         glUseProgram(shader);
@@ -258,7 +278,7 @@ int main() {
             glm::mat4 model = glm::mat4(1.0f);
             // Happens in a reverse order
             // Rotate
-            // model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 
             // Translate
             // model = glm::translate(model, glm::vec3(triOffset, 0.0f, 0.0f));
@@ -269,10 +289,12 @@ int main() {
             // Binding the uniform using pointer (v)
             glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-            glBindVertexArray(VAO);
+            glBindVertexArray(VAO);\
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
-                glDrawArrays(GL_TRIANGLES, 0, 3);
+                glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
         // Un-Binding the program
         glUseProgram(0);
