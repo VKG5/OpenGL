@@ -37,11 +37,14 @@ static const char* vertexShader = R"(
     #version 460 core
 
     layout (location = 0) in vec3 pos;
+
+    out vec4 col;
+
     uniform mat4 model;
 
     void main() {
         gl_Position = model * vec4(pos, 1.0);
-
+        col = vec4(clamp(pos, 0.0f, 1.0f), 1.0f);
     }
 )";
 
@@ -49,10 +52,12 @@ static const char* vertexShader = R"(
 static const char* fragmentShader = R"(
     #version 460 core
 
+    in vec4 col;
+
     out vec4 color;
 
     void main() {
-        color = vec4(1.0, 0.0, 0.0, 1.0);
+        color = col;
     }
 )";
 
@@ -259,7 +264,7 @@ int main() {
             // model = glm::translate(model, glm::vec3(triOffset, 0.0f, 0.0f));
 
             // Scale
-            model = glm::scale(model, glm::vec3(currScale, currScale, 1.0f));
+            model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
 
             // Binding the uniform using pointer (v)
             glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
