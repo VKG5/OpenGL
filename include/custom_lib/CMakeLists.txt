@@ -1,11 +1,10 @@
 set(
     LIBRARY_SOURCES
-    "my_lib.cpp"
 )
 
 set(
     LIBRARY_HEADERS
-    "my_lib.h"
+    "Mesh.h"
 )
 
 set(

@@ -1,9 +1,9 @@
 // Basic C++ Libraries for various operations
 #include <iostream>
-#include <vector>
 #include <stdio.h>
 #include <string.h>
 #include <cmath>
+#include <vector>
 
 // Always include GLFW after GLAD - Core Libraries
 #include <glad.h>
@@ -15,12 +15,19 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+// Custom Libraries
+#include "Mesh.h"
+
 // Width and Height
 const GLint width = 800, height = 600;
+
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
 
-GLuint VAO, VBO, IBO, shader, uniformModel, uniformProjection;
+// Creating a vector of the meshes
+std::vector<Mesh*> meshList;
+
+GLuint shader, uniformModel, uniformProjection;
 
 bool direction = true;
 float triOffset = 0.0f;
@@ -81,34 +88,19 @@ void createTriangle() {
         0.0f, 1.0f, 0.0f
     };
 
-    // Creating and gettting the vertex ID of a VAO
-    glCreateVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-        // Creating the Index Buffer Object
-        glGenBuffers(1, &IBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    // Object 1
+    Mesh* obj1 = new Mesh();
+    obj1->createMesh(vertices, indices, 12, 12);
 
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    // Adding to our meshlist
+    meshList.push_back(obj1);
 
-        // Creating the buffer object inside VAO
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // Object 2
+    Mesh* obj2 = new Mesh();
+    obj2->createMesh(vertices, indices, 12, 12);
 
-            // STATIC DRAW - Not chaning the values in the array
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-            // Location = 0
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-            glEnableVertexAttribArray(0);
-
-        // Un-Binding Buffer Array
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // Un-Binding Vertex Array
-    glBindVertexArray(0);
-
-    // Un-Binding IBO/EBO after VAO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // Adding to our meshlist
+    meshList.push_back(obj2);
 }
 
 void addShader(GLuint program, const char* shaderCode, GLenum shaderType) {
@@ -284,24 +276,18 @@ int main() {
             // Happens in a reverse order
             // Translate
             model = glm::translate(model, glm::vec3(triOffset, 0.0f, -2.5f));
-
-            // Rotate
-            model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-
-            // Scale
             model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-
-            // Binding the uniform using pointer (v)
             glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+            meshList[0]->renderMesh();
 
-            glBindVertexArray(VAO);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+            // Clearing out the properties
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(-triOffset, 1.0f, -2.5f));
+            model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+            glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+            meshList[1]->renderMesh();
 
-                glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
-
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-            glBindVertexArray(0);
         // Un-Binding the program
         glUseProgram(0);
 
