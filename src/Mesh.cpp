@@ -1,8 +1,5 @@
 #include <iostream>
 
-// Always include GLFW after GLAD - Core Libraries
-#include <glad.h>
-
 #include "Mesh.h"
 
 // Constructor

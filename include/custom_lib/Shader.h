@@ -1,11 +1,12 @@
 #pragma once
 
-#include<stdio.h>
-#include<string>
-#include<iostream>
-#include<fstream>
+#include <stdio.h>
+#include <string>
+#include <iostream>
+#include <fstream>
 
-#include <GLFW/glfw3.h>
+// Always include GLFW after GLAD - Core Libraries
+#include <glad.h>
 
 class Shader {
 private:
@@ -15,6 +16,7 @@ private:
     void addShader(GLuint program, const char* shaderCode, GLenum shaderType);
 
 public:
+    // Constructor
     Shader();
 
     void createFromString(const char* vertexCode, const char* fragmentCode);
@@ -28,5 +30,6 @@ public:
     void useShader();
     void cleanShader();
 
+    // Destructor
     ~Shader();
 };

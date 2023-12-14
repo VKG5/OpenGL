@@ -1,6 +1,3 @@
-// Always include GLFW after GLAD - Core Libraries
-#include <glad.h>
-
 #include "Shader.h"
 
 // Constructor

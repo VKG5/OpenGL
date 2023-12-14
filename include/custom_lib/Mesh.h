@@ -1,6 +1,7 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
+// Always include GLFW after GLAD - Core Libraries
+#include <glad.h>
 
 class Mesh {
 private:
