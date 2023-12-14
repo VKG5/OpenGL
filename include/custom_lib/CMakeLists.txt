@@ -5,6 +5,7 @@ set(
 set(
     LIBRARY_HEADERS
     "Mesh.h"
+    "Shader.h"
 )
 
 set(

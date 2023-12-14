@@ -2,8 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-class Mesh
-{
+class Mesh {
 private:
     // IBO is optional but causes issues in some graphics cards
     GLuint VAO, VBO, IBO;

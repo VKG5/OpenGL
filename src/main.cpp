@@ -17,6 +17,7 @@
 
 // Custom Libraries
 #include "Mesh.h"
+#include "Shader.h"
 
 // Width and Height
 const GLint width = 800, height = 600;
@@ -24,10 +25,9 @@ const GLint width = 800, height = 600;
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
 
-// Creating a vector of the meshes
+// Creating a vector of the meshes and shaders
 std::vector<Mesh*> meshList;
-
-GLuint shader, uniformModel, uniformProjection;
+std::vector<Shader*> shaderList;
 
 bool direction = true;
 float triOffset = 0.0f;
@@ -70,7 +70,7 @@ static const char* fragmentShader = R"(
     }
 )";
 
-void createTriangle() {
+void createObjects() {
     // Index Array
     // Index of the vertices that are being drawn
     unsigned int indices[] = {
@@ -103,72 +103,11 @@ void createTriangle() {
     meshList.push_back(obj2);
 }
 
-void addShader(GLuint program, const char* shaderCode, GLenum shaderType) {
-    // Creating an empty shader
-    GLuint theShader = glCreateShader(shaderType);
+void createShaders() {
+    Shader* shader1 = new Shader();
+    shader1->createFromString(vertexShader, fragmentShader);
 
-    const GLchar* theCode[1];
-    theCode[0] = shaderCode;
-
-    GLint codeLength[1];
-    codeLength[0] = strlen(shaderCode);
-
-    glShaderSource(theShader, 1, theCode, codeLength);
-    glCompileShader(theShader);
-
-    // Creating this for logging/debugging
-    GLint result = 0;
-    GLchar eLog[1024] = {0};
-
-    glGetShaderiv(theShader, GL_COMPILE_STATUS, &result);
-
-    if(!result) {
-        glGetShaderInfoLog(theShader, sizeof(eLog), NULL, eLog);
-        std::cout<<"Error compiling the "<<shaderType<<" shader: "<<eLog<<"\n";
-        return;
-    }
-
-    glAttachShader(program, theShader);
-}
-
-void compileShaders() {
-    // Creating the program to run the shaders on the GPU
-    shader = glCreateProgram();
-
-    if(!shader) {
-        std::cout<<"Error creating shader program";
-        return;
-    }
-
-    addShader(shader, vertexShader, GL_VERTEX_SHADER);
-    addShader(shader, fragmentShader, GL_FRAGMENT_SHADER);
-
-    // Creating this for logging/debugging
-    GLint result = 0;
-    GLchar eLog[1024] = {0};
-
-    glLinkProgram(shader);
-    glGetProgramiv(shader, GL_LINK_STATUS, &result);
-
-    if(!result) {
-        glGetProgramInfoLog(shader, sizeof(eLog), NULL, eLog);
-        std::cout<<"Error linking program: "<<eLog<<"\n";
-        return;
-    }
-
-    // Checking if valid in current context
-    glValidateProgram(shader);
-    glGetProgramiv(shader, GL_VALIDATE_STATUS, &result);
-
-    if(!result) {
-        glGetProgramInfoLog(shader, sizeof(eLog), NULL, eLog);
-        std::cout<<"Error validating program: "<<eLog<<"\n";
-        return;
-    }
-
-    // Name in the vertex shader
-    uniformModel = glGetUniformLocation(shader, "model");
-    uniformProjection = glGetUniformLocation(shader, "projection");
+    shaderList.push_back(shader1);
 }
 
 int main() {
@@ -229,8 +168,11 @@ int main() {
     // bufferWidth and bufferHeight - Give us the height in between the window
     glViewport( 0, 0, bufferWidth, bufferHeight );
 
-    createTriangle();
-    compileShaders();
+    createObjects();
+    createShaders();
+
+    // Setting the variables
+    GLuint uniformProjection = 0, uniformModel = 0;
 
     glm::mat4 projection = glm::perspective(45.0f, GLfloat(bufferWidth)/GLfloat(bufferHeight), 0.1f, 100.0f);
 
@@ -270,7 +212,9 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Binding the program
-        glUseProgram(shader);
+        shaderList[0]->useShader();
+        uniformModel = shaderList[0]->getModelLocation();
+        uniformProjection = shaderList[0]->getProjectionLocation();
 
             glm::mat4 model = glm::mat4(1.0f);
             // Happens in a reverse order

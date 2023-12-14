@@ -2,6 +2,7 @@ set(
     EXEC_SOURCES
     "main.cpp"
     "Mesh.cpp"
+    "Shader.cpp"
 )
 
 # Adding the main file as an executable to our project
