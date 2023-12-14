@@ -40,35 +40,10 @@ float currScale = 0.0f;
 // Vertex Shader
 // Uniform - Global to shader, not associated with a particular vertex
 // Bind data to uniform to get location
-static const char* vertexShader = R"(
-    #version 460 core
-
-    layout (location = 0) in vec3 pos;
-
-    out vec4 col;
-
-    // MVP - Model, View, Projection Structure
-    uniform mat4 model;
-    uniform mat4 projection;
-
-    void main() {
-        gl_Position = projection * model * vec4(pos, 1.0);
-        col = vec4(clamp(pos, 0.0f, 1.0f), 1.0f);
-    }
-)";
+static const char* vertexShader = "D:/Programs/C++/Computer_Graphics_TCD/src/Shaders/shader.vert";
 
 // Fragment Shader
-static const char* fragmentShader = R"(
-    #version 460 core
-
-    in vec4 col;
-
-    out vec4 color;
-
-    void main() {
-        color = col;
-    }
-)";
+static const char* fragmentShader = "D:/Programs/C++/Computer_Graphics_TCD/src/Shaders/shader.frag";
 
 void createObjects() {
     // Index Array
@@ -105,7 +80,7 @@ void createObjects() {
 
 void createShaders() {
     Shader* shader1 = new Shader();
-    shader1->createFromString(vertexShader, fragmentShader);
+    shader1->createFromFiles(vertexShader, fragmentShader);
 
     shaderList.push_back(shader1);
 }
@@ -132,6 +107,7 @@ int main() {
     glfwWindowHint(
         GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE
     );
+
     // Core profile = No backwards compatiblity
     glfwWindowHint (
         GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE

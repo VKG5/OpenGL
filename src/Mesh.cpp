@@ -2,7 +2,6 @@
 
 // Always include GLFW after GLAD - Core Libraries
 #include <glad.h>
-#include <GLFW/glfw3.h>
 
 #include "Mesh.h"
 

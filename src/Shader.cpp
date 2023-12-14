@@ -1,8 +1,5 @@
-#include <iostream>
-
 // Always include GLFW after GLAD - Core Libraries
 #include <glad.h>
-#include <GLFW/glfw3.h>
 
 #include "Shader.h"
 
@@ -83,6 +80,36 @@ void Shader::addShader(GLuint program, const char* shaderCode, GLenum shaderType
     }
 
     glAttachShader(program, theShader);
+}
+
+void Shader::createFromFiles(const char* vertexLocation, const char* fragmentLocation) {
+    std::string vertexString = readFile(vertexLocation);
+    std::string fragmentString = readFile(fragmentLocation);
+    const char* vertexCode = vertexString.c_str();
+    const char* fragmentCode = fragmentString.c_str();
+
+    compileShader(vertexCode, fragmentCode);
+}
+
+std::string Shader::readFile(const char* filePath) {
+    std::string content;
+
+    // Source of the files
+    std::fstream fileStream(filePath, std::ios::in);
+
+    if(!fileStream.is_open()) {
+        printf("Failed to read '%s'! File doesn't exist.\n", filePath);
+        return "";
+    }
+
+    std::string line = "";
+    while(!fileStream.eof()) {
+        std::getline(fileStream, line);
+        content.append(line + "\n");
+    }
+
+    fileStream.close();
+    return content;
 }
 
 // Getter for Uniform Projection
