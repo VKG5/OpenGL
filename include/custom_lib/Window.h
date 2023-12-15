@@ -12,6 +12,23 @@ private:
     GLint width, height;
     GLint bufferWidth, bufferHeight;
 
+    // Covering all ASCII characters
+    bool keys[1024];
+
+    // Checking mouse movement
+    GLfloat lastX;
+    GLfloat lastY;
+    GLfloat xChange;
+    GLfloat yChange;
+    bool mouseFirstMoved;
+
+    // Check for custom callbacks
+    void createCallbacks();
+
+    // Need static for callback
+    static void handleKeys(GLFWwindow* window, int key, int code, int action, int mode);
+    static void handleMouse(GLFWwindow* window, double xPos, double yPos);
+
 public:
     // Constructor
     Window();
@@ -32,6 +49,14 @@ public:
     bool getShouldClose() {
         return glfwWindowShouldClose(mainWindow);
     }
+
+    // Returning all keys, because we are passing the keys to the Camera class
+    bool* getKeys() {
+        return keys;
+    }
+
+    GLfloat getXChange();
+    GLfloat getYChange();
 
     void swapBuffers() {
         glfwSwapBuffers(mainWindow);
