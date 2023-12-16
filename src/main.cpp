@@ -26,6 +26,7 @@
 #include "Texture.h"
 #include "Light.h"
 #include "Utilities.h"
+#include "Material.h"
 
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
@@ -46,6 +47,10 @@ Texture dirtTexture;
 
 // Lights
 Light mainLight;
+
+// Materials
+Material shinyMat;
+Material roughMat;
 
 // Delta Time
 GLfloat deltaTime = 0.0f;
@@ -72,9 +77,9 @@ void createObjects() {
     // A VAO can hold multiple VBOs and other types of buffers
     GLfloat vertices[] = {
     //  x      y      z         u     v         Nx    Ny    Nz
-        -1.0f, -1.0f, 0.0f,     0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+        -1.0f, -1.0f, -0.6f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
         0.0f, -1.0f, 1.0f,      0.5f, 0.0f,     0.0f, 0.0f, 0.0f,
-        1.0f, -1.0f, 0.0f,      1.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+        1.0f, -1.0f, -0.6f,     1.0f, 0.0f,     0.0f, 0.0f, 0.0f,
         0.0f, 1.0f, 0.0f,       0.5f, 1.0f,     0.0f, 0.0f, 0.0f
     };
 
@@ -118,14 +123,20 @@ int main() {
     dirtTexture = Texture("D:/Programs/C++/Computer_Graphics_TCD/src/Textures/mud.png");
     dirtTexture.loadTexture();
 
+    // Setting up Materials
+    // Make the second parameter (Shine) to be powers of 2
+    shinyMat = Material(1.0f, 32);
+    roughMat = Material(0.25f, 4);
+
     // Setting up lights
     mainLight = Light( 1.0f, 1.0f, 1.0f, 0.2f,
-                       2.0f, -1.0f, -2.0f, 1.0f );
+                       2.0f, -1.0f, -2.0f, 0.75f );
 
     // Setting the variables
     GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0,
             uniformAmbientIntensity = 0, uniformAmbientColour = 0,
-            uniformDiffuseIntensity = 0, uniformDirection = 0;
+            uniformDiffuseIntensity = 0, uniformDirection = 0,
+            uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0;
 
     glm::mat4 projection = glm::perspective(45.0f, GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
 
@@ -156,31 +167,40 @@ int main() {
         uniformAmbientIntensity = shaderList[0]->getAmbientIntensityLocation();
         uniformDiffuseIntensity = shaderList[0]->getDiffuseIntensityLocation();
         uniformDirection = shaderList[0]->getDiffuseDirectionLocation();
+        uniformEyePosition = shaderList[0]->getEyePositionLocation();
+        uniformSpecularIntensity = shaderList[0]->getSpecularIntensityLocation();
+        uniformShininess = shaderList[0]->getShininessLocation();
 
         mainLight.useLight( uniformAmbientIntensity, uniformAmbientColour,
                             uniformDiffuseIntensity, uniformDirection );
+
+            glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+            glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+            glUniform3f(uniformEyePosition, camera.getCameraPosition().x,
+                                            camera.getCameraPosition().y,
+                                            camera.getCameraPosition().z);
 
             glm::mat4 model = glm::mat4(1.0f);
             // Happens in a reverse order
             // Translate
             model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
-            model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+            // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
             glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-            glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-            glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 
             // Texturing the Mesh
             brickTexture.useTexture();
+            shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
             meshList[0]->renderMesh();
 
             // Clearing out the properties
             model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(0.0f, 0.5f, -2.5f));
-            model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+            model = glm::translate(model, glm::vec3(0.0f, 3.0f, -2.5f));
+            // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
             glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
             // Texturing the Mesh
             dirtTexture.useTexture();
+            roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
             meshList[1]->renderMesh();
 
         // Un-Binding the program

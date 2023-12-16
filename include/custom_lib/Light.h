@@ -23,8 +23,8 @@ public:
             GLfloat xDir, GLfloat yDir, GLfloat zDir, GLfloat diffIntensity );
 
     // Function override for different types of light
-    void useLight(  GLfloat ambientIntensityLocation, GLfloat ambientColourLocation,
-                    GLfloat diffuseIntensityLocation, GLfloat directionLocation  );
+    void useLight(  GLuint ambientIntensityLocation, GLuint ambientColourLocation,
+                    GLuint diffuseIntensityLocation, GLuint directionLocation  );
 
     // Destructor
     ~Light();

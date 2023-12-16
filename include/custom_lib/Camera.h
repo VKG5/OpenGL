@@ -38,6 +38,9 @@ public:
     void keyControl(bool* keys, GLfloat deltaTime);
     void mouseControl(GLfloat xChange, GLfloat yChange);
 
+    // Getter for specular highlight data
+    glm::vec3 getCameraPosition();
+
     glm::mat4 calculateViewMatrix();
 
     // Destructor

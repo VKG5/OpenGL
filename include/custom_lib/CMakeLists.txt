@@ -13,6 +13,7 @@ set(
     "Texture.h"
     "Light.h"
     "Utilities.h"
+    "Material.h"
 )
 
 set(

@@ -101,6 +101,10 @@ void Camera::keyControl(bool* keys, GLfloat deltaTime) {
     }
 }
 
+glm::vec3 Camera::getCameraPosition() {
+    return position;
+}
+
 glm::mat4 Camera::calculateViewMatrix() {
     // Position, where we are look at from
     // Thing we are looking at
