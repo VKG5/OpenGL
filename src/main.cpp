@@ -34,6 +34,10 @@ std::vector<Shader*> shaderList;
 // Camera
 Camera camera;
 
+// Delta Time
+GLfloat deltaTime = 0.0f;
+GLfloat lastTime = 0.0f;
+
 // Vertex Shader
 // Uniform - Global to shader, not associated with a particular vertex
 // Bind data to uniform to get location
@@ -90,7 +94,7 @@ int main() {
     createShaders();
 
     // Initializing Camera - Y is UP
-    camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 1.0f, 0.01f);
+    camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.125f, 3.0f);
 
     // Setting the variables
     GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
@@ -99,11 +103,17 @@ int main() {
 
     // Main Loop - Running till the window is open
     while(!mainWindow.getShouldClose()) {
+        // For Delta Time
+        GLfloat now = glfwGetTime(); // SDL_GetPerformanceCounter();
+        deltaTime = now - lastTime;  // (now - lastTime)*1000 / SDL_GetPerformanceFrequency(); - ms
+        lastTime = now;
+
         // Get + Handle user input events
         glfwPollEvents();
 
         // Camera Key Controls
-        camera.keyControl(mainWindow.getKeys());
+        camera.keyControl(mainWindow.getKeys(), deltaTime);
+        camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
         // Clear window
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
