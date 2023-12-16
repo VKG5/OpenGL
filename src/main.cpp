@@ -19,6 +19,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Window.h"
+#include "Camera.h"
 
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
@@ -29,6 +30,9 @@ Window mainWindow;
 // Creating a vector of the meshes and shaders
 std::vector<Mesh*> meshList;
 std::vector<Shader*> shaderList;
+
+// Camera
+Camera camera;
 
 // Vertex Shader
 // Uniform - Global to shader, not associated with a particular vertex
@@ -85,8 +89,11 @@ int main() {
     createObjects();
     createShaders();
 
+    // Initializing Camera - Y is UP
+    camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 1.0f, 0.01f);
+
     // Setting the variables
-    GLuint uniformProjection = 0, uniformModel = 0;
+    GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
 
     glm::mat4 projection = glm::perspective(45.0f, GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
 
@@ -94,6 +101,9 @@ int main() {
     while(!mainWindow.getShouldClose()) {
         // Get + Handle user input events
         glfwPollEvents();
+
+        // Camera Key Controls
+        camera.keyControl(mainWindow.getKeys());
 
         // Clear window
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -103,6 +113,7 @@ int main() {
         shaderList[0]->useShader();
         uniformModel = shaderList[0]->getModelLocation();
         uniformProjection = shaderList[0]->getProjectionLocation();
+        uniformView = shaderList[0]->getViewLocation();
 
             glm::mat4 model = glm::mat4(1.0f);
             // Happens in a reverse order
@@ -111,6 +122,7 @@ int main() {
             model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
             glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+            glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
             meshList[0]->renderMesh();
 
             // Clearing out the properties

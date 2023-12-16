@@ -7,6 +7,7 @@ set(
     "Mesh.h"
     "Shader.h"
     "Window.h"
+    "Camera.h"
 )
 
 set(
