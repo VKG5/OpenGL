@@ -6,7 +6,6 @@ set(
     "imgui/imgui_draw.cpp"
     "imgui/imgui_widgets.cpp"
     "imgui/backends/imgui_impl_opengl3.cpp"
-    #"imgui/backends/imgui_impl_glfw.cpp"
 )
 
 set(
@@ -18,7 +17,6 @@ set(
     "stb/stb_include.h"
     "imgui/imgui.h"
     "imgui/backends/imgui_impl_opengl3.h"
-    #"imgui/backends/imgui_impl_glfw.h"
 )
 
 set(

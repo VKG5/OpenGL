@@ -5,6 +5,7 @@ set(
     "Shader.cpp"
     "Window.cpp"
     "Camera.cpp"
+    "deps/imgui_impl_glfw.cpp"
     "GUI.cpp"
 )
 

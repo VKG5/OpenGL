@@ -8,6 +8,7 @@ set(
     "Shader.h"
     "Window.h"
     "Camera.h"
+    "deps/imgui_impl_glfw.h"
     "GUI.h"
 )
 

@@ -44,7 +44,7 @@ int Window::initialize() {
         GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE
     );
 
-    mainWindow = glfwCreateWindow( width, height, "Basic", NULL, NULL);
+    mainWindow = glfwCreateWindow(width, height, "Basic", NULL, NULL);
 
     if(!mainWindow) {
         std::cout<<"GLFW Window creation failed!";
@@ -53,7 +53,7 @@ int Window::initialize() {
     }
 
     // Get buffer size info
-    glfwGetFramebufferSize( mainWindow, &bufferWidth, &bufferHeight );
+    glfwGetFramebufferSize(mainWindow, &bufferWidth, &bufferHeight );
 
     // Set context for GLEW to use
     glfwMakeContextCurrent(mainWindow);
