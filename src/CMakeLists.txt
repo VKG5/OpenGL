@@ -7,6 +7,7 @@ set(
     "Camera.cpp"
     "deps/imgui_impl_glfw.cpp"
     "GUI.cpp"
+    "Texture.cpp"
 )
 
 # Adding the main file as an executable to our project

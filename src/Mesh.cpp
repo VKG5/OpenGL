@@ -32,9 +32,16 @@ void Mesh::createMesh(GLfloat *vertices, unsigned int *indices, unsigned int num
             // STATIC DRAW - Not chaning the values in the array
             glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * numOfVertices, vertices, GL_STATIC_DRAW);
 
-            // Location = 0
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+            // Location = 0, the layout (location=0) id in the vertex shader
+            // Size = Number of elements in 1 row of the array
+            // Stride = How many values to skip from beginning
+            // Offset = Offset starting from beginning
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 5, 0);
             glEnableVertexAttribArray(0);
+
+            // UV values - Texture
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 5, (void*)(sizeof(vertices[0]) * 3));
+            glEnableVertexAttribArray(1);
 
         // Un-Binding Buffer Array
         glBindBuffer(GL_ARRAY_BUFFER, 0);

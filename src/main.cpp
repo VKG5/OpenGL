@@ -1,3 +1,6 @@
+// STB
+#define STB_IMAGE_IMPLEMENTATION
+
 // Basic C++ Libraries for various operations
 #include <iostream>
 #include <stdio.h>
@@ -20,6 +23,7 @@
 #include "Shader.h"
 #include "Window.h"
 #include "Camera.h"
+#include "Texture.h"
 
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
@@ -33,6 +37,10 @@ std::vector<Shader*> shaderList;
 
 // Camera
 Camera camera;
+
+// Textures
+Texture brickTexture;
+Texture dirtTexture;
 
 // Delta Time
 GLfloat deltaTime = 0.0f;
@@ -58,22 +66,23 @@ void createObjects() {
 
     // A VAO can hold multiple VBOs and other types of buffers
     GLfloat vertices[] = {
-        -1.0f, -1.0f, 0.0f,
-        0.0f, -1.0f, 1.0f,
-        1.0f, -1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f
+    //  x      y      z         u     v
+        -1.0f, -1.0f, 0.0f,     0.0f, 0.0f,
+        0.0f, -1.0f, 1.0f,      0.5f, 0.0f,
+        1.0f, -1.0f, 0.0f,      1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,       0.5f, 1.0f
     };
 
     // Object 1
     Mesh* obj1 = new Mesh();
-    obj1->createMesh(vertices, indices, 12, 12);
+    obj1->createMesh(vertices, indices, 20, 12);
 
     // Adding to our meshlist
     meshList.push_back(obj1);
 
     // Object 2
     Mesh* obj2 = new Mesh();
-    obj2->createMesh(vertices, indices, 12, 12);
+    obj2->createMesh(vertices, indices, 20, 12);
 
     // Adding to our meshlist
     meshList.push_back(obj2);
@@ -95,6 +104,12 @@ int main() {
 
     // Initializing Camera - Y is UP
     camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.125f, 3.0f);
+
+    // Initializing Textures
+    brickTexture = Texture("D:/Programs/C++/Computer_Graphics_TCD/src/Textures/brickHi.png");
+    brickTexture.loadTexture();
+    dirtTexture = Texture("D:/Programs/C++/Computer_Graphics_TCD/src/Textures/mud.png");
+    dirtTexture.loadTexture();
 
     // Setting the variables
     GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
@@ -133,6 +148,9 @@ int main() {
             glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
             glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+
+            // Texturing the Mesh
+            brickTexture.useTexture();
             meshList[0]->renderMesh();
 
             // Clearing out the properties
@@ -140,6 +158,9 @@ int main() {
             model = glm::translate(model, glm::vec3(0.0f, 0.5f, -2.5f));
             model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
             glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+            // Texturing the Mesh
+            dirtTexture.useTexture();
             meshList[1]->renderMesh();
 
         // Un-Binding the program

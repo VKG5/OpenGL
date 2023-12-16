@@ -10,6 +10,7 @@ set(
     "Camera.h"
     "deps/imgui_impl_glfw.h"
     "GUI.h"
+    "Texture.h"
 )
 
 set(
