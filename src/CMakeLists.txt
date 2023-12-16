@@ -9,6 +9,7 @@ set(
     "GUI.cpp"
     "Texture.cpp"
     "Light.cpp"
+    "Utilities.cpp"
 )
 
 # Adding the main file as an executable to our project

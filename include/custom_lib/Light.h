@@ -12,14 +12,19 @@ private:
     glm::vec3 colour;
     GLfloat ambientIntensity;
 
+    glm::vec3 direction;
+    GLfloat diffuseIntensity;
+
 public:
     // Constructor
     Light();
 
-    Light(GLfloat red, GLfloat green, GLfloat blue, GLfloat ambIntensity);
+    Light(  GLfloat red, GLfloat green, GLfloat blue, GLfloat ambIntensity,
+            GLfloat xDir, GLfloat yDir, GLfloat zDir, GLfloat diffIntensity );
 
     // Function override for different types of light
-    void useLight(GLfloat ambientIntensityLocation, GLfloat ambientColourLocation);
+    void useLight(  GLfloat ambientIntensityLocation, GLfloat ambientColourLocation,
+                    GLfloat diffuseIntensityLocation, GLfloat directionLocation  );
 
     // Destructor
     ~Light();

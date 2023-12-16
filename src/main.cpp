@@ -25,6 +25,7 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "Light.h"
+#include "Utilities.h"
 
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
@@ -70,23 +71,25 @@ void createObjects() {
 
     // A VAO can hold multiple VBOs and other types of buffers
     GLfloat vertices[] = {
-    //  x      y      z         u     v
-        -1.0f, -1.0f, 0.0f,     0.0f, 0.0f,
-        0.0f, -1.0f, 1.0f,      0.5f, 0.0f,
-        1.0f, -1.0f, 0.0f,      1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,       0.5f, 1.0f
+    //  x      y      z         u     v         Nx    Ny    Nz
+        -1.0f, -1.0f, 0.0f,     0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+        0.0f, -1.0f, 1.0f,      0.5f, 0.0f,     0.0f, 0.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,      1.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,       0.5f, 1.0f,     0.0f, 0.0f, 0.0f
     };
+
+    calcAverageNormals(indices, 12, vertices, 32, 8, 5);
 
     // Object 1
     Mesh* obj1 = new Mesh();
-    obj1->createMesh(vertices, indices, 20, 12);
+    obj1->createMesh(vertices, indices, 32, 12);
 
     // Adding to our meshlist
     meshList.push_back(obj1);
 
     // Object 2
     Mesh* obj2 = new Mesh();
-    obj2->createMesh(vertices, indices, 20, 12);
+    obj2->createMesh(vertices, indices, 32, 12);
 
     // Adding to our meshlist
     meshList.push_back(obj2);
@@ -116,10 +119,13 @@ int main() {
     dirtTexture.loadTexture();
 
     // Setting up lights
-    mainLight = Light(1.0f, 1.0f, 1.0f, 0.2f);
+    mainLight = Light( 1.0f, 1.0f, 1.0f, 0.2f,
+                       2.0f, -1.0f, -2.0f, 1.0f );
 
     // Setting the variables
-    GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformAmbientIntensity = 0, uniformAmbientColour = 0;
+    GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0,
+            uniformAmbientIntensity = 0, uniformAmbientColour = 0,
+            uniformDiffuseIntensity = 0, uniformDirection = 0;
 
     glm::mat4 projection = glm::perspective(45.0f, GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
 
@@ -148,8 +154,11 @@ int main() {
         uniformView = shaderList[0]->getViewLocation();
         uniformAmbientColour = shaderList[0]->getAmbientColourLocation();
         uniformAmbientIntensity = shaderList[0]->getAmbientIntensityLocation();
+        uniformDiffuseIntensity = shaderList[0]->getDiffuseIntensityLocation();
+        uniformDirection = shaderList[0]->getDiffuseDirectionLocation();
 
-        mainLight.useLight(uniformAmbientIntensity, uniformAmbientColour);
+        mainLight.useLight( uniformAmbientIntensity, uniformAmbientColour,
+                            uniformDiffuseIntensity, uniformDirection );
 
             glm::mat4 model = glm::mat4(1.0f);
             // Happens in a reverse order
