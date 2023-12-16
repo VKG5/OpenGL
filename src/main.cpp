@@ -24,6 +24,7 @@
 #include "Window.h"
 #include "Camera.h"
 #include "Texture.h"
+#include "Light.h"
 
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
@@ -41,6 +42,9 @@ Camera camera;
 // Textures
 Texture brickTexture;
 Texture dirtTexture;
+
+// Lights
+Light mainLight;
 
 // Delta Time
 GLfloat deltaTime = 0.0f;
@@ -105,14 +109,17 @@ int main() {
     // Initializing Camera - Y is UP
     camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.125f, 3.0f);
 
-    // Initializing Textures
+    // Setting up Textures
     brickTexture = Texture("D:/Programs/C++/Computer_Graphics_TCD/src/Textures/brickHi.png");
     brickTexture.loadTexture();
     dirtTexture = Texture("D:/Programs/C++/Computer_Graphics_TCD/src/Textures/mud.png");
     dirtTexture.loadTexture();
 
+    // Setting up lights
+    mainLight = Light(1.0f, 1.0f, 1.0f, 0.2f);
+
     // Setting the variables
-    GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0;
+    GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformAmbientIntensity = 0, uniformAmbientColour = 0;
 
     glm::mat4 projection = glm::perspective(45.0f, GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
 
@@ -139,6 +146,10 @@ int main() {
         uniformModel = shaderList[0]->getModelLocation();
         uniformProjection = shaderList[0]->getProjectionLocation();
         uniformView = shaderList[0]->getViewLocation();
+        uniformAmbientColour = shaderList[0]->getAmbientColourLocation();
+        uniformAmbientIntensity = shaderList[0]->getAmbientIntensityLocation();
+
+        mainLight.useLight(uniformAmbientIntensity, uniformAmbientColour);
 
             glm::mat4 model = glm::mat4(1.0f);
             // Happens in a reverse order

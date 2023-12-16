@@ -8,6 +8,7 @@ set(
     "deps/imgui_impl_glfw.cpp"
     "GUI.cpp"
     "Texture.cpp"
+    "Light.cpp"
 )
 
 # Adding the main file as an executable to our project

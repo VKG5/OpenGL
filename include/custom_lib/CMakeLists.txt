@@ -11,6 +11,7 @@ set(
     "deps/imgui_impl_glfw.h"
     "GUI.h"
     "Texture.h"
+    "Light.h"
 )
 
 set(
