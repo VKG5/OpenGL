@@ -5,6 +5,7 @@ set(
     "Shader.cpp"
     "Window.cpp"
     "Camera.cpp"
+    "GUI.cpp"
 )
 
 # Adding the main file as an executable to our project

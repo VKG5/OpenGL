@@ -5,6 +5,8 @@ set(
     "imgui/imgui_tables.cpp"
     "imgui/imgui_draw.cpp"
     "imgui/imgui_widgets.cpp"
+    "imgui/backends/imgui_impl_opengl3.cpp"
+    #"imgui/backends/imgui_impl_glfw.cpp"
 )
 
 set(
@@ -15,6 +17,8 @@ set(
     "stb/stb_image_resize.h"
     "stb/stb_include.h"
     "imgui/imgui.h"
+    "imgui/backends/imgui_impl_opengl3.h"
+    #"imgui/backends/imgui_impl_glfw.h"
 )
 
 set(
@@ -22,6 +26,7 @@ set(
     "./glad"
     "./stb"
     "./imgui"
+    "./imgui/backends"
 )
 
 # STATIC/DYNAMIC LINKING OF LIBRARIES

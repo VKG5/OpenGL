@@ -8,6 +8,7 @@ set(
     "Shader.h"
     "Window.h"
     "Camera.h"
+    "GUI.h"
 )
 
 set(
