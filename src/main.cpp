@@ -24,7 +24,7 @@
 #include "Window.h"
 #include "Camera.h"
 #include "Texture.h"
-#include "Light.h"
+#include "DirectionalLight.h"
 #include "Utilities.h"
 #include "Material.h"
 
@@ -45,8 +45,8 @@ Camera camera;
 Texture brickTexture;
 Texture dirtTexture;
 
-// Lights
-Light mainLight;
+// Lights - 1 Dir, Multiple Point
+DirectionalLight mainLight;
 
 // Materials
 Material shinyMat;
@@ -129,8 +129,9 @@ int main() {
     roughMat = Material(0.25f, 4);
 
     // Setting up lights
-    mainLight = Light( 1.0f, 1.0f, 1.0f, 0.2f,
-                       2.0f, -1.0f, -2.0f, 0.75f );
+    mainLight = DirectionalLight( 1.0f, 1.0f, 1.0f,
+                                  0.2f, 0.75f,
+                                  2.0f, -1.0f, -2.0f );
 
     // Setting the variables
     GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0,

@@ -7,24 +7,17 @@
 #include <glm/glm.hpp>
 
 class Light {
-private:
+protected:
     // The amount of light being reflected from the surface upon hitting
     glm::vec3 colour;
     GLfloat ambientIntensity;
-
-    glm::vec3 direction;
     GLfloat diffuseIntensity;
 
 public:
     // Constructor
     Light();
 
-    Light(  GLfloat red, GLfloat green, GLfloat blue, GLfloat ambIntensity,
-            GLfloat xDir, GLfloat yDir, GLfloat zDir, GLfloat diffIntensity );
-
-    // Function override for different types of light
-    void useLight(  GLuint ambientIntensityLocation, GLuint ambientColourLocation,
-                    GLuint diffuseIntensityLocation, GLuint directionLocation  );
+    Light(  GLfloat red, GLfloat green, GLfloat blue, GLfloat ambIntensity, GLfloat diffIntensity );
 
     // Destructor
     ~Light();
