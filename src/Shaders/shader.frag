@@ -87,7 +87,7 @@ vec4 calcPointLights() {
     for(int i = 0; i < pointLightCount; i++) {
         // Calculating Direction of our Point Lights
         // Getting direction from light to fragment
-        vec3 direction = fragPos - pointLight[i].position;
+        vec3 direction = pointLight[i].position - fragPos;
         float distance = length(direction);
 
         direction = normalize(direction);

@@ -85,6 +85,18 @@ void createObjects() {
         0.0f, 1.0f, 0.0f,       0.5f, 1.0f,     0.0f, 0.0f, 0.0f
     };
 
+    unsigned int indicesFloor[] = {
+        0, 1, 2,
+        1, 2, 3
+    };
+
+    GLfloat verticesFloor[] = {
+        -10.0f, 0.0f, -10.0f,   0.0f, 0.0f,     0.0f, 1.0f, 0.0f,
+        10.0f, 0.0f, -10.0f,    10.0f, 0.0f,    0.0f, 1.0f, 0.0f,
+        -10.0f, 0.0f, 10.0f,    0.0f, 10.0f,    0.0f, 1.0f, 0.0f,
+        10.0f, 0.0f, 10.0f,     10.0f, 10.0f,   0.0f, 1.0f, 0.0f
+    };
+
     calcAverageNormals(indices, 12, vertices, 32, 8, 5);
 
     // Object 1
@@ -100,6 +112,13 @@ void createObjects() {
 
     // Adding to our meshlist
     meshList.push_back(obj2);
+
+    // Object 3
+    Mesh* obj3 = new Mesh();
+    obj3->createMesh(verticesFloor, indicesFloor, 32, 6);
+
+    // Adding to our meshlist
+    meshList.push_back(obj3);
 }
 
 void createShaders() {
@@ -138,14 +157,14 @@ int main() {
     unsigned int pointLightCount = 0;
     pointLights[0] = PointLight( 0.0f, 0.0f, 1.0f,
                                  0.1f, 1.0f,
-                                 -4.0f, 0.0f, 0.0f,
+                                 -2.0f, 0.0f, 0.0f,
                                  0.3f, 0.2f, 0.1f );
     pointLightCount++;
 
     pointLights[1] = PointLight( 0.0f, 1.0f, 0.0f,
                                  0.1f, 1.0f,
-                                 4.0f, 0.0f, 0.0f,
-                                 0.3f, 0.2f, 0.1f );
+                                 2.0f, 0.0f, 0.0f,
+                                 0.3f, 0.1f, 0.1f );
     pointLightCount++;
 
     // Setting the variables
@@ -193,9 +212,10 @@ int main() {
                                             camera.getCameraPosition().y,
                                             camera.getCameraPosition().z);
 
-            glm::mat4 model = glm::mat4(1.0f);
             // Happens in a reverse order
             // Translate
+            // Object 1
+            glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
             // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
             glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -206,6 +226,7 @@ int main() {
             meshList[0]->renderMesh();
 
             // Clearing out the properties
+            // Object 2
             model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(0.0f, 3.0f, -2.5f));
             // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
@@ -215,6 +236,17 @@ int main() {
             dirtTexture.useTexture();
             roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
             meshList[1]->renderMesh();
+
+            // Object 3
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+            // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+            glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+            // Texturing the Mesh
+            dirtTexture.useTexture();
+            shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+            meshList[2]->renderMesh();
 
         // Un-Binding the program
         glUseProgram(0);
