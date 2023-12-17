@@ -59,10 +59,10 @@ GLfloat lastTime = 0.0f;
 // Vertex Shader
 // Uniform - Global to shader, not associated with a particular vertex
 // Bind data to uniform to get location
-static const char* vertexShader = "D:/Programs/C++/Computer_Graphics_TCD/src/Shaders/shader.vert";
+static const char* vertexShader = "D:/Programs/C++/Yumi/src/Shaders/shader.vert";
 
 // Fragment Shader
-static const char* fragmentShader = "D:/Programs/C++/Computer_Graphics_TCD/src/Shaders/shader.frag";
+static const char* fragmentShader = "D:/Programs/C++/Yumi/src/Shaders/shader.frag";
 
 void createObjects() {
     // Index Array
@@ -118,9 +118,9 @@ int main() {
     camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.125f, 3.0f);
 
     // Setting up Textures
-    brickTexture = Texture("D:/Programs/C++/Computer_Graphics_TCD/src/Textures/brickHi.png");
+    brickTexture = Texture("D:/Programs/C++/Yumi/src/Textures/brickHi.png");
     brickTexture.loadTexture();
-    dirtTexture = Texture("D:/Programs/C++/Computer_Graphics_TCD/src/Textures/mud.png");
+    dirtTexture = Texture("D:/Programs/C++/Yumi/src/Textures/mud.png");
     dirtTexture.loadTexture();
 
     // Setting up Materials
