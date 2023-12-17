@@ -11,6 +11,7 @@
 // To directly pass various lights into the shader
 #include "DirectionalLight.h"
 #include "PointLight.h"
+#include "Utilities.h"
 
 class Shader {
 private:
@@ -27,6 +28,19 @@ private:
 
         GLuint uniformDirection;
     } uniformDirectionalLight;
+
+    GLuint uniformPointLightCount;
+
+    struct {
+        GLuint uniformColour;
+        GLuint uniformAmbientIntensity;
+        GLuint uniformDiffuseIntensity;
+
+        GLuint uniformPosition;
+        GLuint uniformConstant;
+        GLuint uniformLinear;
+        GLuint uniformExponent;
+    } uniformPointLight[MAX_POINT_LIGHTS];
 
     void compileShader(const char* vertexCode, const char* fragmentCode);
     void addShader(GLuint program, const char* shaderCode, GLenum shaderType);
@@ -52,6 +66,7 @@ public:
     GLuint getEyePositionLocation();
 
     void setDirectionalLight(DirectionalLight* dLight);
+    void setPointLight(PointLight* pLight, unsigned int lightCount);
 
     void useShader();
     void cleanShader();

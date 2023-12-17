@@ -25,6 +25,7 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "DirectionalLight.h"
+#include "PointLight.h"
 #include "Utilities.h"
 #include "Material.h"
 
@@ -45,8 +46,9 @@ Camera camera;
 Texture brickTexture;
 Texture dirtTexture;
 
-// Lights - 1 Dir, Multiple Point
+// Lights - 1 Directional, Multiple Point
 DirectionalLight mainLight;
+PointLight pointLights[MAX_POINT_LIGHTS];
 
 // Materials
 Material shinyMat;
@@ -132,6 +134,19 @@ int main() {
     mainLight = DirectionalLight( 1.0f, 1.0f, 1.0f,
                                   0.2f, 0.75f,
                                   2.0f, -1.0f, -2.0f );
+    // Point Lights
+    unsigned int pointLightCount = 0;
+    pointLights[0] = PointLight( 0.0f, 0.0f, 1.0f,
+                                 0.1f, 1.0f,
+                                 -4.0f, 0.0f, 0.0f,
+                                 0.3f, 0.2f, 0.1f );
+    pointLightCount++;
+
+    pointLights[1] = PointLight( 0.0f, 1.0f, 0.0f,
+                                 0.1f, 1.0f,
+                                 4.0f, 0.0f, 0.0f,
+                                 0.3f, 0.2f, 0.1f );
+    pointLightCount++;
 
     // Setting the variables
     GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0,
@@ -168,7 +183,9 @@ int main() {
         uniformSpecularIntensity = shaderList[0]->getSpecularIntensityLocation();
         uniformShininess = shaderList[0]->getShininessLocation();
 
+        // Lights
         shaderList[0]->setDirectionalLight(&mainLight);
+        shaderList[0]->setPointLight(pointLights, pointLightCount);
 
             glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
             glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
