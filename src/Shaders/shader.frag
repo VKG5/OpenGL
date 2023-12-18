@@ -4,6 +4,7 @@ in vec4 col;
 in vec2 texCoord;
 in vec3 Normal;
 in vec3 fragPos;
+in vec4 directionalLightSpacePos;
 
 out vec4 color;
 
@@ -51,6 +52,7 @@ uniform SpotLight spotLight[MAX_SPOT_LIGHTS];
 
 // Textures
 uniform sampler2D theTexture;
+uniform sampler2D directionalShadowMap;
 
 // Materials
 uniform Material material;
@@ -58,7 +60,21 @@ uniform Material material;
 // Eye Position
 uniform vec3 eyePosition;
 
-vec4 calcLightByDirection(Light light, vec3 direction) {
+float calcDirectionalShadowFactor(DirectionalLight light) {
+    vec3 projectionCoords = directionalLightSpacePos.xyz / directionalLightSpacePos.w;
+
+    // Normalizing coordinates
+    projectionCoords = (projectionCoords * 0.5) + 0.5f;
+
+    float closest = texture(directionalShadowMap, projectionCoords.xy).r;
+    float current = projectionCoords.z;
+
+    float shadow = current > closest ? 1.0 : 0.0;
+
+    return shadow;
+}
+
+vec4 calcLightByDirection(Light light, vec3 direction, float shadowFactor) {
     // Ambient Light
     vec4 ambientColour = vec4(light.colour, 1.0f) * light.ambientIntensity;
 
@@ -83,11 +99,12 @@ vec4 calcLightByDirection(Light light, vec3 direction) {
         }
     }
 
-    return (ambientColour + diffuseColour + specularColour);
+    return (ambientColour + (1.0 - shadowFactor) * (diffuseColour + specularColour));
 }
 
 vec4 calcDirectionalLight() {
-    return calcLightByDirection(directionalLight.base, directionalLight.direction);
+    float shadowFactor = calcDirectionalShadowFactor(directionalLight);
+    return calcLightByDirection(directionalLight.base, directionalLight.direction, shadowFactor);
 }
 
 vec4 calcPointLightsBase(PointLight pLight) {
@@ -98,7 +115,7 @@ vec4 calcPointLightsBase(PointLight pLight) {
 
     direction = normalize(direction);
 
-    vec4 colour = calcLightByDirection(pLight.base, direction);
+    vec4 colour = calcLightByDirection(pLight.base, direction, 0.0f);
 
     float attenuation = pLight.exponent * distance * distance +
                         pLight.linear * distance +

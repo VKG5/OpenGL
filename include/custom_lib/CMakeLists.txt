@@ -18,6 +18,7 @@ set(
     "PointLight.h"
     "SpotLight.h"
     "Model.h"
+    "ShadowMap.h"
 )
 
 set(

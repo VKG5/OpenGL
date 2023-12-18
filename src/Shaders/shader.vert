@@ -14,13 +14,20 @@ out vec3 Normal;
 // For specular
 out vec3 fragPos;
 
+out vec4 directionalLightSpacePos;
+
 // MVP - Model, View, Projection Structure
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+// Projection * View
+uniform mat4 directionalLightSpaceTransform;
+
 void main() {
     gl_Position = projection * view * model * vec4(pos, 1.0);
+    directionalLightSpacePos = directionalLightSpaceTransform * model * vec4(pos, 1.0);
+
     col = vec4(clamp(pos, 0.0f, 1.0f), 1.0f);
 
     texCoord = tex;

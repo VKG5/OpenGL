@@ -8,6 +8,10 @@
 // Always include GLFW after GLAD - Core Libraries
 #include <glad.h>
 
+// GLM Files - Math Library
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Utilities.h"
 
 // To directly pass various lights into the shader
@@ -21,7 +25,9 @@ private:
     int spotLightCount;
 
     GLuint  shaderID, uniformProjection, uniformModel, uniformView,
-            uniformEyePosition, uniformSpecularIntensity, uniformShininess;
+            uniformEyePosition, uniformSpecularIntensity, uniformShininess,
+            uniformTexture,
+            uniformDirectionalLightTransform, uniformDirectionalShadowMap;
 
     // Creating instance of struct - uniformDirectionalLight
     struct {
@@ -87,6 +93,9 @@ public:
     void setDirectionalLight(DirectionalLight* dLight);
     void setPointLight(PointLight* pLight, unsigned int lightCount);
     void setSpotLight(SpotLight* sLight, unsigned int lightCount);
+    void setTexture(GLuint textureUnit);
+    void setDirectionalShadowMap(GLuint textureUnit);
+    void setDirectionalLightTransform(glm::mat4* lTransform);
 
     void useShader();
     void cleanShader();

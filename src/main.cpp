@@ -36,12 +36,17 @@
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
 
+// Setting uniforms
+GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0,
+        uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0;
+
 // Our main window
 Window mainWindow;
 
 // Creating a vector of the meshes and shaders
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
+Shader directionalShadowShader;
 
 // Camera
 Camera camera;
@@ -54,6 +59,9 @@ Texture dirtTexture;
 DirectionalLight mainLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
+
+unsigned int pointLightCount = 0;
+unsigned int spotLightCount = 0;
 
 // Materials
 Material shinyMat;
@@ -134,6 +142,121 @@ void createShaders() {
     shader1->createFromFiles(vertexShader, fragmentShader);
 
     shaderList.push_back(*shader1);
+
+    directionalShadowShader = Shader();
+    directionalShadowShader.createFromFiles("D:/Programs/C++/Yumi/src/Shaders/directionalShadowMap.vert",
+                                            "D:/Programs/C++/Yumi/src/Shaders/directionalShadowMap.frag");
+}
+
+void renderScene() {
+    // Happens in a reverse order
+    // Translate
+    glm::mat4 model = glm::mat4(1.0f);
+
+    // Object 1
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+    // Texturing the Mesh
+    brickTexture.useTexture();
+    shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    meshList[0]->renderMesh();
+
+    // Clearing out the properties
+    // Object 2
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 3.0f, -2.5f));
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+    // Texturing the Mesh
+    dirtTexture.useTexture();
+    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    meshList[1]->renderMesh();
+
+    // Object 3
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+    // Texturing the Mesh
+    brickTexture.useTexture();
+    shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    meshList[2]->renderMesh();
+
+    // Object 3
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+    // Texturing the Mesh
+    shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    cube.renderModel();
+}
+
+void directionalShadowMapPass(DirectionalLight* light) {
+    directionalShadowShader.useShader();
+
+    glViewport(0, 0, light->getShadowMap()->getShadowWidth(), light->getShadowMap()->getShadowHeight());
+
+    light->getShadowMap()->write();
+
+    // Clear existing depth buffer information
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    uniformModel = directionalShadowShader.getModelLocation();
+
+    directionalShadowShader.setDirectionalLightTransform(&light->calculateLightTransform());
+
+    renderScene();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
+    // Making sure we are using the right shader
+    // Binding the shader to program
+    shaderList[0].useShader();
+
+    uniformModel = shaderList[0].getModelLocation();
+    uniformProjection = shaderList[0].getProjectionLocation();
+    uniformView = shaderList[0].getViewLocation();
+
+    // Specular Light
+    uniformEyePosition = shaderList[0].getEyePositionLocation();
+    uniformSpecularIntensity = shaderList[0].getSpecularIntensityLocation();
+    uniformShininess = shaderList[0].getShininessLocation();
+
+    glViewport(0, 0, 1366, 768);
+
+    // Clear window
+    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+    glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+    glUniform3f(uniformEyePosition, camera.getCameraPosition().x,
+                                    camera.getCameraPosition().y,
+                                    camera.getCameraPosition().z);
+
+    // Lights
+    shaderList[0].setDirectionalLight(&mainLight);
+    shaderList[0].setPointLight(pointLights, pointLightCount);
+    shaderList[0].setSpotLight(spotLights, spotLightCount);
+    shaderList[0].setDirectionalLightTransform(&mainLight.calculateLightTransform());
+
+    mainLight.getShadowMap()->read(GL_TEXTURE1);
+
+    // Setting the maps to proper texture units
+    shaderList[0].setTexture(0);
+    shaderList[0].setDirectionalShadowMap(1);
+
+    // Setting Torch Control
+    glm::vec3 lowerLight = camera.getCameraPosition();
+    lowerLight.y -= 0.369f;
+    // Getting torch control
+    spotLights[0].setFlash(lowerLight, camera.getCameraDirection());
+
+    renderScene();
 }
 
 int main() {
@@ -162,11 +285,12 @@ int main() {
     cube.loadModel("D:/Programs/C++/Yumi/src/Models/cube.obj");
 
     // Setting up lights
-    mainLight = DirectionalLight( 1.0f, 1.0f, 1.0f,
+    // Since we will be using cube map, we are using square values for texture
+    mainLight = DirectionalLight( 1024, 1024,
+                                  1.0f, 1.0f, 1.0f,
                                   0.2f, 0.75f,
-                                  2.0f, -1.0f, -2.0f );
+                                  2.0f, -7.0f, -1.0f );
     // Point Lights
-    unsigned int pointLightCount = 0;
     pointLights[0] = PointLight( 0.0f, 0.0f, 1.0f,
                                  0.2f, 1.0f,
                                  -2.0f, 0.0f, 0.0f,
@@ -180,7 +304,6 @@ int main() {
     pointLightCount++;
 
     // Spot Lights
-    unsigned int spotLightCount = 0;
     // This is our torch
     spotLights[0] = SpotLight(  1.0f, 1.0f, 1.0f,
                                 0.2f, 0.1f,
@@ -189,10 +312,6 @@ int main() {
                                 1.0f, 0.7f, 0.3f,
                                 12.5f );
     spotLightCount++;
-
-    // Setting the variables
-    GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0,
-            uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0;
 
     glm::mat4 projection = glm::perspective(45.0f, GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
 
@@ -210,82 +329,9 @@ int main() {
         camera.keyControl(mainWindow.getKeys(), deltaTime);
         camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
-        // Clear window
-        glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Binding the program
-        shaderList[0].useShader();
-        uniformModel = shaderList[0].getModelLocation();
-        uniformProjection = shaderList[0].getProjectionLocation();
-        uniformView = shaderList[0].getViewLocation();
-
-        // Specular Light
-        uniformEyePosition = shaderList[0].getEyePositionLocation();
-        uniformSpecularIntensity = shaderList[0].getSpecularIntensityLocation();
-        uniformShininess = shaderList[0].getShininessLocation();
-
-        glm::vec3 lowerLight = camera.getCameraPosition();
-        lowerLight.y -= 0.369f;
-        // Getting torch control
-        spotLights[0].setFlash(lowerLight, camera.getCameraDirection());
-
-        // Lights
-        shaderList[0].setDirectionalLight(&mainLight);
-        shaderList[0].setPointLight(pointLights, pointLightCount);
-        shaderList[0].setSpotLight(spotLights, spotLightCount);
-
-            glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-            glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
-            glUniform3f(uniformEyePosition, camera.getCameraPosition().x,
-                                            camera.getCameraPosition().y,
-                                            camera.getCameraPosition().z);
-
-            // Happens in a reverse order
-            // Translate
-            // Object 1
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
-            // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-            glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-            // Texturing the Mesh
-            brickTexture.useTexture();
-            shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-            meshList[0]->renderMesh();
-
-            // Clearing out the properties
-            // Object 2
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(0.0f, 3.0f, -2.5f));
-            // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-            glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-            // Texturing the Mesh
-            dirtTexture.useTexture();
-            roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-            meshList[1]->renderMesh();
-
-            // Object 3
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-            // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-            glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-            // Texturing the Mesh
-            brickTexture.useTexture();
-            shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-            meshList[2]->renderMesh();
-
-            // Object 3
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
-            // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-            glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-            // Texturing the Mesh
-            shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-            cube.renderModel();
+        // Renders the pass to frame buffer which stores it in a texture
+        directionalShadowMapPass(&mainLight);
+        renderPass(projection, camera.calculateViewMatrix());
 
         // Un-Binding the program
         glUseProgram(0);
