@@ -142,9 +142,9 @@ int main() {
 
     // Setting up Textures
     brickTexture = Texture("D:/Programs/C++/Yumi/src/Textures/brickHi.png");
-    brickTexture.loadTexture();
+    brickTexture.loadTextureA();
     dirtTexture = Texture("D:/Programs/C++/Yumi/src/Textures/mud.png");
-    dirtTexture.loadTexture();
+    dirtTexture.loadTextureA();
 
     // Setting up Materials
     // Make the second parameter (Shine) to be powers of 2
@@ -171,20 +171,13 @@ int main() {
 
     // Spot Lights
     unsigned int spotLightCount = 0;
+    // This is our torch
     spotLights[0] = SpotLight(  1.0f, 1.0f, 1.0f,
                                 0.2f, 0.1f,
                                 5.0f, 0.0f, 5.0f,
                                 0.0f, -1.0f, 0.0f,
                                 1.0f, 0.7f, 0.3f,
-                                20.0f );
-    spotLightCount++;
-
-    spotLights[1] = SpotLight(  1.0f, 1.0f, 1.0f,
-                                0.0f, 1.0f,
-                                0.0f, 1.5f, 0.0f,
-                                100.0f, -1.0f, 0.0f,
-                                1.0f, 0.0f, 0.0f,
-                                20.0f );
+                                12.5f );
     spotLightCount++;
 
     // Setting the variables

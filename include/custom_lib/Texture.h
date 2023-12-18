@@ -11,15 +11,16 @@ private:
     GLuint textureID;
     int width, height, bitDepth;
 
-    char* filePath;
+    const char* filePath;
 
 public:
     // Constructor
     Texture();
 
-    Texture(char* fileLoc);
+    Texture(const char* fileLoc);
 
-    void loadTexture();
+    bool loadTexture();
+    bool loadTextureA();
     void useTexture();
     void cleanTexture();
 
