@@ -40,6 +40,7 @@ public:
 
     // Getter for specular highlight data
     glm::vec3 getCameraPosition();
+    glm::vec3 getCameraDirection();
 
     glm::mat4 calculateViewMatrix();
 

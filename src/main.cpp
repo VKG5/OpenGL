@@ -26,6 +26,7 @@
 #include "Texture.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
+#include "SpotLight.h"
 #include "Utilities.h"
 #include "Material.h"
 
@@ -37,7 +38,7 @@ Window mainWindow;
 
 // Creating a vector of the meshes and shaders
 std::vector<Mesh*> meshList;
-std::vector<Shader*> shaderList;
+std::vector<Shader> shaderList;
 
 // Camera
 Camera camera;
@@ -49,6 +50,7 @@ Texture dirtTexture;
 // Lights - 1 Directional, Multiple Point
 DirectionalLight mainLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
+SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 // Materials
 Material shinyMat;
@@ -91,10 +93,10 @@ void createObjects() {
     };
 
     GLfloat verticesFloor[] = {
-        -10.0f, 0.0f, -10.0f,   0.0f, 0.0f,     0.0f, 1.0f, 0.0f,
-        10.0f, 0.0f, -10.0f,    10.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-        -10.0f, 0.0f, 10.0f,    0.0f, 10.0f,    0.0f, 1.0f, 0.0f,
-        10.0f, 0.0f, 10.0f,     10.0f, 10.0f,   0.0f, 1.0f, 0.0f
+        -10.0f, 0.0f, -10.0f,   0.0f, 0.0f,     0.0f, -1.0f, 0.0f,
+        10.0f, 0.0f, -10.0f,    10.0f, 0.0f,    0.0f, -1.0f, 0.0f,
+        -10.0f, 0.0f, 10.0f,    0.0f, 10.0f,    0.0f, -1.0f, 0.0f,
+        10.0f, 0.0f, 10.0f,     10.0f, 10.0f,   0.0f, -1.0f, 0.0f
     };
 
     calcAverageNormals(indices, 12, vertices, 32, 8, 5);
@@ -125,7 +127,7 @@ void createShaders() {
     Shader* shader1 = new Shader();
     shader1->createFromFiles(vertexShader, fragmentShader);
 
-    shaderList.push_back(shader1);
+    shaderList.push_back(*shader1);
 }
 
 int main() {
@@ -146,7 +148,7 @@ int main() {
 
     // Setting up Materials
     // Make the second parameter (Shine) to be powers of 2
-    shinyMat = Material(1.0f, 32);
+    shinyMat = Material(1.0f, 256);
     roughMat = Material(0.25f, 4);
 
     // Setting up lights
@@ -156,16 +158,34 @@ int main() {
     // Point Lights
     unsigned int pointLightCount = 0;
     pointLights[0] = PointLight( 0.0f, 0.0f, 1.0f,
-                                 0.1f, 1.0f,
+                                 0.2f, 1.0f,
                                  -2.0f, 0.0f, 0.0f,
                                  0.3f, 0.2f, 0.1f );
     pointLightCount++;
 
     pointLights[1] = PointLight( 0.0f, 1.0f, 0.0f,
-                                 0.1f, 1.0f,
-                                 2.0f, 0.0f, 0.0f,
+                                 0.3f, 1.0f,
+                                 0.0f, 0.0f, 0.0f,
                                  0.3f, 0.1f, 0.1f );
     pointLightCount++;
+
+    // Spot Lights
+    unsigned int spotLightCount = 0;
+    spotLights[0] = SpotLight(  1.0f, 1.0f, 1.0f,
+                                0.2f, 0.1f,
+                                5.0f, 0.0f, 5.0f,
+                                0.0f, -1.0f, 0.0f,
+                                1.0f, 0.7f, 0.3f,
+                                20.0f );
+    spotLightCount++;
+
+    spotLights[1] = SpotLight(  1.0f, 1.0f, 1.0f,
+                                0.0f, 1.0f,
+                                0.0f, 1.5f, 0.0f,
+                                100.0f, -1.0f, 0.0f,
+                                1.0f, 0.0f, 0.0f,
+                                20.0f );
+    spotLightCount++;
 
     // Setting the variables
     GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0,
@@ -192,19 +212,25 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Binding the program
-        shaderList[0]->useShader();
-        uniformModel = shaderList[0]->getModelLocation();
-        uniformProjection = shaderList[0]->getProjectionLocation();
-        uniformView = shaderList[0]->getViewLocation();
+        shaderList[0].useShader();
+        uniformModel = shaderList[0].getModelLocation();
+        uniformProjection = shaderList[0].getProjectionLocation();
+        uniformView = shaderList[0].getViewLocation();
 
         // Specular Light
-        uniformEyePosition = shaderList[0]->getEyePositionLocation();
-        uniformSpecularIntensity = shaderList[0]->getSpecularIntensityLocation();
-        uniformShininess = shaderList[0]->getShininessLocation();
+        uniformEyePosition = shaderList[0].getEyePositionLocation();
+        uniformSpecularIntensity = shaderList[0].getSpecularIntensityLocation();
+        uniformShininess = shaderList[0].getShininessLocation();
+
+        glm::vec3 lowerLight = camera.getCameraPosition();
+        lowerLight.y -= 0.369f;
+        // Getting torch control
+        spotLights[0].setFlash(lowerLight, camera.getCameraDirection());
 
         // Lights
-        shaderList[0]->setDirectionalLight(&mainLight);
-        shaderList[0]->setPointLight(pointLights, pointLightCount);
+        shaderList[0].setDirectionalLight(&mainLight);
+        shaderList[0].setPointLight(pointLights, pointLightCount);
+        shaderList[0].setSpotLight(spotLights, spotLightCount);
 
             glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
             glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
@@ -244,7 +270,7 @@ int main() {
             glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
             // Texturing the Mesh
-            dirtTexture.useTexture();
+            brickTexture.useTexture();
             shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
             meshList[2]->renderMesh();
 

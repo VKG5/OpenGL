@@ -13,6 +13,7 @@ set(
     "Material.cpp"
     "DirectionalLight.cpp"
     "PointLight.cpp"
+    "SpotLight.cpp"
 )
 
 # Adding the main file as an executable to our project

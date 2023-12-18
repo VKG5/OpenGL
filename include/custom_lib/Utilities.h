@@ -7,6 +7,7 @@
 
 // Common Values
 const int MAX_POINT_LIGHTS = 3;
+const int MAX_SPOT_LIGHTS = 3;
 
 // Averaging Normals for Phong Shading
 void calcAverageNormals(unsigned int* indices, unsigned int indexCount, GLfloat* vertices, unsigned int vertexCount, unsigned int vLength, unsigned int normalOffset);

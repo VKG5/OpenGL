@@ -8,14 +8,17 @@
 // Always include GLFW after GLAD - Core Libraries
 #include <glad.h>
 
+#include "Utilities.h"
+
 // To directly pass various lights into the shader
 #include "DirectionalLight.h"
 #include "PointLight.h"
-#include "Utilities.h"
+#include "SpotLight.h"
 
 class Shader {
 private:
     int pointLightCount;
+    int spotLightCount;
 
     GLuint  shaderID, uniformProjection, uniformModel, uniformView,
             uniformEyePosition, uniformSpecularIntensity, uniformShininess;
@@ -42,6 +45,22 @@ private:
         GLuint uniformExponent;
     } uniformPointLight[MAX_POINT_LIGHTS];
 
+    GLuint uniformSpotLightCount;
+
+    struct {
+        GLuint uniformColour;
+        GLuint uniformAmbientIntensity;
+        GLuint uniformDiffuseIntensity;
+
+        GLuint uniformPosition;
+        GLuint uniformConstant;
+        GLuint uniformLinear;
+        GLuint uniformExponent;
+
+        GLuint uniformDirection;
+        GLuint uniformEdge;
+    } uniformSpotLight[MAX_SPOT_LIGHTS];
+
     void compileShader(const char* vertexCode, const char* fragmentCode);
     void addShader(GLuint program, const char* shaderCode, GLenum shaderType);
 
@@ -67,6 +86,7 @@ public:
 
     void setDirectionalLight(DirectionalLight* dLight);
     void setPointLight(PointLight* pLight, unsigned int lightCount);
+    void setSpotLight(SpotLight* sLight, unsigned int lightCount);
 
     void useShader();
     void cleanShader();

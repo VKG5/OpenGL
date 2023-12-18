@@ -16,6 +16,7 @@ set(
     "Material.h"
     "DirectionalLight.h"
     "PointLight.h"
+    "SpotLight.h"
 )
 
 set(

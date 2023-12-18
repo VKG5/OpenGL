@@ -2,7 +2,7 @@
 #include "Light.h"
 
 class PointLight : public Light {
-private:
+protected:
     glm::vec3 position;
 
     // ax^2 + bx + c
