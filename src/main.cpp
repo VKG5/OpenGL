@@ -30,6 +30,9 @@
 #include "Utilities.h"
 #include "Material.h"
 
+// Custom Models
+#include "Model.h"
+
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
 
@@ -55,6 +58,9 @@ SpotLight spotLights[MAX_SPOT_LIGHTS];
 // Materials
 Material shinyMat;
 Material roughMat;
+
+// Models
+Model cube;
 
 // Delta Time
 GLfloat deltaTime = 0.0f;
@@ -150,6 +156,10 @@ int main() {
     // Make the second parameter (Shine) to be powers of 2
     shinyMat = Material(1.0f, 256);
     roughMat = Material(0.25f, 4);
+
+    // Loading Models
+    cube = Model();
+    cube.loadModel("D:/Programs/C++/Yumi/src/Models/cube.obj");
 
     // Setting up lights
     mainLight = DirectionalLight( 1.0f, 1.0f, 1.0f,
@@ -266,6 +276,16 @@ int main() {
             brickTexture.useTexture();
             shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
             meshList[2]->renderMesh();
+
+            // Object 3
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
+            // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+            glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+            // Texturing the Mesh
+            shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+            cube.renderModel();
 
         // Un-Binding the program
         glUseProgram(0);

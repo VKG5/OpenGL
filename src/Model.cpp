@@ -91,7 +91,7 @@ void Model::loadMaterials(const aiScene * scene) {
                 textureList[i] = new Texture(texPath.c_str());
 
                 if(!textureList[i]->loadTexture()) {
-                    printf("Failed to load texture at: %s\n", texPath);
+                    printf("Failed to load texture at: %s\n", texPath.c_str());
 
                     // SAFE_DELETE
                     delete textureList[i];
@@ -119,7 +119,7 @@ void Model::loadModel(const std::string filePath) {
 
     // If there is no model
     if(!scene) {
-        printf("Failed to load model (%s) : %s\n", filePath, importer.GetErrorString());
+        printf("Failed to load model (%s) : %s\n", filePath.c_str(), importer.GetErrorString());
         return;
     }
 
