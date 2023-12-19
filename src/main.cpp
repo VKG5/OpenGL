@@ -38,7 +38,8 @@ const float toRadians = 3.14159265f / 180.0f;
 
 // Setting uniforms
 GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0,
-        uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0;
+        uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0,
+        uniformDirectionalLightTransform = 0;
 
 // Our main window
 Window mainWindow;
@@ -67,7 +68,7 @@ unsigned int spotLightCount = 0;
 Material shinyMat;
 Material roughMat;
 
-// Models
+// Models - Using ASSIMP
 Model cube;
 
 // Delta Time
@@ -253,6 +254,7 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     // Setting Torch Control
     glm::vec3 lowerLight = camera.getCameraPosition();
     lowerLight.y -= 0.369f;
+
     // Getting torch control
     spotLights[0].setFlash(lowerLight, camera.getCameraDirection());
 
@@ -260,14 +262,14 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
 }
 
 int main() {
-    mainWindow = Window(1280, 768);
+    mainWindow = Window(1366, 768);
     mainWindow.initialize();
 
     createObjects();
     createShaders();
 
     // Initializing Camera - Y is UP
-    camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.125f, 3.0f);
+    camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 3.0f, 0.125f );
 
     // Setting up Textures
     brickTexture = Texture("D:/Programs/C++/Yumi/src/Textures/brickHi.png");
@@ -277,7 +279,7 @@ int main() {
 
     // Setting up Materials
     // Make the second parameter (Shine) to be powers of 2
-    shinyMat = Material(1.0f, 256);
+    shinyMat = Material(4.0f, 256);
     roughMat = Material(0.25f, 4);
 
     // Loading Models
@@ -286,32 +288,41 @@ int main() {
 
     // Setting up lights
     // Since we will be using cube map, we are using square values for texture
-    mainLight = DirectionalLight( 1024, 1024,
-                                  1.0f, 1.0f, 1.0f,
-                                  0.2f, 0.75f,
-                                  2.0f, -7.0f, -1.0f );
+    mainLight = DirectionalLight( 2048, 2048,
+								  1.0f, 1.0f, 1.0f,
+								  0.1f, 0.3f,
+								  0.0f, -15.0f, -10.0f );
     // Point Lights
     pointLights[0] = PointLight( 0.0f, 0.0f, 1.0f,
-                                 0.2f, 1.0f,
-                                 -2.0f, 0.0f, 0.0f,
-                                 0.3f, 0.2f, 0.1f );
+								 0.0f, 0.1f,
+								 0.0f, 0.0f, 0.0f,
+								 0.3f, 0.2f, 0.1f );
     pointLightCount++;
 
     pointLights[1] = PointLight( 0.0f, 1.0f, 0.0f,
-                                 0.3f, 1.0f,
-                                 0.0f, 0.0f, 0.0f,
-                                 0.3f, 0.1f, 0.1f );
+								 0.0f, 0.1f,
+								 -4.0f, 2.0f, 0.0f,
+								 0.3f, 0.1f, 0.1f );
     pointLightCount++;
 
     // Spot Lights
     // This is our torch
     spotLights[0] = SpotLight(  1.0f, 1.0f, 1.0f,
-                                0.2f, 0.1f,
-                                5.0f, 0.0f, 5.0f,
+                                0.0f, 2.0f,
+                                0.0f, 0.0f, 0.0f,
                                 0.0f, -1.0f, 0.0f,
-                                1.0f, 0.7f, 0.3f,
-                                12.5f );
+                                1.0f, 0.0f, 0.0f,
+                                20.0f );
     spotLightCount++;
+
+    spotLights[1] = SpotLight(  1.0f, 1.0f, 1.0f,
+                                0.0f, 1.0f,
+                                0.0f, -1.5f, 0.0f,
+                                -100.0f, -1.0f, 0.0f,
+                                1.0f, 0.0f, 0.0f,
+                                20.0f );
+
+	spotLightCount++;
 
     glm::mat4 projection = glm::perspective(45.0f, GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
 

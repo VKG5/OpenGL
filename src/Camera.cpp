@@ -15,13 +15,13 @@ Camera::Camera() {
 }
 
 Camera::Camera( glm::vec3 initialPosition, glm::vec3 initialUp, GLfloat initialYaw,
-                GLfloat initialPitch, GLfloat initialTurnSpeed, GLfloat initialMoveSpeed ) {
+                GLfloat initialPitch, GLfloat initialMoveSpeed, GLfloat initialTurnSpeed ) {
     position = initialPosition;
     worldUp = initialUp;
     yaw = initialYaw;
     pitch = initialPitch;
 
-    front = glm::vec3(0.0f, 0.0f, 1.0f);
+    front = glm::vec3(0.0f, 0.0f, -1.0f);
 
     moveSpeed = initialMoveSpeed;
     turnSpeed = initialTurnSpeed;

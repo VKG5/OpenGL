@@ -15,7 +15,7 @@ public:
     // Constructor
     ShadowMap();
 
-    virtual bool init(GLuint width, GLuint height);
+    virtual bool init(unsigned int width, unsigned int height);
 
     virtual void write();
 

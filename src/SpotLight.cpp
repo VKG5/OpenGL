@@ -3,7 +3,7 @@
 SpotLight::SpotLight() : PointLight() {
     direction = glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f));
     edge = 0.0f;
-    processedEdge = glm::cos(glm::radians(edge));
+    processedEdge = cosf(glm::radians(edge));
 }
 
 SpotLight::SpotLight(GLfloat red, GLfloat green, GLfloat blue,
@@ -15,7 +15,7 @@ SpotLight::SpotLight(GLfloat red, GLfloat green, GLfloat blue,
     direction = glm::normalize(glm::vec3(xDir, yDir, zDir));
     edge = edg;
 
-    processedEdge = glm::cos(glm::radians(edge));
+    processedEdge = cosf(glm::radians(edge));
 }
 
 void SpotLight::useLight(   GLuint ambientIntensityLocation, GLuint ambientColourLocation,

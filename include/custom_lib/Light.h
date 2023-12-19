@@ -23,7 +23,7 @@ public:
     // Constructor
     Light();
 
-    Light(  GLfloat shadowWidth, GLfloat shadowHeight,
+    Light(  GLuint shadowWidth, GLuint shadowHeight,
             GLfloat red, GLfloat green, GLfloat blue,
             GLfloat ambIntensity, GLfloat diffIntensity );
 

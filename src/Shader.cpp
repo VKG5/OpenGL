@@ -132,8 +132,8 @@ void Shader::compileShader(const char* vertexCode, const char* fragmentCode) {
     }
 
     // Shadows
+    uniformDirectionalLightTransform = glGetUniformLocation(shaderID, "directionalLightTransform");
     uniformTexture = glGetUniformLocation(shaderID, "theTexture");
-    uniformDirectionalLightTransform = glGetUniformLocation(shaderID, "directionalLightSpaceTransform");
     uniformDirectionalShadowMap = glGetUniformLocation(shaderID, "directionalShadowMap");
 }
 
@@ -220,14 +220,14 @@ GLuint Shader::getAmbientIntensityLocation() {
     return uniformDirectionalLight.uniformAmbientIntensity;
 }
 
-// Getter for Light Direction
-GLuint Shader::getDiffuseDirectionLocation() {
-    return uniformDirectionalLight.uniformDirection;
-}
-
 // Getter for Diffuse Intensity
 GLuint Shader::getDiffuseIntensityLocation() {
     return uniformDirectionalLight.uniformDiffuseIntensity;
+}
+
+// Getter for Light Direction
+GLuint Shader::getDiffuseDirectionLocation() {
+    return uniformDirectionalLight.uniformDirection;
 }
 
 // Getter for Specular Intensity

@@ -12,7 +12,7 @@ public:
     // Constructor
     DirectionalLight();
 
-    DirectionalLight( GLfloat shadowWidth, GLfloat shadowHeight,
+    DirectionalLight( GLuint shadowWidth, GLuint shadowHeight,
                       GLfloat red, GLfloat green, GLfloat blue,
                       GLfloat ambIntensity, GLfloat diffIntensity,
                       GLfloat xDir, GLfloat yDir, GLfloat zDir );

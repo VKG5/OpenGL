@@ -24,10 +24,10 @@ private:
     int pointLightCount;
     int spotLightCount;
 
-    GLuint  shaderID, uniformProjection, uniformModel, uniformView,
-            uniformEyePosition, uniformSpecularIntensity, uniformShininess,
-            uniformTexture,
-            uniformDirectionalLightTransform, uniformDirectionalShadowMap;
+    GLuint  shaderID, uniformProjection, uniformModel, uniformView, uniformEyePosition,
+            uniformSpecularIntensity, uniformShininess,
+            uniformTexture, uniformDirectionalShadowMap,
+            uniformDirectionalLightTransform;
 
     // Creating instance of struct - uniformDirectionalLight
     struct {

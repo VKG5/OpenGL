@@ -6,7 +6,7 @@ in vec3 Normal;
 in vec3 fragPos;
 in vec4 directionalLightSpacePos;
 
-out vec4 color;
+out vec4 colour;
 
 // Should be same as Utilities.h header file
 const int MAX_POINT_LIGHTS = 3;
@@ -64,12 +64,32 @@ float calcDirectionalShadowFactor(DirectionalLight light) {
     vec3 projectionCoords = directionalLightSpacePos.xyz / directionalLightSpacePos.w;
 
     // Normalizing coordinates
-    projectionCoords = (projectionCoords * 0.5) + 0.5f;
+    projectionCoords = (projectionCoords * 0.5) + 0.5;
 
-    float closest = texture(directionalShadowMap, projectionCoords.xy).r;
     float current = projectionCoords.z;
 
-    float shadow = current > closest ? 1.0 : 0.0;
+    vec3 normal = normalize(Normal);
+    vec3 lightDir = normalize(directionalLight.direction);
+
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.0005);
+
+    float shadow = 0.0;
+
+    vec2 texelSize = 1.0 / textureSize(directionalShadowMap, 0);
+
+    // Getting a 3x3 frame around the pixel and averaging
+    for (int x = -1; x <= 1; ++x) {
+        for (int y = -1; y <=1; ++y) {
+            float pcfDepth = texture(directionalShadowMap, projectionCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += current - bias > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+
+    shadow /= 9.0;
+
+    if(projectionCoords.z > 1.0) {
+        shadow = 0.0;
+    }
 
     return shadow;
 }
@@ -128,13 +148,14 @@ vec4 calcSpotLightsBase(SpotLight sLight) {
     // Getting Direction
     vec3 rayDirection = normalize(fragPos - sLight.base.position);
     float slFactor = dot(rayDirection, sLight.direction);
-    vec4 colour = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+    vec4 colour = vec4(0, 0, 0, 0);
 
     // If we are withing range
     if(slFactor > sLight.edge) {
         colour = calcPointLightsBase(sLight.base);
         if(colour != vec4(0, 0, 0, 0)) {
-            colour = vec4(1, 1, 1, 1) * (1.0f - (1.0 - slFactor) * (1.0f/(1.0f - sLight.edge)));
+            // colour *= (1.0f - (1.0f - slFactor)*(1.0f/(1.0f - sLight.edge)));
+            colour = vec4(1, 1, 1, 1) * (1.0f - (1.0f - slFactor) * (1.0f/(1.0f - sLight.edge)));
         }
     }
 
@@ -167,5 +188,5 @@ void main() {
     finalColour += calcPointLights();
     finalColour += calcSpotLights();
 
-    color = texture(theTexture, texCoord) * finalColour;
+    colour = texture(theTexture, texCoord) * finalColour;
 }

@@ -33,7 +33,7 @@ public:
 
     // Yaw - Front, Pitch - Right
     Camera( glm::vec3 initialPosition, glm::vec3 initialUp, GLfloat initialYaw,
-            GLfloat initialPitch, GLfloat initialTurnSpeed, GLfloat initialMoveSpeed );
+            GLfloat initialPitch, GLfloat initialMoveSpeed, GLfloat initialTurnSpeed );
 
     void keyControl(bool* keys, GLfloat deltaTime);
     void mouseControl(GLfloat xChange, GLfloat yChange);
