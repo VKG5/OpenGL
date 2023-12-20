@@ -5,7 +5,6 @@ Material::Material() {
     shininess = 0.5f;
 }
 
-
 Material::Material(GLfloat specIntensity, GLfloat shine) {
     specularIntensity = specIntensity;
     shininess = shine;

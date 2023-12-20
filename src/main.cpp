@@ -149,6 +149,9 @@ void createShaders() {
                                             "D:/Programs/C++/Yumi/src/Shaders/directionalShadowMap.frag");
 }
 
+float translateVal = 0.0f;
+float val = 0.005f;
+
 void renderScene() {
     // Happens in a reverse order
     // Translate
@@ -186,7 +189,18 @@ void renderScene() {
 
     // Object 3
     model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
+
+    translateVal += val;
+
+    if(translateVal > 10.f) {
+        val *= -1;
+    }
+
+    if(translateVal < -10.f) {
+        val *= -1;
+    }
+
+    model = glm::translate(model, glm::vec3(translateVal, 1.0f, 0.0f));
     glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
     // Texturing the Mesh
@@ -290,17 +304,17 @@ int main() {
     // Since we will be using cube map, we are using square values for texture
     mainLight = DirectionalLight( 2048, 2048,
 								  1.0f, 1.0f, 1.0f,
-								  0.1f, 0.3f,
+								  0.3f, 1.0f,
 								  0.0f, -15.0f, -10.0f );
     // Point Lights
     pointLights[0] = PointLight( 0.0f, 0.0f, 1.0f,
-								 0.0f, 0.1f,
+								 0.5f, 1.0f,
 								 0.0f, 0.0f, 0.0f,
 								 0.3f, 0.2f, 0.1f );
     pointLightCount++;
 
     pointLights[1] = PointLight( 0.0f, 1.0f, 0.0f,
-								 0.0f, 0.1f,
+								 0.5f, 1.0f,
 								 -4.0f, 2.0f, 0.0f,
 								 0.3f, 0.1f, 0.1f );
     pointLightCount++;
