@@ -338,7 +338,7 @@ int main() {
 
 	spotLightCount++;
 
-    glm::mat4 projection = glm::perspective(45.0f, GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(60.0f), GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
 
     // Main Loop - Running till the window is open
     while(!mainWindow.getShouldClose()) {

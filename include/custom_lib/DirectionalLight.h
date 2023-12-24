@@ -1,9 +1,6 @@
 #pragma once
 #include "Light.h"
 
-// GLM Files - Math Library
-#include <glm/gtc/matrix_transform.hpp>
-
 class DirectionalLight : public Light {
 private:
     glm::vec3 direction;

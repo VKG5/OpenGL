@@ -16,6 +16,7 @@ set(
     "SpotLight.cpp"
     "Model.cpp"
     "ShadowMap.cpp"
+    "OmniShadowMap.cpp"
 )
 
 # Adding the main file as an executable to our project
