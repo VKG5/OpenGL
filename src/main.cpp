@@ -39,7 +39,8 @@ const float toRadians = 3.14159265f / 180.0f;
 // Setting uniforms
 GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0,
         uniformEyePosition = 0, uniformSpecularIntensity = 0, uniformShininess = 0,
-        uniformDirectionalLightTransform = 0;
+        uniformDirectionalLightTransform = 0,
+        uniformOmniLightPos = 0, uniformFarPlane = 0;
 
 // Our main window
 Window mainWindow;
@@ -48,6 +49,7 @@ Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
 Shader directionalShadowShader;
+Shader omniShadowShader;
 
 // Camera
 Camera camera;
@@ -147,6 +149,11 @@ void createShaders() {
     directionalShadowShader = Shader();
     directionalShadowShader.createFromFiles("D:/Programs/C++/Yumi/src/Shaders/directionalShadowMap.vert",
                                             "D:/Programs/C++/Yumi/src/Shaders/directionalShadowMap.frag");
+
+    omniShadowShader = Shader();
+    omniShadowShader.createFromFiles("D:/Programs/C++/Yumi/src/Shaders/omniShadowMap.vert",
+                                     "D:/Programs/C++/Yumi/src/Shaders/omniShadowMap.frag",
+                                     "D:/Programs/C++/Yumi/src/Shaders/omniShadowMap.geom");
 }
 
 float translateVal = 0.0f;
@@ -221,6 +228,31 @@ void directionalShadowMapPass(DirectionalLight* light) {
     uniformModel = directionalShadowShader.getModelLocation();
 
     directionalShadowShader.setDirectionalLightTransform(&light->calculateLightTransform());
+
+    renderScene();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void omniShadowMapPass(PointLight* light) {
+    omniShadowShader.useShader();
+
+    glViewport(0, 0, light->getShadowMap()->getShadowWidth(), light->getShadowMap()->getShadowHeight());
+
+    light->getShadowMap()->write();
+
+    // Clear existing depth buffer information
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    uniformModel = omniShadowShader.getModelLocation();
+
+    uniformOmniLightPos = omniShadowShader.getOmniLightPosLocation();
+    uniformFarPlane = omniShadowShader.getFarPlaneLocation();
+
+    glUniform3f(uniformOmniLightPos, light->getPosition().x, light->getPosition().y, light->getPosition().z);
+    glUniform1f(uniformFarPlane, light->getFarPlane());
+
+    omniShadowShader.setLightMatrices(light->calculateLightTransform());
 
     renderScene();
 
@@ -307,13 +339,17 @@ int main() {
 								  0.3f, 1.0f,
 								  0.0f, -15.0f, -10.0f );
     // Point Lights
-    pointLights[0] = PointLight( 0.0f, 0.0f, 1.0f,
+    pointLights[0] = PointLight( 1024, 1024,
+                                 0.01f, 100.0f,
+                                 0.0f, 0.0f, 1.0f,
 								 0.5f, 1.0f,
 								 0.0f, 0.0f, 0.0f,
 								 0.3f, 0.2f, 0.1f );
     pointLightCount++;
 
-    pointLights[1] = PointLight( 0.0f, 1.0f, 0.0f,
+    pointLights[1] = PointLight( 1024, 1024,
+                                 0.01f, 100.0f,
+                                 0.0f, 1.0f, 0.0f,
 								 0.5f, 1.0f,
 								 -4.0f, 2.0f, 0.0f,
 								 0.3f, 0.1f, 0.1f );
@@ -321,7 +357,9 @@ int main() {
 
     // Spot Lights
     // This is our torch
-    spotLights[0] = SpotLight(  1.0f, 1.0f, 1.0f,
+    spotLights[0] = SpotLight(  1024, 1024,
+                                0.01f, 100.0f,
+                                1.0f, 1.0f, 1.0f,
                                 0.0f, 2.0f,
                                 0.0f, 0.0f, 0.0f,
                                 0.0f, -1.0f, 0.0f,
@@ -329,7 +367,9 @@ int main() {
                                 20.0f );
     spotLightCount++;
 
-    spotLights[1] = SpotLight(  1.0f, 1.0f, 1.0f,
+    spotLights[1] = SpotLight(  1024, 1024,
+                                0.01f, 100.0f,
+                                1.0f, 1.0f, 1.0f,
                                 0.0f, 1.0f,
                                 0.0f, -1.5f, 0.0f,
                                 -100.0f, -1.0f, 0.0f,
@@ -356,6 +396,16 @@ int main() {
 
         // Renders the pass to frame buffer which stores it in a texture
         directionalShadowMapPass(&mainLight);
+
+        // Omni Shadow Passes
+        for(size_t i = 0; i < pointLightCount; i++) {
+            omniShadowMapPass(&pointLights[i]);
+        }
+
+        for(size_t i = 0; i < spotLightCount; i++) {
+            omniShadowMapPass(&spotLights[i]);
+        }
+
         renderPass(projection, camera.calculateViewMatrix());
 
         // Un-Binding the program

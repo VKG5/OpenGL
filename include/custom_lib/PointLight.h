@@ -35,6 +35,8 @@ public:
 
     GLfloat getFarPlane();
 
+    glm::vec3 getPosition();
+
     // Destructor
     ~PointLight();
 };
