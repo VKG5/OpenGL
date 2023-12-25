@@ -6,10 +6,10 @@ uniform vec3 lightPos;
 uniform float farPlane;
 
 void main() {
-    float distance = length(fragPos.xyz - lightPos);
+    float distance_ = length(fragPos.xyz - lightPos);
 
     // To normalize the distance
-    distance /= farPlane;
+    distance_ /= farPlane;
 
-    gl_FragDepth = distance;
+    gl_FragDepth = distance_;
 }
