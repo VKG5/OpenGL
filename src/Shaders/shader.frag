@@ -37,6 +37,11 @@ struct SpotLight {
     float edge;
 };
 
+struct OmniShadowMap {
+    samplerCube shadowMap;
+    float farPlane;
+};
+
 struct Material {
     float specularIntensity;
     float shininess;
@@ -53,6 +58,8 @@ uniform SpotLight spotLight[MAX_SPOT_LIGHTS];
 // Textures
 uniform sampler2D theTexture;
 uniform sampler2D directionalShadowMap;
+// Includes both points lights and spot lights
+uniform OmniShadowMap omniShadowMaps[MAX_POINT_LIGHTS + MAX_SPOT_LIGHTS];
 
 // Materials
 uniform Material material;
@@ -94,6 +101,23 @@ float calcDirectionalShadowFactor(DirectionalLight light) {
     return shadow;
 }
 
+float calcOmniShadowFactor(PointLight light, int shadowIndex) {
+    vec3 fragToLight = fragPos - light.position;
+
+    // Getting the first value for closest object
+    float closest = texture(omniShadowMaps[shadowIndex].shadowMap, fragToLight).r;
+
+    // Converting the normalized distance to normal
+    closest *= omniShadowMaps[shadowIndex].farPlane;
+
+    float current = length(fragToLight);
+
+    float bias = 0.05;
+    float shadow = current - bias > closest ? 1.0 : 0.0;
+
+    return shadow;
+}
+
 vec4 calcLightByDirection(Light light, vec3 direction, float shadowFactor) {
     // Ambient Light
     vec4 ambientColour = vec4(light.colour, 1.0f) * light.ambientIntensity;
@@ -127,7 +151,7 @@ vec4 calcDirectionalLight() {
     return calcLightByDirection(directionalLight.base, directionalLight.direction, shadowFactor);
 }
 
-vec4 calcPointLightsBase(PointLight pLight) {
+vec4 calcPointLightsBase(PointLight pLight, int shadowIndex) {
     // Calculating Direction of our Point Lights
     // Getting direction from light to fragment
     vec3 direction = fragPos - pLight.position;
@@ -135,7 +159,9 @@ vec4 calcPointLightsBase(PointLight pLight) {
 
     direction = normalize(direction);
 
-    vec4 colour = calcLightByDirection(pLight.base, direction, 0.0f);
+    float shadowFactor = calcOmniShadowFactor(pLight, shadowIndex);
+
+    vec4 colour = calcLightByDirection(pLight.base, direction, shadowFactor);
 
     float attenuation = pLight.exponent * distance * distance +
                         pLight.linear * distance +
@@ -144,7 +170,7 @@ vec4 calcPointLightsBase(PointLight pLight) {
     return (colour / attenuation);
 }
 
-vec4 calcSpotLightsBase(SpotLight sLight) {
+vec4 calcSpotLightsBase(SpotLight sLight, int shadowIndex) {
     // Getting Direction
     vec3 rayDirection = normalize(fragPos - sLight.base.position);
     float slFactor = dot(rayDirection, sLight.direction);
@@ -152,7 +178,7 @@ vec4 calcSpotLightsBase(SpotLight sLight) {
 
     // If we are withing range
     if(slFactor > sLight.edge) {
-        colour = calcPointLightsBase(sLight.base);
+        colour = calcPointLightsBase(sLight.base, shadowIndex);
         if(colour != vec4(0, 0, 0, 0)) {
             // colour *= (1.0f - (1.0f - slFactor)*(1.0f/(1.0f - sLight.edge)));
             colour = vec4(1, 1, 1, 1) * (1.0f - (1.0f - slFactor) * (1.0f/(1.0f - sLight.edge)));
@@ -166,7 +192,7 @@ vec4 calcPointLights() {
     vec4 totalColour = vec4(0, 0, 0, 0);
 
     for(int i = 0; i < pointLightCount; i++) {
-        totalColour += calcPointLightsBase(pointLight[i]);
+        totalColour += calcPointLightsBase(pointLight[i], i);
     }
 
     return totalColour;
@@ -177,7 +203,7 @@ vec4 calcSpotLights() {
 
     for(int i = 0; i < spotLightCount; i++) {
         // Hacky way for spotlights
-        totalColour += calcSpotLightsBase(spotLight[i]);
+        totalColour += calcSpotLightsBase(spotLight[i], i + pointLightCount);
     }
 
     return totalColour;

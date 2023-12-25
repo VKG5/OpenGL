@@ -229,6 +229,8 @@ void directionalShadowMapPass(DirectionalLight* light) {
 
     directionalShadowShader.setDirectionalLightTransform(&light->calculateLightTransform());
 
+    directionalShadowShader.validate();
+
     renderScene();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -253,6 +255,8 @@ void omniShadowMapPass(PointLight* light) {
     glUniform1f(uniformFarPlane, light->getFarPlane());
 
     omniShadowShader.setLightMatrices(light->calculateLightTransform());
+
+    omniShadowShader.validate();
 
     renderScene();
 
@@ -287,15 +291,15 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
 
     // Lights
     shaderList[0].setDirectionalLight(&mainLight);
-    shaderList[0].setPointLight(pointLights, pointLightCount);
-    shaderList[0].setSpotLight(spotLights, spotLightCount);
+    shaderList[0].setPointLight(pointLights, pointLightCount, 3, 0);
+    shaderList[0].setSpotLight(spotLights, spotLightCount, 3 + pointLightCount, pointLightCount);
     shaderList[0].setDirectionalLightTransform(&mainLight.calculateLightTransform());
 
-    mainLight.getShadowMap()->read(GL_TEXTURE1);
+    mainLight.getShadowMap()->read(GL_TEXTURE2);
 
     // Setting the maps to proper texture units
-    shaderList[0].setTexture(0);
-    shaderList[0].setDirectionalShadowMap(1);
+    shaderList[0].setTexture(1);
+    shaderList[0].setDirectionalShadowMap(2);
 
     // Setting Torch Control
     glm::vec3 lowerLight = camera.getCameraPosition();
@@ -303,6 +307,8 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
 
     // Getting torch control
     spotLights[0].setFlash(lowerLight, camera.getCameraDirection());
+
+    shaderList[0].validate();
 
     renderScene();
 }
@@ -336,7 +342,7 @@ int main() {
     // Since we will be using cube map, we are using square values for texture
     mainLight = DirectionalLight( 2048, 2048,
 								  1.0f, 1.0f, 1.0f,
-								  0.3f, 1.0f,
+								  0.1f, 0.3f,
 								  0.0f, -15.0f, -10.0f );
     // Point Lights
     pointLights[0] = PointLight( 1024, 1024,
@@ -365,7 +371,7 @@ int main() {
                                 0.0f, -1.0f, 0.0f,
                                 1.0f, 0.0f, 0.0f,
                                 20.0f );
-    spotLightCount++;
+    // spotLightCount++;
 
     spotLights[1] = SpotLight(  1024, 1024,
                                 0.01f, 100.0f,
@@ -376,7 +382,7 @@ int main() {
                                 1.0f, 0.0f, 0.0f,
                                 20.0f );
 
-	spotLightCount++;
+	// spotLightCount++;
 
     glm::mat4 projection = glm::perspective(glm::radians(60.0f), GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
 
