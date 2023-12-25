@@ -8,6 +8,8 @@ private:
 
     GLfloat edge, processedEdge;
 
+    bool isOn;
+
 public:
     // Constructor
     SpotLight();
@@ -28,6 +30,8 @@ public:
                     GLuint edgeLocation  );
 
     void setFlash(glm::vec3 pos, glm::vec3 dir);
+
+    void toggle() { isOn = !isOn; }
 
     // Destructor
     ~SpotLight();

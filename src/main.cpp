@@ -371,7 +371,7 @@ int main() {
                                 0.0f, -1.0f, 0.0f,
                                 1.0f, 0.0f, 0.0f,
                                 20.0f );
-    // spotLightCount++;
+    spotLightCount++;
 
     spotLights[1] = SpotLight(  1024, 1024,
                                 0.01f, 100.0f,
@@ -382,7 +382,7 @@ int main() {
                                 1.0f, 0.0f, 0.0f,
                                 20.0f );
 
-	// spotLightCount++;
+	spotLightCount++;
 
     glm::mat4 projection = glm::perspective(glm::radians(60.0f), GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
 
@@ -399,6 +399,14 @@ int main() {
         // Camera Key Controls
         camera.keyControl(mainWindow.getKeys(), deltaTime);
         camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+
+        // Toggling Spot Light on pressing L
+        if(mainWindow.getKeys()[GLFW_KEY_L]) {
+            // printf("Pressed L!");
+
+            spotLights[0].toggle();
+            mainWindow.getKeys()[GLFW_KEY_L] = false;
+        }
 
         // Renders the pass to frame buffer which stores it in a texture
         directionalShadowMapPass(&mainLight);
