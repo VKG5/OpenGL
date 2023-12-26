@@ -196,7 +196,7 @@ vec4 calcPointLightsBase(PointLight pLight, int shadowIndex) {
 vec4 calcSpotLightsBase(SpotLight sLight, int shadowIndex) {
     // Getting Direction
     vec3 rayDirection = normalize(fragPos - sLight.base.position);
-    float slFactor = dot(rayDirection, sLight.direction);
+	float slFactor = dot(rayDirection, normalize(sLight.direction));
     vec4 colour = vec4(0, 0, 0, 0);
 
     // If we are withing range
@@ -204,7 +204,6 @@ vec4 calcSpotLightsBase(SpotLight sLight, int shadowIndex) {
         colour = calcPointLightsBase(sLight.base, shadowIndex);
         if(colour != vec4(0, 0, 0, 0)) {
             colour *= (1.0 - (1.0 - slFactor) * (1.0/(1.0 - sLight.edge)));
-            // colour = vec4(1, 1, 1, 1) * (1.0 - (1.0 - slFactor) * (1.0/(1.0 - sLight.edge)));
         }
     }
 
@@ -225,7 +224,6 @@ vec4 calcSpotLights() {
     vec4 totalColour = vec4(0, 0, 0, 0);
 
     for(int i = 0; i < spotLightCount; i++) {
-        // Hacky way for spotlights
         totalColour += calcSpotLightsBase(spotLight[i], i + pointLightCount);
     }
 

@@ -73,7 +73,8 @@ private:
     struct {
         GLuint shadowMap;
         GLuint farPlane;
-    } uniformOmniShadowMap[MAX_SPOT_LIGHTS + MAX_POINT_LIGHTS];
+    }
+    uniformOmniShadowMap[MAX_SPOT_LIGHTS + MAX_POINT_LIGHTS];
 
     void compileShader(const char* vertexCode, const char* fragmentCode);
     void compileShader(const char* vertexCode, const char* fragmentCode, const char* geometryCode);
