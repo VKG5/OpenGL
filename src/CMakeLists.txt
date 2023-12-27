@@ -17,6 +17,7 @@ set(
     "Model.cpp"
     "ShadowMap.cpp"
     "OmniShadowMap.cpp"
+    "Skybox.cpp"
 )
 
 # Adding the main file as an executable to our project

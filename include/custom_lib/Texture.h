@@ -3,8 +3,7 @@
 // Always include GLFW after GLAD - Core Libraries
 #include <glad.h>
 
-// Image Handling
-#include <stb_image.h>
+#include "Utilities.h"
 
 class Texture {
 private:

@@ -33,6 +33,9 @@
 // Custom Models
 #include "Model.h"
 
+// Skybox
+#include "Skybox.h"
+
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
 
@@ -62,6 +65,8 @@ Texture dirtTexture;
 DirectionalLight mainLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
+
+Skybox skybox;
 
 unsigned int pointLightCount = 0;
 unsigned int spotLightCount = 0;
@@ -264,6 +269,16 @@ void omniShadowMapPass(PointLight* light) {
 }
 
 void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
+    // Setting initial GLFW Window
+    glViewport(0, 0, 1366, 768);
+
+    // Clear window
+    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Drawing the Skybox before everything else
+    skybox.drawSkybox(viewMatrix, projectionMatrix);
+
     // Making sure we are using the right shader
     // Binding the shader to program
     shaderList[0].useShader();
@@ -276,12 +291,6 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     uniformEyePosition = shaderList[0].getEyePositionLocation();
     uniformSpecularIntensity = shaderList[0].getSpecularIntensityLocation();
     uniformShininess = shaderList[0].getShininessLocation();
-
-    glViewport(0, 0, 1366, 768);
-
-    // Clear window
-    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
     glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
@@ -383,6 +392,21 @@ int main() {
                                 20.0f );
 
 	spotLightCount++;
+
+    // Skybox
+    std::vector<std::string> skyboxFaces;
+    // Pushing the textures in a particular order
+    // Right, Left
+    // Up, Down
+    // Back, Front
+    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Textures/Skybox/cloudtop_rt.tga");
+    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Textures/Skybox/cloudtop_lf.tga");
+    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Textures/Skybox/cloudtop_up.tga");
+    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Textures/Skybox/cloudtop_dn.tga");
+    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Textures/Skybox/cloudtop_bk.tga");
+    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Textures/Skybox/cloudtop_ft.tga");
+
+    skybox = Skybox(skyboxFaces);
 
     glm::mat4 projection = glm::perspective(glm::radians(60.0f), GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
 

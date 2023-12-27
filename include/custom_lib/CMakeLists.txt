@@ -20,6 +20,7 @@ set(
     "Model.h"
     "ShadowMap.h"
     "OmniShadowMap.h"
+    "Skybox.h"
 )
 
 set(
