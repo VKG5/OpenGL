@@ -143,3 +143,6 @@ ipch/
 
 # Visual Studio Trace Files
 *.e2e
+*.blend
+src/Models/Docks/sdz_model_itm_20190429.fbx
+src/Models/Docks/sdz_model_itm_textures_20190429.zip

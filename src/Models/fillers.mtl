@@ -1,0 +1,358 @@
+# Blender 3.6.1 MTL File: 'dublin.blend'
+# www.blender.org
+
+newmtl 19_-_Default
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd grey_concrete_17_diffuse_1k.jpg
+map_Ks grey_concrete_17_reflection_1K.jpg
+map_Bump -bm 0.300000 grey_concrete_17_normal_1K.jpg
+
+newmtl Black-Base
+Ns 319.999939
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd Tra_Black_Base.jpg
+map_Ks Tra_Black_Base_Spec.jpg
+
+newmtl Black-Base.001
+Ns 557.152344
+Ka 1.000000 1.000000 1.000000
+Ks 0.340000 0.340000 0.340000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Tra_Black_Rims.jpg
+
+newmtl Glass.005
+Ns 10.717731
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl Material_#2100437932
+Ns 10.717731
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd -s 2 2 1 TexturesCom_GenericBricks_1024_albedo_bRIGHT.jpg
+map_Ks -s 2 2 1 TexturesCom_GenericBricks_1024_roughness.jpg
+map_Bump -s 2 2 1 -bm 0.300000 TexturesCom_GenericBricks_1024_normal.jpg
+
+newmtl Material_#2100451538
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd EX-stone_wall01.jpg
+
+newmtl Material_#2100451540
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd Gravel4.jpg
+
+newmtl Material_#2100451541
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd Grass_Tile_Proper.jpg
+
+newmtl Material_#2100451547
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd 4Floors.jpg
+map_Ks TexturesCom_Concrete_Ceiling_1K_roughness.jpg
+map_Bump -bm 0.300000 TexturesCom_Concrete_Ceiling_1K_normal.jpg
+
+newmtl Material_#36
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 1
+map_Kd Landsdown - railings.jpg
+map_d Landsdown - railings-Alpha.jpg
+
+newmtl Material_#37
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 1
+map_Kd Palicade_Fence.jpg
+map_d Palicade_Fence_Alpha.jpg
+
+newmtl Material_#49
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd Bridge_Concrete_Desat_Albedo.jpg
+map_Ks Bridge_Concrete_Desat_Roughness.jpg
+map_Bump -bm 0.300000 Bridge_Concrete_Desa_Normal.jpg
+
+newmtl Material_#50
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd black_concrete_02_diffuse_1k.jpg
+map_Ks black_concrete_02_height_1k.jpg
+map_Bump -bm 0.300000 black_concrete_02_normal_1k.jpg
+
+newmtl Material_#75
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd grey_concrete_17_diffuse_1k.jpg
+map_Ks grey_concrete_17_reflection_1K.jpg
+
+newmtl Material_#78
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 1
+map_Kd Tin_RailBlack.jpg
+map_d Tin_Rail_Alpha.jpg
+
+newmtl Metal_1
+Ns 79.999985
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd -o 0 -1 0 -s 1 0.333333 1 Lamp-Metal_Grey.jpg
+
+newmtl Metal_1.001
+Ns 79.999985
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd -o 0 -1 0 -s 1 0.333333 1 Lamp-Metal_Grey.jpg
+map_Ks -o 0 -1 0 -s 1 0.333333 1 Lamp-Metal_Grey_Spec.jpg
+
+newmtl Metal_2
+Ns 319.999939
+Ka 1.000000 1.000000 1.000000
+Ks 0.600000 0.600000 0.600000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd -o -1 0 0 -s 0.333333 1 1 Lamp-Metal_Grey.jpg
+
+newmtl Metal_2.001
+Ns 319.999939
+Ka 1.000000 1.000000 1.000000
+Ks 0.600000 0.600000 0.600000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd -o -1 0 0 -s 0.333333 1 1 Lamp-Metal_Grey.jpg
+
+newmtl Metal_3
+Ns 79.999985
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd -o -0.2 0.25 0 -s 0.714286 2 1 Lamp-Metal_Grey.jpg
+
+newmtl Metal_Base
+Ns 259.920685
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd -o 0 -2 0 -s 1 0.2 1 Tra_pole.jpg
+map_Ks -o 0 -2 0 -s 1 0.2 1 Tra_pole_Spec.jpg
+
+newmtl Mettalic_spec_100
+Ns 26.390162
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd light bollard.jpg
+map_Ks light bollard_SPEC.jpg
+
+newmtl Mettalic_spec_200
+Ns 26.390162
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd light bollard.jpg
+map_Ks light bollard_SPEC.jpg
+
+newmtl Orange
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd Tra_Orange.jpg
+
+newmtl OtherPole
+Ns 39.999996
+Ka 1.000000 1.000000 1.000000
+Kd 0.341176 0.341176 0.341176
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl Road.001
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd grey_concrete_09_diffuse_1K.jpg
+map_Ks grey_concrete_09_reflection_1K.jpg
+map_Bump -bm 0.300000 grey_concrete_09_normal_1K.jpg
+
+newmtl Traffic_Light1_Slot_#4
+Ns 200.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.000000 0.000000 0.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl White
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd Tra_Notice.jpg
+
+newmtl White.001
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd White_Metal.jpg
+
+newmtl White_Rim
+Ns 34.822018
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Tra_White.jpg
+
+newmtl Yellow_Boxs
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd Tra_Boxs.jpg
+map_Ks Tra_Boxs_Spec.jpg
+
+newmtl green
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd Tra_Green.jpg
+
+newmtl light
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.540000
+illum 1
+map_Kd -o -0.25 0 0 -s 0.666667 1 1 light1_On.jpg
+
+newmtl light.001
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.750000
+illum 1
+map_Kd -o -0.25 0 0 -s 0.666667 1 1 light1_On.jpg
+
+newmtl red
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd Tra_Red.jpg

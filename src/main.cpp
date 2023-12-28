@@ -76,7 +76,13 @@ Material shinyMat;
 Material roughMat;
 
 // Models - Using ASSIMP
-Model cube;
+Model water;
+Model bridge;
+Model waterWalls;
+Model roads;
+Model pavement;
+Model fillers;
+Model fillers2;
 
 // Delta Time
 GLfloat deltaTime = 0.0f;
@@ -115,10 +121,10 @@ void createObjects() {
     };
 
     GLfloat verticesFloor[] = {
-        -10.0f, 0.0f, -10.0f,   0.0f, 0.0f,     0.0f, -1.0f, 0.0f,
-        10.0f, 0.0f, -10.0f,    10.0f, 0.0f,    0.0f, -1.0f, 0.0f,
-        -10.0f, 0.0f, 10.0f,    0.0f, 10.0f,    0.0f, -1.0f, 0.0f,
-        10.0f, 0.0f, 10.0f,     10.0f, 10.0f,   0.0f, -1.0f, 0.0f
+        -100.0f, 0.0f, -100.0f,   0.0f, 0.0f,     0.0f, -1.0f, 0.0f,
+        100.0f, 0.0f, -100.0f,    100.0f, 0.0f,    0.0f, -1.0f, 0.0f,
+        -100.0f, 0.0f, 100.0f,    0.0f, 100.0f,    0.0f, -1.0f, 0.0f,
+        100.0f, 0.0f, 100.0f,     100.0f, 100.0f,   0.0f, -1.0f, 0.0f
     };
 
     calcAverageNormals(indices, 12, vertices, 32, 8, 5);
@@ -196,28 +202,30 @@ void renderScene() {
 
     // Texturing the Mesh
     brickTexture.useTexture();
-    shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
     meshList[2]->renderMesh();
 
     // Object 3
     model = glm::mat4(1.0f);
-
-    translateVal += val;
-
-    if(translateVal > 10.f) {
-        val *= -1;
-    }
-
-    if(translateVal < -10.f) {
-        val *= -1;
-    }
-
-    model = glm::translate(model, glm::vec3(translateVal, 1.0f, 0.0f));
     glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
     // Texturing the Mesh
+    // Dublin City Models
+    // Water
     shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-    cube.renderModel();
+    water.renderModel();
+
+    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    bridge.renderModel();
+    waterWalls.renderModel();
+
+    // Roads
+    roads.renderModel();
+    pavement.renderModel();
+
+    // Lights, Rails, etc.
+    fillers.renderModel();
+    fillers2.renderModel();
 }
 
 void directionalShadowMapPass(DirectionalLight* light) {
@@ -335,47 +343,66 @@ int main() {
     // Setting up Textures
     brickTexture = Texture("D:/Programs/C++/Yumi/src/Textures/brickHi.png");
     brickTexture.loadTextureA();
-    dirtTexture = Texture("D:/Programs/C++/Yumi/src/Textures/mud.png");
+    dirtTexture = Texture("D:/Programs/C++/Yumi/src/Textures/brick.png");
     dirtTexture.loadTextureA();
 
     // Setting up Materials
     // Make the second parameter (Shine) to be powers of 2
-    shinyMat = Material(4.0f, 256);
+    shinyMat = Material(3.0f, 512);
     roughMat = Material(0.25f, 4);
 
-    // Loading Models
-    cube = Model();
-    cube.loadModel("D:/Programs/C++/Yumi/src/Models/cube.obj");
+    // Loading Custom Models
+    water = Model();
+    water.loadModel("D:/Programs/C++/Yumi/src/Models/waterWay.obj");
+
+    bridge = Model();
+    bridge.loadModel("D:/Programs/C++/Yumi/src/Models/bridge.obj");
+
+    waterWalls = Model();
+    waterWalls.loadModel("D:/Programs/C++/Yumi/src/Models/waterWalls.obj");
+
+    roads = Model();
+    roads.loadModel("D:/Programs/C++/Yumi/src/Models/roads.obj");
+
+    pavement = Model();
+    pavement.loadModel("D:/Programs/C++/Yumi/src/Models/pavement.obj");
+
+    fillers = Model();
+    fillers.loadModel("D:/Programs/C++/Yumi/src/Models/fillers.obj");
+
+    fillers2 = Model();
+    fillers2.loadModel("D:/Programs/C++/Yumi/src/Models/fillers2.obj");
 
     // Setting up lights
     // Since we will be using cube map, we are using square values for texture
-    mainLight = DirectionalLight( 2048, 2048,
+    int shadowMapResScale = 8;
+    mainLight = DirectionalLight( 1024 * shadowMapResScale, 1024 * shadowMapResScale,
 								  1.0f, 1.0f, 1.0f,
-								  0.1f, 0.3f,
-								  0.0f, -15.0f, -10.0f );
+								  0.1f, 0.5f,
+								  0.0f, -30.0f, -10.0f );
     // Point Lights
     pointLights[0] = PointLight( 1024, 1024,
-                                 0.01f, 100.0f,
+                                 0.01f, 1000.0f,
                                  0.0f, 0.0f, 1.0f,
 								 0.5f, 1.0f,
 								 0.0f, 0.0f, 0.0f,
 								 0.3f, 0.2f, 0.1f );
-    pointLightCount++;
+    //pointLightCount++;
 
     pointLights[1] = PointLight( 1024, 1024,
-                                 0.01f, 100.0f,
+                                 0.01f, 1000.0f,
                                  0.0f, 1.0f, 0.0f,
 								 0.5f, 1.0f,
 								 -4.0f, 2.0f, 0.0f,
 								 0.3f, 0.1f, 0.1f );
-    pointLightCount++;
+    //pointLightCount++;
 
     // Spot Lights
     // This is our torch
     spotLights[0] = SpotLight(  1024, 1024,
-                                0.01f, 100.0f,
+                                0.01f, 1000.0f,
                                 1.0f, 1.0f, 1.0f,
-                                1.0f, 2.0f,
+                                0.1f, 2.0f,
                                 0.0f, 0.0f, 0.0f,
                                 0.0f, -1.0f, 0.0f,
                                 1.0f, 0.0f, 0.0f,
@@ -383,7 +410,7 @@ int main() {
     spotLightCount++;
 
     spotLights[1] = SpotLight(  1024, 1024,
-                                0.01f, 100.0f,
+                                0.01f, 1000.0f,
                                 1.0f, 1.0f, 1.0f,
                                 0.5f, 0.5f,
                                 0.0f, -1.5f, 0.0f,
@@ -391,7 +418,7 @@ int main() {
                                 1.0f, 0.0f, 0.0f,
                                 20.0f );
 
-	spotLightCount++;
+	//spotLightCount++;
 
     // Skybox
     std::vector<std::string> skyboxFaces;
