@@ -25,48 +25,13 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-// Animation
-const int MAX_BONES = 100;
-const int MAX_BONE_INFLUENCE = 4;
-uniform mat4 finalBoneMatrices[MAX_BONES];
-uniform bool animatedModel;
-
 // Projection * View
 uniform mat4 directionalLightTransform;
 
 void main() {
-    vec4 finalPosition;
-    bool animated = false;
-
-    // If our model is animated
-    if(animated) {
-        // Checking the keyframe and displacing vertices
-        finalPosition = vec4(0.0);
-
-        for(int i = 0; i < MAX_BONE_INFLUENCE; i++) {
-            if(boneIDs[i] == -1) {
-                continue;
-            }
-
-            if(boneIDs[i] >= MAX_BONES) {
-                finalPosition = vec4(pos, 1.0);
-                break;
-            }
-
-            vec4 localPosition = finalBoneMatrices[boneIDs[i]] * vec4(pos, 1.0);
-            finalPosition += localPosition * weights[i];
-            vec3 localNormal = mat3(finalBoneMatrices[boneIDs[i]]) * norm;
-        }
-    }
-
-    else {
-        finalPosition = vec4(pos, 1.0);
-    }
-
+    vec4 finalPosition = vec4(pos, 1.0);
     gl_Position = projection * view * model * finalPosition;
     directionalLightSpacePos = directionalLightTransform * model * finalPosition;
-
-    col = vec4(clamp(pos, 0.0f, 1.0f), 1.0f);
 
     texCoord = tex;
 
