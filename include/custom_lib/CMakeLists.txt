@@ -21,18 +21,6 @@ set(
     "ShadowMap.h"
     "OmniShadowMap.h"
     "Skybox.h"
-
-    # "animation/filesystem.h"
-    # "animation/shader_m.h"
-    # "animation/camera.h"
-    # "animation/animator.h"
-    # "animation/model_animation.h"
-    # "animation/animation.h"
-    # "animation/bone.h"
-    # "animation/assimp_glm_helpers.h"
-    # "animation/mesh.h"
-    # "animation/shader.h"
-    # "animation/animdata.h"
 )
 
 set(
