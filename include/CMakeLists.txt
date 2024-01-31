@@ -1,6 +1,6 @@
 set(
     CUSTOM_LIB_NAMES
-    base_libs
+    imgui_lib
 )
 
 add_subdirectory(${CUSTOM_LIB_NAMES})

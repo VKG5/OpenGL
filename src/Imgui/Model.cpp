@@ -86,7 +86,7 @@ void Model::loadMaterials(const aiScene * scene) {
                 int idx = std::string(path.data).rfind("\\");
                 std::string fileName = std::string(path.data).substr(idx + 1);
 
-                std::string texPath = std::string("D:/Programs/C++/Yumi/src/Imgui/Textures/") + fileName;
+                std::string texPath = std::string("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/") + fileName;
 
                 // Debugging
                 // printf("Loading Texture from: %s", texPath.c_str());

@@ -1,24 +1,29 @@
 #include "GUI.h"
-#include "imgui_impl_glfw.h"
-#include <imgui_impl_opengl3.h>
 
-GUI::GUI()
-{
+GUI::GUI() {
 }
 
-void GUI::initialize() {
+void GUI::InitializeImGuiIO() {
+    // Set all members to default or NULL values
+    io = ImGui::GetIO();
+    (void)io;
+}
+
+void GUI::initialize(GLFWwindow* mainWindow) {
     // Setup ImGUI Context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    (void)io;
-
-    // Setup Platform/Renderer bindings
-    // ImGui_ImplGlfw_InitForOpenGL(mainWindow.getGLFWwindow(), true);
-    ImGui_ImplOpenGL3_Init("#version 460");
+    InitializeImGuiIO();
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
+
+    // Setup Platform/Renderer bindings
+    ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
+    ImGui_ImplOpenGL3_Init("#version 460 core");
+
+    // You can customize ImGuiIO settings here if needed
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 }
 
 void GUI::newFrame() {
@@ -30,6 +35,10 @@ void GUI::newFrame() {
 
 void GUI::render() {
     // Render ImGui elements here
+    ImGui::Begin("OpenGL UI");
+    ImGui::Text("Welcome to this simple program!");
+    ImGui::End();
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -41,6 +50,5 @@ void GUI::shutdown() {
     ImGui::DestroyContext();
 }
 
-GUI::~GUI()
-{
+GUI::~GUI() {
 }

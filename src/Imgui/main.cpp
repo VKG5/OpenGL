@@ -2,9 +2,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 // ImGUI
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "GUI.h"
 
 // Basic C++ Libraries for various operations
 #include <iostream>
@@ -48,6 +46,7 @@ GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosi
 
 // Our main window
 Window mainWindow;
+GUI mainGUI;
 
 // Creating a vector of the meshes and shaders
 std::vector<Mesh*> meshList;
@@ -94,10 +93,10 @@ GLfloat lastTime = 0.0f;
 // Vertex Shader
 // Uniform - Global to shader, not associated with a particular vertex
 // Bind data to uniform to get location
-static const char* vertexShader = "D:/Programs/C++/Yumi/src/Imgui/Shaders/finalShader.vert";
+static const char* vertexShader = "D:/Programs/C++/Rendering/OpenGL/src/Imgui/Shaders/finalShader.vert";
 
 // Fragment Shader
-static const char* fragmentShader = "D:/Programs/C++/Yumi/src/Imgui/Shaders/finalShader.frag";
+static const char* fragmentShader = "D:/Programs/C++/Rendering/OpenGL/src/Imgui/Shaders/finalShader.frag";
 
 // Point Lights
 unsigned int pointLightCount = 0;
@@ -261,7 +260,6 @@ void renderSceneRealisitc() {
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
         // Texturing the Mesh
-        blackTexture.useTexture();
         extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
         cube.renderModel();
 
@@ -274,7 +272,6 @@ void renderSceneRealisitc() {
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
         // Texturing the Mesh
-        blackTexture.useTexture();
         shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
         cube.renderModel();
 
@@ -287,7 +284,6 @@ void renderSceneRealisitc() {
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
         // Texturing the Mesh
-        blackTexture.useTexture();
         roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
         cube.renderModel();
 
@@ -300,7 +296,6 @@ void renderSceneRealisitc() {
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
         // Texturing the Mesh
-        blackTexture.useTexture();
         extraRoughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
         cube.renderModel();
 }
@@ -404,7 +399,7 @@ void renderSceneNPR() {
         cube.renderModel();
 }
 
-void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, ImGuiIO& io) {
+void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     // Setting initial GLFW Window
     glViewport(0, 0, 1366, 768);
 
@@ -412,10 +407,8 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, ImGuiIO& io) {
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // UI
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
+    // UI - Render Frame
+    mainGUI.newFrame();
 
     // Toggle cursor mode on pressing the 'C' key
     if (mainWindow.getKeys()[GLFW_KEY_C]) {
@@ -432,7 +425,7 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, ImGuiIO& io) {
     }
 
     // Handling input events exclusive to the GLFW Window
-    if(!io.WantCaptureMouse) {
+    if(!mainGUI.getIO().WantCaptureMouse) {
         // If the cursor is disabled, don't update the camera
         if(cursorDisabled) {
             // Camera Key Controls
@@ -508,12 +501,7 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, ImGuiIO& io) {
     }
 
     // Drawing the UI
-    ImGui::Begin("OpenGL UI");
-    ImGui::Text("Welcome to this simple program!");
-    ImGui::End();
-
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    mainGUI.render();
 }
 
 int main() {
@@ -527,13 +515,13 @@ int main() {
     camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.125f, 3.0f);
 
     // Setting up Textures=============================================================================================
-    brickTexture = Texture("D:/Programs/C++/Yumi/src/Imgui/Textures/brickHi.png");
+    brickTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/brickHi.png");
     brickTexture.loadTextureA();
-    dirtTexture = Texture("D:/Programs/C++/Yumi/src/Imgui/Textures/mud.png");
+    dirtTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/mud.png");
     dirtTexture.loadTextureA();
-    whiteTexture = Texture("D:/Programs/C++/Yumi/src/Imgui/Textures/white.jpg");
+    whiteTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/white.jpg");
     whiteTexture.loadTexture();
-    blackTexture = Texture("D:/Programs/C++/Yumi/src/Imgui/Textures/black.jpg");
+    blackTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/black.jpg");
     blackTexture.loadTexture();
 
     // Setting up Materials============================================================================================
@@ -545,9 +533,9 @@ int main() {
 
     // Loading Models==================================================================================================
     cube = Model();
-    cube.loadModel("D:/Programs/C++/Yumi/src/Imgui/Models/monkey.obj");
+    cube.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Models/monkey.obj");
     cube1 = Model();
-    cube1.loadModel("D:/Programs/C++/Yumi/src/Imgui/Models/monkey1.obj");
+    cube1.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Models/monkey1.obj");
 
     // Creating the lights=============================================================================================
     createLights();
@@ -555,12 +543,7 @@ int main() {
     glm::mat4 projection = glm::perspective(45.0f, GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
 
     // ImGUI===========================================================================================================
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(mainWindow.getWindow(), true);
-    ImGui_ImplOpenGL3_Init("#version 460 core");
+    mainGUI.initialize(mainWindow.getWindow());
 
     // Main Loop - Running till the window is open=====================================================================
     while(!mainWindow.getShouldClose()) {
@@ -573,7 +556,7 @@ int main() {
         glfwPollEvents();
 
         // Handles the rendering of each elements - UI, GLFW, Objects, etc.
-        renderPass(projection, camera.calculateViewMatrix(), io);
+        renderPass(projection, camera.calculateViewMatrix());
 
         // Un-Binding the program
         glUseProgram(0);
@@ -582,10 +565,8 @@ int main() {
         mainWindow.swapBuffers();
     }
 
-    // Deleting ImGUI
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+    // Shutting down ImGUI
+    mainGUI.shutdown();
 
     glfwTerminate();
 
