@@ -1,6 +1,6 @@
 set(
     CUSTOM_LIB_NAMES
-    custom_lib
+    base_libs
 )
 
 add_subdirectory(${CUSTOM_LIB_NAMES})
