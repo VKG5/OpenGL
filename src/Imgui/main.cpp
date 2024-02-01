@@ -36,6 +36,9 @@
 // Custom Models
 #include "Model.h"
 
+// Skybox
+#include "Skybox.h"
+
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
 
@@ -67,10 +70,19 @@ Texture dirtTexture;
 Texture whiteTexture;
 Texture blackTexture;
 
-// Lights - 1 Directional, Multiple Point
+// Lights - 1 Directional, Multiple Point, Multiple Spot
 DirectionalLight mainLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
+
+// Point Lights
+unsigned int pointLightCount = 0;
+
+// Spot Lights
+unsigned int spotLightCount = 0;
+
+// Skybox
+Skybox skybox;
 
 // Materials
 Material shinyMat;
@@ -100,12 +112,6 @@ static const char* vertexShader = "D:/Programs/C++/Rendering/OpenGL/src/Imgui/Sh
 
 // Fragment Shader
 static const char* fragmentShader = "D:/Programs/C++/Rendering/OpenGL/src/Imgui/Shaders/finalShader.frag";
-
-// Point Lights
-unsigned int pointLightCount = 0;
-
-// Spot Lights
-unsigned int spotLightCount = 0;
 
 // Comtains making manual objects
 void createObjects() {
@@ -171,7 +177,7 @@ void createShaders() {
     shaderList.push_back(*shader1);
 }
 
-// Contains the properties for lights
+// Contains the properties for lights and the Skybox
 void createLights() {
     // Setting up lights
     mainLight = DirectionalLight( 1.0f, 0.85f, 0.65f,
@@ -205,6 +211,21 @@ void createLights() {
                                 1.0f, 0.0f, 0.0f,
                                 20.0f );
     spotLightCount++;
+
+    // Skybox==========================================================================================================
+    std::vector<std::string> skyboxFaces;
+    // Pushing the textures in a particular order
+    // Right, Left
+    // Up, Down
+    // Back, Front
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/Skybox/cloudtop_rt.tga");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/Skybox/cloudtop_lf.tga");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/Skybox/cloudtop_up.tga");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/Skybox/cloudtop_dn.tga");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/Skybox/cloudtop_bk.tga");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/Skybox/cloudtop_ft.tga");
+
+    skybox = Skybox(skyboxFaces);
 }
 
 // Contains textures, objects and materials
@@ -377,6 +398,12 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
                   mainGUI.getBackgroundColor().w );
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Checking for Skybox parameter in UI
+    if(mainGUI.getIsSkyBox()) {
+        // Drawing the Skybox before everything else
+        skybox.drawSkybox(viewMatrix, projectionMatrix);
+    }
 
     // UI - Render Frame
     mainGUI.newFrame();

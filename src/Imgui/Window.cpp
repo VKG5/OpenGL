@@ -44,7 +44,7 @@ int Window::initialize() {
         GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE
     );
 
-    mainWindow = glfwCreateWindow(width, height, "Real-Time Rendering OpenGL", NULL, NULL);
+    mainWindow = glfwCreateWindow(width, height, "~Yumi~", NULL, NULL);
 
     if(!mainWindow) {
         std::cout<<"GLFW Window creation failed!";

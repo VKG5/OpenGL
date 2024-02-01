@@ -43,6 +43,9 @@ private:
     // Spot Lights
     bool isSpotLights = true;
 
+    // Skybox
+    bool isSkyBox = false;
+
 public:
     // Constructor
     GUI();
@@ -82,6 +85,9 @@ public:
 
     // Spot Light Parameters
     bool getIsSpotLights() const { return isSpotLights; }
+
+    // Skybox Parameters
+    bool getIsSkyBox() const { return isSkyBox; }
 
     // Destructor
     ~GUI();

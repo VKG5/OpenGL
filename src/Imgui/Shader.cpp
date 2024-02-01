@@ -15,18 +15,23 @@ void Shader::createFromString(const char* vertexCode, const char* fragmentCode) 
     compileShader(vertexCode, fragmentCode);
 }
 
-void Shader::compileShader(const char* vertexCode, const char* fragmentCode) {
-    // Creating the program to run the shaders on the GPU
-    shaderID = glCreateProgram();
+void Shader::validate() {
+    // Creating this for logging/debugging
+    GLint result = 0;
+    GLchar eLog[1024] = {0};
 
-    if(!shaderID) {
-        std::cout<<"Error creating shader program";
+    // Checking if valid in current context
+    glValidateProgram(shaderID);
+    glGetProgramiv(shaderID, GL_VALIDATE_STATUS, &result);
+
+    if(!result) {
+        glGetProgramInfoLog(shaderID, sizeof(eLog), NULL, eLog);
+        std::cout<<"Error validating program: "<<eLog<<"\n";
         return;
     }
+}
 
-    addShader(shaderID, vertexCode, GL_VERTEX_SHADER);
-    addShader(shaderID, fragmentCode, GL_FRAGMENT_SHADER);
-
+void Shader::compileProgram() {
     // Creating this for logging/debugging
     GLint result = 0;
     GLchar eLog[1024] = {0};
@@ -37,16 +42,6 @@ void Shader::compileShader(const char* vertexCode, const char* fragmentCode) {
     if(!result) {
         glGetProgramInfoLog(shaderID, sizeof(eLog), NULL, eLog);
         std::cout<<"Error linking program: "<<eLog<<"\n";
-        return;
-    }
-
-    // Checking if valid in current context
-    glValidateProgram(shaderID);
-    glGetProgramiv(shaderID, GL_VALIDATE_STATUS, &result);
-
-    if(!result) {
-        glGetProgramInfoLog(shaderID, sizeof(eLog), NULL, eLog);
-        std::cout<<"Error validating program: "<<eLog<<"\n";
         return;
     }
 
@@ -140,6 +135,21 @@ void Shader::compileShader(const char* vertexCode, const char* fragmentCode) {
         snprintf(locBuff, sizeof(locBuff), "spotLight[%zd].edge", i);
         uniformSpotLight[i].uniformEdge = glGetUniformLocation(shaderID, locBuff);
     }
+}
+
+void Shader::compileShader(const char* vertexCode, const char* fragmentCode) {
+    // Creating the program to run the shaders on the GPU
+    shaderID = glCreateProgram();
+
+    if(!shaderID) {
+        std::cout<<"Error creating shader program";
+        return;
+    }
+
+    addShader(shaderID, vertexCode, GL_VERTEX_SHADER);
+    addShader(shaderID, fragmentCode, GL_FRAGMENT_SHADER);
+
+    compileProgram();
 }
 
 void Shader::addShader(GLuint program, const char* shaderCode, GLenum shaderType) {

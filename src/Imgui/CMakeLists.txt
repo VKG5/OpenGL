@@ -15,6 +15,7 @@ set(
     "PointLight.cpp"
     "SpotLight.cpp"
     "Model.cpp"
+    "Skybox.cpp"
 )
 
 # Adding the main file as an executable to our project

@@ -68,7 +68,10 @@ private:
            uniformMaterialPreview;
 
     void compileShader(const char* vertexCode, const char* fragmentCode);
+
     void addShader(GLuint program, const char* shaderCode, GLenum shaderType);
+
+    void compileProgram();
 
 public:
     // Constructor
@@ -76,6 +79,8 @@ public:
 
     void createFromString(const char* vertexCode, const char* fragmentCode);
     void createFromFiles(const char* vertexLocation, const char* fragmentLocation);
+
+    void validate();
 
     std::string readFile(const char* filePath);
 
@@ -103,6 +108,7 @@ public:
     void setDirectionalLight(DirectionalLight* dLight);
     void setPointLight(PointLight* pLight, unsigned int lightCount);
     void setSpotLight(SpotLight* sLight, unsigned int lightCount);
+    void setTexture(GLuint textureUnit);
 
     void useShader();
     void cleanShader();

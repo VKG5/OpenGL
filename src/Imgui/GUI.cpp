@@ -95,6 +95,11 @@ void GUI::elements(std::string& shadingMode) {
     ImGui::Spacing();
     ImGui::Text("Spot Lights");
     ImGui::Checkbox("Spot Active", &isSpotLights);
+
+    // TODO : Implement Skybox Controls
+    ImGui::Spacing();
+    ImGui::Text("Skybox");
+    ImGui::Checkbox("Skybox Active", &isSkyBox);
 }
 
 void GUI::render(std::string& shadingMode) {
