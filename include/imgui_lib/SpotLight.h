@@ -8,7 +8,7 @@ private:
 
     GLfloat edge, processedEdge;
 
-    bool isOn;
+    bool isOn = false;
 
 public:
     // Constructor

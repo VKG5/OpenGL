@@ -9,7 +9,7 @@ Light::Light() {
     diffuseIntensity = 0.0f;
 }
 
-Light::Light(   GLfloat red, GLfloat green, GLfloat blue, GLfloat ambIntensity, GLfloat diffIntensity ) {
+Light::Light( GLfloat red, GLfloat green, GLfloat blue, GLfloat ambIntensity, GLfloat diffIntensity ) {
     // Ambient Light
     colour = glm::vec3(red, green, blue);
     ambientIntensity = ambIntensity;

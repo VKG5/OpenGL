@@ -42,11 +42,14 @@ const float toRadians = 3.14159265f / 180.0f;
 // Setting the variables
 GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
         uniformSpecularIntensity = 0, uniformShininess = 0,
-        uniformshadingModel = 0;
+        uniformshadingModel = 0,
+        uniformIsShaded = 0, uniformIsWireframe = 0, uniformObjectColor = 0, uniformWireframeColor = 0,
+        uniformMaterialPreview = 0;
 
 // Our main window
 Window mainWindow;
 GUI mainGUI;
+std::string shadingMode = "Phong Illumination";
 
 // Creating a vector of the meshes and shaders
 std::vector<Mesh*> meshList;
@@ -104,6 +107,7 @@ unsigned int pointLightCount = 0;
 // Spot Lights
 unsigned int spotLightCount = 0;
 
+// Comtains making manual objects
 void createObjects() {
     // Index Array
     // Index of the vertices that are being drawn
@@ -159,6 +163,7 @@ void createObjects() {
     meshList.push_back(obj3);
 }
 
+// Contains preparing base shaders
 void createShaders() {
     Shader* shader1 = new Shader();
     shader1->createFromFiles(vertexShader, fragmentShader);
@@ -166,6 +171,7 @@ void createShaders() {
     shaderList.push_back(*shader1);
 }
 
+// Contains the properties for lights
 void createLights() {
     // Setting up lights
     mainLight = DirectionalLight( 1.0f, 0.85f, 0.65f,
@@ -177,19 +183,19 @@ void createLights() {
                                  0.35f, 0.25f,
                                  -2.0f, 0.0f, 0.0f,
                                  0.3f, 0.2f, 0.1f );
-    // pointLightCount++;
+    pointLightCount++;
 
     pointLights[1] = PointLight( 0.0f, 1.0f, 0.0f,
                                  0.35f, 0.25f,
                                  0.0f, 0.0f, 0.0f,
                                  0.3f, 0.1f, 0.1f );
-    // pointLightCount++;
+    pointLightCount++;
 
     pointLights[2] = PointLight( 0.0f, 0.0f, 1.0f,
                                  0.35f, 0.25f,
                                  2.0f, 0.0f, 1.0f,
                                  0.3f, 0.1f, 0.1f );
-    // pointLightCount++;
+    pointLightCount++;
 
     // This is our torch
     spotLights[0] = SpotLight(  1.0f, 1.0f, 1.0f,
@@ -201,202 +207,163 @@ void createLights() {
     spotLightCount++;
 }
 
+// Contains textures, objects and materials
+void prepareObjects() {
+    // Setting up Textures=============================================================================================
+    brickTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/brickHi.png");
+    brickTexture.loadTextureA();
+    dirtTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/mud.png");
+    dirtTexture.loadTextureA();
+    whiteTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/white.jpg");
+    whiteTexture.loadTexture();
+    blackTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/black.jpg");
+    blackTexture.loadTexture();
+
+    // Setting up Materials============================================================================================
+    // Make the second parameter (Shine) to be powers of 2
+    shinyMat = Material(1.0f, 256);
+    roughMat = Material(0.5f, 32);
+    extraRoughMat = Material(0.125f, 2);
+    extraShinyMat = Material(1.0f, 1024);
+
+    // Loading Models==================================================================================================
+    cube = Model();
+    cube.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Models/monkey.obj");
+    cube1 = Model();
+    cube1.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Models/monkey1.obj");
+}
+
 // Global parameter for rotating the objects
 float rotationAngle = 0.0f;
 float step = 0.005f;
 
 // We are replacing all the texture with realisitc textures to show-case PBR
-void renderSceneRealisitc() {
-        // Happens in a reverse order
-        // Translate
-        // Object 1
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
-        // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+void renderScene() {
+    // Happens in a reverse order
+    // Translate
+    // Object 1
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
+    // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-        // Texturing the Mesh
-        brickTexture.useTexture();
-        roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        meshList[0]->renderMesh();
+    // Texturing the Mesh
+    brickTexture.useTexture();
+    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    meshList[0]->renderMesh();
 
-        // Clearing out the properties
-        // Object 2
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 3.0f, -2.5f));
-        // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+    // Clearing out the properties
+    // Object 2
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 3.0f, -2.5f));
+    // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-        // Texturing the Mesh
-        dirtTexture.useTexture();
-        roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        meshList[1]->renderMesh();
+    // Texturing the Mesh
+    dirtTexture.useTexture();
+    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    meshList[1]->renderMesh();
 
-        // Object 3
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-        // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+    // Object 3
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+    // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-        // Texturing the Mesh
-        brickTexture.useTexture();
-        roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        meshList[2]->renderMesh();
+    // Texturing the Mesh
+    brickTexture.useTexture();
+    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    meshList[2]->renderMesh();
 
-        // Cubes=======================================================================================================
-        // Cube 1
-        // Rotation values
-        if(rotationAngle < 360.0f)
-            rotationAngle += step;
+    // Cubes=======================================================================================================
+    // Cube 1
+    // Rotation values
+    if(rotationAngle < 360.0f)
+        rotationAngle += step;
 
-        else
-            rotationAngle = 0.0f;
+    else
+        rotationAngle = 0.0f;
 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        // Rotating the model
-        model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+    // Rotating the model
+    model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-        // Texturing the Mesh
-        extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        cube.renderModel();
+    // Texturing the Mesh
+    whiteTexture.useTexture();
+    extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    cube.renderModel();
 
-        // Cube 2
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(3.0f, 1.0f, 0.0f));
+    // Cube 2
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(3.0f, 1.0f, 0.0f));
 
-        // Rotating the model
-        model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+    // Rotating the model
+    model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-        // Texturing the Mesh
-        shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        cube.renderModel();
+    // Texturing the Mesh
+    whiteTexture.useTexture();
+    shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    cube.renderModel();
 
-        // Cube 3
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-3.0f, 1.0f, 0.0f));
+    // Cube 3
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-3.0f, 1.0f, 0.0f));
 
-        // Rotating the model
-        model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+    // Rotating the model
+    model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-        // Texturing the Mesh
-        roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        cube.renderModel();
+    // Texturing the Mesh
+    whiteTexture.useTexture();
+    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    cube.renderModel();
 
-        // Cube 4
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-6.0f, 1.0f, 0.0f));
+    // Cube 4
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-6.0f, 1.0f, 0.0f));
 
-        // Rotating the model
-        model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+    // Rotating the model
+    model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-        // Texturing the Mesh
-        extraRoughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        cube.renderModel();
+    // Texturing the Mesh
+    whiteTexture.useTexture();
+    extraRoughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    cube.renderModel();
 }
 
-// We are replacing all the texture with a plain white material to show-case toon shading better
-void renderSceneNPR() {
-        // Happens in a reverse order
-        // Translate
-        // Triangle 1
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
-        // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+void setShadingModeName() {
+    if(mainGUI.getMaterialPreview()) {
+        shadingMode = "Material Preview";
+    }
 
-        // Texturing the Mesh
-        whiteTexture.useTexture();
-        roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        meshList[0]->renderMesh();
+    else if(mainGUI.getIsWireframe()) {
+        shadingMode = "Wireframe";
+    }
 
-        // Clearing out the properties
-        // Triangle 2
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 3.0f, -2.5f));
-        // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+    else if(shadingModel == 0) {
+        shadingMode = "Phong Illumination";
+    }
 
-        // Texturing the Mesh
-        whiteTexture.useTexture();
-        roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        meshList[1]->renderMesh();
+    else if(shadingModel == 1) {
+        shadingMode = "Blinn-Phong Illumination";
+    }
 
-        // Ground
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-        // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+    else if(shadingModel == 2) {
+        shadingMode = "Gooch Shading";
+    }
 
-        // Texturing the Mesh
-        whiteTexture.useTexture();
-        roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        meshList[2]->renderMesh();
+    else if(shadingModel == 3) {
+        shadingMode = "Minnaert Shading";
+    }
 
-        // Cubes=======================================================================================================
-        // Cube 1
-        // Rotation values
-        if(rotationAngle < 360.0f)
-            rotationAngle += step;
-
-        else
-            rotationAngle = 0.0f;
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
-
-        // Rotating the model
-        model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-        // Texturing the Mesh
-        whiteTexture.useTexture();
-        extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        cube.renderModel();
-
-        // Cube 2
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(3.0f, 1.0f, 0.0f));
-
-        // Rotating the model
-        model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-        // Texturing the Mesh
-        whiteTexture.useTexture();
-        shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        cube.renderModel();
-
-        // Cube 3
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-3.0f, 1.0f, 0.0f));
-
-        // Rotating the model
-        model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-        // Texturing the Mesh
-        whiteTexture.useTexture();
-        roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        cube.renderModel();
-
-        // Cube 4
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-6.0f, 1.0f, 0.0f));
-
-        // Rotating the model
-        model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-        // Texturing the Mesh
-        whiteTexture.useTexture();
-        extraRoughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-        cube.renderModel();
+    else {
+        shadingMode = "None";
+    }
 }
 
 void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
@@ -404,7 +371,11 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     glViewport(0, 0, 1366, 768);
 
     // Clear window
-    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+    glClearColor( mainGUI.getBackgroundColor().x,
+                  mainGUI.getBackgroundColor().y,
+                  mainGUI.getBackgroundColor().z,
+                  mainGUI.getBackgroundColor().w );
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // UI - Render Frame
@@ -456,6 +427,15 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
         }
     }
 
+    // Switching modes - Wireframe/Normal
+    if(mainGUI.getIsWireframe()) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+
+    else {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
     // Binding the program
     shaderList[0].useShader();
     uniformModel = shaderList[0].getModelLocation();
@@ -467,8 +447,22 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     uniformSpecularIntensity = shaderList[0].getSpecularIntensityLocation();
     uniformShininess = shaderList[0].getShininessLocation();
 
-    // Getting UseBlinn
-    uniformshadingModel = shaderList[0].getUniformshadingModel();
+    // Getting Shading Mode
+    uniformshadingModel = shaderList[0].getShadingModelLocation();
+
+    /*
+    Getting UI Elements
+    1. isWireframe - Enable/Disable Wireframe
+    2. isShaded - Enbable/Disable Textures
+    3. wireframeColor - Sets the color of the wireframe
+    4. objectColor - Sets the color of the objects in the scene
+    5. materialPreview - Disables all lighting to view the textures only
+    */
+    uniformMaterialPreview = shaderList[0].getMaterialPreviewLocation();
+    uniformIsShaded = shaderList[0].getIsShadedLocation();
+    uniformIsWireframe = shaderList[0].getIsWireframeLocation();
+    uniformWireframeColor = shaderList[0].getWireframeColourLocation();
+    uniformObjectColor = shaderList[0].getObjectColorLocation();
 
     glm::vec3 lowerLight = camera.getCameraPosition();
     lowerLight.y -= 0.369f;
@@ -476,36 +470,72 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     spotLights[0].setFlash(lowerLight, camera.getCameraDirection());
 
     // Lights
-    shaderList[0].setDirectionalLight(&mainLight);
-    shaderList[0].setPointLight(pointLights, pointLightCount);
-    shaderList[0].setSpotLight(spotLights, spotLightCount);
+    // Directional Light
+    mainLight.setDirLight( mainGUI.getDirectionalLightColor()[0],
+                           mainGUI.getDirectionalLightColor()[1],
+                           mainGUI.getDirectionalLightColor()[2],
+                           mainGUI.getDirectionalLightAmbient(),
+                           mainGUI.getDirectionalLightDiffuse(),
+                           mainGUI.getDirectionalLightDirection()[0],
+                           mainGUI.getDirectionalLightDirection()[1],
+                           mainGUI.getDirectionalLightDirection()[2] );
 
+    shaderList[0].setDirectionalLight(&mainLight);
+
+    // Currently disabling the Point and Spot lights based off a boolean
+    // Point Lights
+    if(mainGUI.getIsPointLights()) {
+        shaderList[0].setPointLight(pointLights, pointLightCount);
+    }
+
+    else {
+        shaderList[0].setPointLight(pointLights, 0);
+    }
+
+    // Spot Lights
+    if(mainGUI.getIsSpotLights()) {
+        shaderList[0].setSpotLight(spotLights, spotLightCount);
+    }
+
+    else {
+        shaderList[0].setSpotLight(spotLights, 0);
+    }
+
+    // Binding to uniforms in the shader
     glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
     glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
     glUniform3f(uniformEyePosition, camera.getCameraPosition().x,
                                     camera.getCameraPosition().y,
                                     camera.getCameraPosition().z);
 
+    // Setting the shading model
     glUniform1i(uniformshadingModel, shadingModel);
 
-    if(shadingModel < 2 || shadingModel == 3) {
-        renderSceneRealisitc();
-    }
+    // Setting the triggers from UI Elements
+    glUniform1i(uniformMaterialPreview, mainGUI.getMaterialPreview());
+    glUniform1i(uniformIsWireframe, mainGUI.getIsWireframe());
+    glUniform1i(uniformIsShaded, mainGUI.getIsShaded());
 
-    else if(shadingModel == 2) {
-        renderSceneNPR();
-    }
+    glUniform4f(uniformObjectColor, mainGUI.getObjectColor().x,
+                                    mainGUI.getObjectColor().y,
+                                    mainGUI.getObjectColor().z,
+                                    mainGUI.getObjectColor().w );
 
-    else {
-        printf("Invalid Shading Model!");
-    }
+    glUniform4f(uniformWireframeColor, mainGUI.getWireframeColor().x,
+                                       mainGUI.getWireframeColor().y,
+                                       mainGUI.getWireframeColor().z,
+                                       mainGUI.getWireframeColor().w );
+
+    // Added the texture disabling functionality in the shader
+    renderScene();
 
     // Drawing the UI
-    mainGUI.render();
+    setShadingModeName();
+    mainGUI.render(shadingMode);
 }
 
 int main() {
-    mainWindow = Window(1280, 768);
+    mainWindow = Window(1366, 768);
     mainWindow.initialize();
 
     createObjects();
@@ -514,28 +544,8 @@ int main() {
     // Initializing Camera - Y is UP
     camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.125f, 3.0f);
 
-    // Setting up Textures=============================================================================================
-    brickTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/brickHi.png");
-    brickTexture.loadTextureA();
-    dirtTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/mud.png");
-    dirtTexture.loadTextureA();
-    whiteTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/white.jpg");
-    whiteTexture.loadTexture();
-    blackTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/black.jpg");
-    blackTexture.loadTexture();
-
-    // Setting up Materials============================================================================================
-    // Make the second parameter (Shine) to be powers of 2
-    shinyMat = Material(1.0f, 256);
-    roughMat = Material(0.5f, 32);
-    extraRoughMat = Material(0.125f, 2);
-    extraShinyMat = Material(1.0f, 1024);
-
-    // Loading Models==================================================================================================
-    cube = Model();
-    cube.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Models/monkey.obj");
-    cube1 = Model();
-    cube1.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Models/monkey1.obj");
+    // Setting up objects==============================================================================================
+    prepareObjects();
 
     // Creating the lights=============================================================================================
     createLights();
@@ -564,9 +574,6 @@ int main() {
         // We have 2 scenes, one which we are drawing to and one current
         mainWindow.swapBuffers();
     }
-
-    // Shutting down ImGUI
-    mainGUI.shutdown();
 
     glfwTerminate();
 

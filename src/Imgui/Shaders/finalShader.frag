@@ -41,9 +41,19 @@ struct Material {
     float shininess;
 };
 
+// Counter variables
 uniform int pointLightCount;
 uniform int spotLightCount;
 uniform int shadingModel;
+
+// Object Color
+uniform vec4 objectColor;
+uniform vec4 wireframeColor;
+uniform bool materialPreview;
+
+// Wireframe or Shaded
+uniform bool isWireframe;
+uniform bool isShaded;
 
 // Lights
 uniform DirectionalLight directionalLight;
@@ -226,21 +236,65 @@ vec4 calcMinnaert(Light light, vec3 direction) {
 }
 
 void main() {
-    vec4 finalColour = vec4(1.0, 1.0, 1.0, 1.0);
+    // If we just want to view the textures
+    if(materialPreview) {
+        if(isShaded)
+            color = texture(theTexture, texCoord);
 
-    if(shadingModel < 2) {
-        finalColour = calcDirectionalLight();
-        finalColour += calcPointLights();
-        finalColour += calcSpotLights();
+        else
+            color = objectColor;
     }
 
-    else if(shadingModel == 2) {
-        finalColour = calcGoochComplex(directionalLight.base, directionalLight.direction);
+    // If we are not in the wireframe mode
+    // And the texture are enabled
+    else if(!isWireframe && isShaded) {
+        vec4 finalColour = vec4(1.0, 1.0, 1.0, 1.0);
+
+        if(shadingModel < 2) {
+            finalColour = calcDirectionalLight();
+            finalColour += calcPointLights();
+            finalColour += calcSpotLights();
+        }
+
+        else if(shadingModel == 2) {
+            finalColour = calcGoochComplex(directionalLight.base, directionalLight.direction);
+        }
+
+        else {
+            finalColour = calcMinnaert(directionalLight.base, directionalLight.direction);
+        }
+
+        color = texture(theTexture, texCoord) * finalColour;
+    }
+
+    // If we are not in the wireframe mode
+    // And textures are disabled
+    else if(!isWireframe && !isShaded) {
+        vec4 finalColour = vec4(1.0, 1.0, 1.0, 1.0);
+
+        if(shadingModel < 2) {
+            finalColour = calcDirectionalLight();
+            finalColour += calcPointLights();
+            finalColour += calcSpotLights();
+        }
+
+        else if(shadingModel == 2) {
+            finalColour = calcGoochComplex(directionalLight.base, directionalLight.direction);
+        }
+
+        else {
+            finalColour = calcMinnaert(directionalLight.base, directionalLight.direction);
+        }
+
+        color = objectColor * finalColour;
+    }
+
+    // If we are in wireframe mode
+    else if(isWireframe) {
+        color = wireframeColor;
     }
 
     else {
-        finalColour = calcMinnaert(directionalLight.base, directionalLight.direction);
+        color = objectColor;
     }
-
-    color = texture(theTexture, texCoord) * finalColour;
 }

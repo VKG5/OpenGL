@@ -61,8 +61,11 @@ private:
         GLuint uniformEdge;
     } uniformSpotLight[MAX_SPOT_LIGHTS];
 
-    // For switching between different shading models
-    GLuint uniformshadingModel;
+    // For switching between different shading models and UI Elements
+    GLuint uniformshadingModel,
+           uniformIsShaded, uniformIsWireframe,
+           uniformObjectColor, uniformWireframeColor,
+           uniformMaterialPreview;
 
     void compileShader(const char* vertexCode, const char* fragmentCode);
     void addShader(GLuint program, const char* shaderCode, GLenum shaderType);
@@ -86,8 +89,16 @@ public:
     GLuint getSpecularIntensityLocation();
     GLuint getShininessLocation();
     GLuint getEyePositionLocation();
-    GLuint getUniformshadingModel();
-    GLuint getShaderID();
+    GLuint getShadingModelLocation();
+
+    // UI Elements
+    GLuint getIsShadedLocation();
+    GLuint getIsWireframeLocation();
+    GLuint getObjectColorLocation();
+    GLuint getWireframeColourLocation();
+    GLuint getMaterialPreviewLocation();
+
+    GLuint getShaderIDLocation();
 
     void setDirectionalLight(DirectionalLight* dLight);
     void setPointLight(PointLight* pLight, unsigned int lightCount);

@@ -58,6 +58,13 @@ void Shader::compileShader(const char* vertexCode, const char* fragmentCode) {
     // For switching shading models
     uniformshadingModel = glGetUniformLocation(shaderID, "shadingModel");
 
+    // UI Elements
+    uniformMaterialPreview = glGetUniformLocation(shaderID, "materialPreview");
+    uniformIsShaded = glGetUniformLocation(shaderID, "isShaded");
+    uniformIsWireframe = glGetUniformLocation(shaderID, "isWireframe");
+    uniformObjectColor = glGetUniformLocation(shaderID, "objectColor");
+    uniformWireframeColor = glGetUniformLocation(shaderID, "wireframeColor");
+
     // Getting the locations for the particular "directionalLight" light
     // Ambient Light
     uniformDirectionalLight.uniformColour = glGetUniformLocation(shaderID, "directionalLight.base.colour");
@@ -244,12 +251,33 @@ GLuint Shader::getEyePositionLocation() {
 }
 
 // Getting Use Blinn
-GLuint Shader::getUniformshadingModel() {
+GLuint Shader::getShadingModelLocation() {
     return uniformshadingModel;
 }
 
-// Getting the shader ID
-GLuint Shader::getShaderID() {
+// UI Element Uniform Locations========================================================================================
+GLuint Shader::getIsShadedLocation() {
+    return uniformIsShaded;
+}
+
+GLuint Shader::getIsWireframeLocation() {
+    return uniformIsWireframe;
+}
+
+GLuint Shader::getObjectColorLocation() {
+    return uniformObjectColor;
+}
+
+GLuint Shader::getWireframeColourLocation() {
+    return uniformWireframeColor;
+}
+
+GLuint Shader::getMaterialPreviewLocation() {
+    return uniformMaterialPreview;
+}
+
+// Getting the shader ID===============================================================================================
+GLuint Shader::getShaderIDLocation() {
     return shaderID;
 }
 
