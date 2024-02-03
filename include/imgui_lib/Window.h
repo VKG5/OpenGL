@@ -66,6 +66,9 @@ public:
     // Getter for Window
     GLFWwindow* getWindow() { return mainWindow; }
 
+    // Callback function to handle resizing events
+    // static void resizeWindow(GLFWwindow* window, int width, int height);
+
     // Destructor
     ~Window();
 };

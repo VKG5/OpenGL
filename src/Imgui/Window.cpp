@@ -44,6 +44,9 @@ int Window::initialize() {
         GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE
     );
 
+    // Set the GLFW window hint for resizable
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
     mainWindow = glfwCreateWindow(width, height, "~Yumi~", NULL, NULL);
 
     if(!mainWindow) {
@@ -87,9 +90,16 @@ int Window::initialize() {
     return 0;
 }
 
+// Function to handle window resize events
+void resizeWindow(GLFWwindow* window, int width, int height) {
+    // Set the viewport size to match the resized window
+    glViewport(0, 0, width, height);
+}
+
 void Window::createCallbacks() {
     glfwSetKeyCallback(mainWindow, handleKeys);
     glfwSetCursorPosCallback(mainWindow, handleMouse);
+    glfwSetFramebufferSizeCallback(mainWindow, resizeWindow);
 }
 
 GLfloat Window::getXChange() {
@@ -166,6 +176,12 @@ void Window::handleMouse(GLFWwindow* window, double xPos, double yPos) {
     // Debugging
     //printf("x:%.6f, y:%.6f\n", theWindow->xChange, theWindow->yChange);
 }
+
+// Function to handle window resize events
+// void Window::resizeWindow(GLFWwindow* window, int width, int height) {
+//     // Set the viewport size to match the resized window
+//     glViewport(0, 0, width, height);
+// }
 
 Window::~Window() {
     glfwDestroyWindow(mainWindow);

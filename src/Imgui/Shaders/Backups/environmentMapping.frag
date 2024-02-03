@@ -117,18 +117,8 @@ vec4 calcLightByDirection(Light light, vec3 direction) {
         }
     }
 
-    // Environment Reflection Mapping with scattering effect
-    vec3 reflectedDir;
-    if (material.roughness > 0.0) {
-        // Use fragment position for randomness
-        vec3 randVec = normalize(vec3(sin(fragPos.x * 10.0), cos(fragPos.y * 10.0), tan(fragPos.z * 10.0)));
-
-        // Perturb the reflection vector based on roughness
-        reflectedDir = normalize(reflect(fragPos - eyePosition, normalize(Normal)) + material.roughness * randVec);
-    } else {
-        reflectedDir = reflect(fragPos - eyePosition, normalize(Normal));
-    }
-
+    // Environment Reflection Mapping
+    vec3 reflectedDir = reflect(fragPos - eyePosition, normalize(Normal));
     vec3 envColor = texture(environmentMap, reflectedDir).rgb;
 
     // Combine diffuse and specular with environment reflection
@@ -306,6 +296,13 @@ void main() {
         else {
             finalColour = calcMinnaert(directionalLight.base, directionalLight.direction);
         }
+
+        // // Environment Mapping
+        // float mixFactor = 1.0;
+        // vec3 reflectedDir = reflect(fragPos, normalize(Normal)); // Compute the reflected direction
+        // vec4 envColor = texture(environmentMap, reflectedDir);
+
+        // color = envColor * mixFactor + (objectColor * finalColour) * (1.0 - mixFactor);
 
         color = objectColor * finalColour;
     }

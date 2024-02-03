@@ -21,7 +21,8 @@ private:
     int spotLightCount;
 
     GLuint  shaderID, uniformProjection, uniformModel, uniformView,
-            uniformEyePosition, uniformSpecularIntensity, uniformShininess;
+            uniformEyePosition,
+            uniformSpecularIntensity, uniformShininess, uniformRoughness;
 
     // Creating instance of struct - uniformDirectionalLight
     struct {
@@ -93,6 +94,7 @@ public:
     GLuint getDiffuseDirectionLocation();
     GLuint getSpecularIntensityLocation();
     GLuint getShininessLocation();
+    GLuint getRoughnessLocation();
     GLuint getEyePositionLocation();
     GLuint getShadingModelLocation();
 

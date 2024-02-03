@@ -69,9 +69,12 @@ void Shader::compileProgram() {
     uniformDirectionalLight.uniformDirection = glGetUniformLocation(shaderID, "directionalLight.direction");
     uniformDirectionalLight.uniformDiffuseIntensity = glGetUniformLocation(shaderID, "directionalLight.base.diffuseIntensity");
 
-    // Specular Light
+    // Material Properties
     uniformShininess = glGetUniformLocation(shaderID, "material.shininess");
     uniformSpecularIntensity = glGetUniformLocation(shaderID, "material.specularIntensity");
+    uniformRoughness = glGetUniformLocation(shaderID, "material.roughness");
+
+    // Specular Highlights
     uniformEyePosition = glGetUniformLocation(shaderID, "eyePosition");
 
     // Point Light
@@ -253,6 +256,11 @@ GLuint Shader::getSpecularIntensityLocation() {
 // Getter for Shininess
 GLuint Shader::getShininessLocation() {
     return uniformShininess;
+}
+
+// Getter for Roughness
+GLuint Shader::getRoughnessLocation() {
+    return uniformRoughness;
 }
 
 // Getter for Eye Position

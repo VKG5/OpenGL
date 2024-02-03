@@ -44,7 +44,7 @@ const float toRadians = 3.14159265f / 180.0f;
 
 // Setting the variables
 GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
-        uniformSpecularIntensity = 0, uniformShininess = 0,
+        uniformSpecularIntensity = 0, uniformShininess = 0, uniformRoughness = 0,
         uniformshadingModel = 0,
         uniformIsShaded = 0, uniformIsWireframe = 0, uniformObjectColor = 0, uniformWireframeColor = 0,
         uniformMaterialPreview = 0;
@@ -242,16 +242,16 @@ void prepareObjects() {
 
     // Setting up Materials============================================================================================
     // Make the second parameter (Shine) to be powers of 2
-    shinyMat = Material(1.0f, 256);
-    roughMat = Material(0.5f, 32);
-    extraRoughMat = Material(0.125f, 2);
-    extraShinyMat = Material(1.0f, 1024);
+    shinyMat = Material(1.0f, 256, 0.1f);
+    roughMat = Material(0.5f, 32, 0.8f);
+    extraRoughMat = Material(0.125f, 2, 1.0f);
+    extraShinyMat = Material(1.0f, 1024, 0.0125f);
 
     // Loading Models==================================================================================================
     cube = Model();
     cube.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Models/monkey.obj");
     cube1 = Model();
-    cube1.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Models/monkey1.obj");
+    cube1.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Models/Curtiss_T18.obj");
 }
 
 // Global parameter for rotating the objects
@@ -260,30 +260,30 @@ float step = 0.005f;
 
 // We are replacing all the texture with realisitc textures to show-case PBR
 void renderScene() {
-    // Happens in a reverse order
-    // Translate
-    // Object 1
+    // // Happens in a reverse order
+    // // Translate
+    // // Object 1
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
-    // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+    // model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
+    // // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+    // glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-    // Texturing the Mesh
-    brickTexture.useTexture();
-    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-    meshList[0]->renderMesh();
+    // // Texturing the Mesh
+    // brickTexture.useTexture();
+    // roughMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformRoughness);
+    // meshList[0]->renderMesh();
 
-    // Clearing out the properties
-    // Object 2
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 3.0f, -2.5f));
-    // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
-    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+    // // Clearing out the properties
+    // // Object 2
+    // model = glm::mat4(1.0f);
+    // model = glm::translate(model, glm::vec3(0.0f, 3.0f, -2.5f));
+    // // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+    // glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
-    // Texturing the Mesh
-    dirtTexture.useTexture();
-    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
-    meshList[1]->renderMesh();
+    // // Texturing the Mesh
+    // dirtTexture.useTexture();
+    // roughMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformRoughness);
+    // meshList[1]->renderMesh();
 
     // Object 3
     model = glm::mat4(1.0f);
@@ -293,7 +293,7 @@ void renderScene() {
 
     // Texturing the Mesh
     brickTexture.useTexture();
-    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformRoughness);
     meshList[2]->renderMesh();
 
     // Cubes=======================================================================================================
@@ -314,7 +314,7 @@ void renderScene() {
 
     // Texturing the Mesh
     whiteTexture.useTexture();
-    extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformRoughness);
     cube.renderModel();
 
     // Cube 2
@@ -327,7 +327,7 @@ void renderScene() {
 
     // Texturing the Mesh
     whiteTexture.useTexture();
-    shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformRoughness);
     cube.renderModel();
 
     // Cube 3
@@ -340,7 +340,7 @@ void renderScene() {
 
     // Texturing the Mesh
     whiteTexture.useTexture();
-    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformRoughness);
     cube.renderModel();
 
     // Cube 4
@@ -353,7 +353,7 @@ void renderScene() {
 
     // Texturing the Mesh
     whiteTexture.useTexture();
-    extraRoughMat.useMaterial(uniformSpecularIntensity, uniformShininess);
+    extraRoughMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformRoughness);
     cube.renderModel();
 }
 
@@ -389,7 +389,7 @@ void setShadingModeName() {
 
 void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     // Setting initial GLFW Window
-    glViewport(0, 0, 1366, 768);
+    // glViewport(0, 0, 1366, 768);
 
     // Clear window
     glClearColor( mainGUI.getBackgroundColor().x,
@@ -473,6 +473,7 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     uniformEyePosition = shaderList[0].getEyePositionLocation();
     uniformSpecularIntensity = shaderList[0].getSpecularIntensityLocation();
     uniformShininess = shaderList[0].getShininessLocation();
+    uniformRoughness = shaderList[0].getRoughnessLocation();
 
     // Getting Shading Mode
     uniformshadingModel = shaderList[0].getShadingModelLocation();
