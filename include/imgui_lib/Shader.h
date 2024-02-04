@@ -66,7 +66,8 @@ private:
     GLuint uniformshadingModel,
            uniformIsShaded, uniformIsWireframe,
            uniformObjectColor, uniformWireframeColor,
-           uniformMaterialPreview;
+           uniformMaterialPreview,
+           uniformMainTexture, uniformNoiseTexture;
 
     void compileShader(const char* vertexCode, const char* fragmentCode);
 
@@ -97,6 +98,8 @@ public:
     GLuint getRoughnessLocation();
     GLuint getEyePositionLocation();
     GLuint getShadingModelLocation();
+    GLuint getMainTextureLocation();
+    GLuint getNoiseTextureLocation();
 
     // UI Elements
     GLuint getIsShadedLocation();
@@ -110,7 +113,7 @@ public:
     void setDirectionalLight(DirectionalLight* dLight);
     void setPointLight(PointLight* pLight, unsigned int lightCount);
     void setSpotLight(SpotLight* sLight, unsigned int lightCount);
-    void setTexture(GLuint textureUnit);
+    void setTexture(GLuint uniformTexLocation, GLuint textureUnit);
 
     void useShader();
     void cleanShader();

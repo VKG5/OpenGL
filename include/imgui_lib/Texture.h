@@ -12,6 +12,9 @@ private:
 
     const char* filePath;
 
+    // Function to generate noise
+    unsigned char* generateNoise();
+
 public:
     // Constructor
     Texture();
@@ -20,8 +23,15 @@ public:
 
     bool loadTexture();
     bool loadTextureA();
+
+    // For supporting multiple textures in one shader
     void useTexture();
+    void useTexture(GLenum textureUnit);
+
     void cleanTexture();
+
+    // Noise
+    bool generateRandomTexture(GLuint w, GLuint h, GLuint d);
 
     // Destructor
     ~Texture();

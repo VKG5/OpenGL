@@ -9,6 +9,9 @@ Shader::Shader() {
 
     pointLightCount = 0;
     spotLightCount = 0;
+
+    uniformMainTexture = 0;
+    uniformNoiseTexture = -1;
 }
 
 void Shader::createFromString(const char* vertexCode, const char* fragmentCode) {
@@ -138,6 +141,10 @@ void Shader::compileProgram() {
         snprintf(locBuff, sizeof(locBuff), "spotLight[%zd].edge", i);
         uniformSpotLight[i].uniformEdge = glGetUniformLocation(shaderID, locBuff);
     }
+
+    // Textures
+    uniformMainTexture = glGetUniformLocation(shaderID, "theTexture");;
+    uniformNoiseTexture = glGetUniformLocation(shaderID, "noiseTexture");
 }
 
 void Shader::compileShader(const char* vertexCode, const char* fragmentCode) {
@@ -294,9 +301,21 @@ GLuint Shader::getMaterialPreviewLocation() {
     return uniformMaterialPreview;
 }
 
+GLuint Shader::getMainTextureLocation() {
+    return uniformMainTexture;
+}
+
+GLuint Shader::getNoiseTextureLocation() {
+    return uniformNoiseTexture;
+}
+
 // Getting the shader ID===============================================================================================
 GLuint Shader::getShaderIDLocation() {
     return shaderID;
+}
+
+void Shader::setTexture(GLuint uniformTexLocation, GLuint textureUnit) {
+    glUniform1i(uniformTexLocation, textureUnit);
 }
 
 void Shader::setDirectionalLight(DirectionalLight * dLight) {

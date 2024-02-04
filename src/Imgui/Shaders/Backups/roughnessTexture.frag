@@ -79,8 +79,19 @@ uniform samplerCube environmentMap;
 bool envMapping = true;
 
 vec3 calcEnvironmentMapping() {
-    // Environment Reflection Mapping
-    vec3 reflectedDir = reflect(fragPos - eyePosition, normalize(Normal));
+    if (material.roughness > 0.0) {
+        // Perturbing the reflection based on generated noise texture
+        vec3 randVec = normalize(vec3(texture(noiseTexture, fragPos.xy * 0.1).r * 2.0 - 1.0,
+                                      texture(noiseTexture, fragPos.yz * 0.1).r * 2.0 - 1.0,
+                                      texture(noiseTexture, fragPos.xz * 0.1).r * 2.0 - 1.0));
+
+        reflectedDir = normalize(reflect(fragPos - eyePosition, normalize(Normal)) + material.roughness * randVec);
+    }
+
+    else {
+        reflectedDir = reflect(fragPos - eyePosition, normalize(Normal));
+    }
+
     return texture(environmentMap, reflectedDir).rgb;
 }
 

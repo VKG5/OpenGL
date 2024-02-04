@@ -47,7 +47,8 @@ GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosi
         uniformSpecularIntensity = 0, uniformShininess = 0, uniformRoughness = 0,
         uniformshadingModel = 0,
         uniformIsShaded = 0, uniformIsWireframe = 0, uniformObjectColor = 0, uniformWireframeColor = 0,
-        uniformMaterialPreview = 0;
+        uniformMaterialPreview = 0,
+        uniformMainTexture = 0, uniformNoiseTexture = 0;
 
 // Our main window
 Window mainWindow;
@@ -69,6 +70,9 @@ Texture brickTexture;
 Texture dirtTexture;
 Texture whiteTexture;
 Texture blackTexture;
+
+// Noise Texture for random maps
+// Texture noiseTexture;
 
 // Lights - 1 Directional, Multiple Point, Multiple Spot
 DirectionalLight mainLight;
@@ -240,6 +244,11 @@ void prepareObjects() {
     blackTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/black.jpg");
     blackTexture.loadTexture();
 
+    // Generated Noise Texture
+    // Parameters - Width, Height, Channels = 3 (Use 3 channels - RGB)
+    // noiseTexture = Texture();
+    // noiseTexture.generateRandomTexture(2048, 2048, 3);
+
     // Setting up Materials============================================================================================
     // Make the second parameter (Shine) to be powers of 2
     shinyMat = Material(1.0f, 256, 0.1f);
@@ -264,6 +273,10 @@ void renderScene() {
     // // Translate
     // // Object 1
     glm::mat4 model = glm::mat4(1.0f);
+
+    // Setting Noise Texture to active - Set it to the same texture unit you set in the main loop
+    // noiseTexture.useTexture(GL_TEXTURE1);
+
     // model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
     // // model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
     // glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -491,6 +504,16 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     uniformIsWireframe = shaderList[0].getIsWireframeLocation();
     uniformWireframeColor = shaderList[0].getWireframeColourLocation();
     uniformObjectColor = shaderList[0].getObjectColorLocation();
+
+    // Getting the texture locations
+    uniformMainTexture = shaderList[0].getMainTextureLocation();
+
+    // Binding the texture to correct texture units
+    shaderList[0].setTexture(uniformMainTexture, 0);
+
+    // TODO : Intergrate this to work like a proper roughness map
+    // uniformNoiseTexture = shaderList[0].getNoiseTextureLocation();
+    // shaderList[0].setTexture(uniformNoiseTexture, 1);
 
     glm::vec3 lowerLight = camera.getCameraPosition();
     lowerLight.y -= 0.369f;
