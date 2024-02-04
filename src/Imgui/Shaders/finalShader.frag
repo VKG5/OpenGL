@@ -76,7 +76,9 @@ uniform vec3 eyePosition;
 
 // Skybox
 uniform samplerCube environmentMap;
-bool envMapping = true;
+uniform bool envMapping;
+uniform bool skybox;
+uniform vec3 backgroundColor;
 
 vec3 calcEnvironmentMapping() {
     // Environment Reflection Mapping
@@ -128,13 +130,21 @@ vec4 calcLightByDirection(Light light, vec3 direction) {
         }
     }
 
-    vec3 envColor = calcEnvironmentMapping();
-
     if(envMapping) {
-        // Combine diffuse and specular with environment reflection
-        // return (ambientColour + diffuseColour + specularColour);
-        return  (ambientColour + diffuseColour) + specularColour * (1.0 - material.roughness) +
-                vec4(envColor * (1.0 - material.roughness) * material.specularIntensity, 1.0 );
+        if(skybox) {
+            vec3 envColor = calcEnvironmentMapping();
+
+            // Combine diffuse and specular with environment reflection
+            // return (ambientColour + diffuseColour + specularColour);
+            return  (ambientColour + diffuseColour) + specularColour * (1.0 - material.roughness) +
+                    vec4(envColor * (1.0 - material.roughness) * material.specularIntensity, 1.0 );
+        }
+
+        else {
+            // Combine diffuse and specular with background color
+            return  (ambientColour + diffuseColour) + specularColour * (1.0 - material.roughness) +
+                    vec4(backgroundColor * (1.0 - material.roughness) * material.specularIntensity, 1.0 );
+        }
     }
 
     else {

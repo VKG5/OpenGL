@@ -44,6 +44,8 @@ public:
 
     glm::mat4 calculateViewMatrix();
 
+    void updateMoveSpeed(GLfloat newSpeed);
+
     // Destructor
     ~Camera();
 };

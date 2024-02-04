@@ -36,15 +36,19 @@ private:
     float directionalLightDirection[3] = {2.0f, -1.0f, -2.0f};
     float directionalLightAmbient = 0.05f;
     float directionalLightDiffuse = 0.35f;
+    float cameraSpeed = 5.0f;
 
     // Point Lights
-    bool isPointLights = true;
+    bool isPointLights = false;
 
     // Spot Lights
-    bool isSpotLights = true;
+    bool isSpotLights = false;
 
     // Skybox
     bool isSkyBox = false;
+
+    // Environment Mapping
+    bool isEnvMapping = false;
 
 public:
     // Constructor
@@ -74,6 +78,9 @@ public:
     // Material Preview Mode
     bool getMaterialPreview() const { return materialPreview; }
 
+    // Camera Speed
+    float getCameraSpeed() const { return cameraSpeed; }
+
     // Directional Light Parameters
     const float* getDirectionalLightColor() const { return directionalLightColor; }
     const float* getDirectionalLightDirection() const { return directionalLightDirection; }
@@ -88,6 +95,9 @@ public:
 
     // Skybox Parameters
     bool getIsSkyBox() const { return isSkyBox; }
+
+    // Environment Mapping Parameters
+    bool getIsEnvMapping() const { return isEnvMapping; }
 
     // Destructor
     ~GUI();

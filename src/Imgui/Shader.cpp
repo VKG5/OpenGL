@@ -62,6 +62,9 @@ void Shader::compileProgram() {
     uniformIsWireframe = glGetUniformLocation(shaderID, "isWireframe");
     uniformObjectColor = glGetUniformLocation(shaderID, "objectColor");
     uniformWireframeColor = glGetUniformLocation(shaderID, "wireframeColor");
+    uniformEnvMapping = glGetUniformLocation(shaderID, "envMapping");
+    uniformSkybox = glGetUniformLocation(shaderID, "skybox");
+    uniformBackgroundColor = glGetUniformLocation(shaderID, "backgroundColor");
 
     // Getting the locations for the particular "directionalLight" light
     // Ambient Light
@@ -307,6 +310,18 @@ GLuint Shader::getMainTextureLocation() {
 
 GLuint Shader::getNoiseTextureLocation() {
     return uniformNoiseTexture;
+}
+
+GLuint Shader::getEnvMappingLocation() {
+    return uniformEnvMapping;
+}
+
+GLuint Shader::getSkyboxLocation() {
+    return uniformSkybox;
+}
+
+GLuint Shader::getBackgroundColourLocation() {
+    return uniformBackgroundColor;
 }
 
 // Getting the shader ID===============================================================================================

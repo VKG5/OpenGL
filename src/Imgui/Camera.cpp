@@ -31,65 +31,34 @@ Camera::Camera( glm::vec3 initialPosition, glm::vec3 initialUp, GLfloat initialY
 
 void Camera::keyControl(bool* keys, GLfloat deltaTime) {
     GLfloat velocity = moveSpeed * deltaTime;
-    GLfloat speedUp = 5.0f;
 
     // Move Forward
     if(keys[GLFW_KEY_W]) {
-        // Fast Move
-        if(keys[GLFW_KEY_LEFT_SHIFT])  {
-            velocity *= speedUp;
-        }
-
         position += front * velocity;
     }
 
     // Move Backward
     if(keys[GLFW_KEY_S]) {
-        // Fast Move
-        if(keys[GLFW_KEY_LEFT_SHIFT])  {
-            velocity *= speedUp;
-        }
-
         position -= front * velocity;
     }
 
     // Move Right
     if(keys[GLFW_KEY_D]) {
-        // Fast Move
-        if(keys[GLFW_KEY_LEFT_SHIFT])  {
-            velocity *= speedUp;
-        }
-
         position += right * velocity;
     }
 
     // Move Left
     if(keys[GLFW_KEY_A]) {
-        // Fast Move
-        if(keys[GLFW_KEY_LEFT_SHIFT])  {
-            velocity *= speedUp;
-        }
-
         position -= right * velocity;
     }
 
     // Move Up
     if(keys[GLFW_KEY_Q]) {
-        // Fast Move
-        if(keys[GLFW_KEY_LEFT_SHIFT])  {
-            velocity *= speedUp;
-        }
-
         position += worldUp * velocity;
     }
 
     // Move Down
     if(keys[GLFW_KEY_E]) {
-        // Fast Move
-        if(keys[GLFW_KEY_LEFT_SHIFT])  {
-            velocity *= speedUp;
-        }
-
         position -= worldUp * velocity;
     }
 
@@ -146,6 +115,11 @@ void Camera::update() {
 
     right = glm::normalize(glm::cross(front, worldUp));
     up = glm::normalize(glm::cross(right, front));
+}
+
+// Changing Move Speed
+void Camera::updateMoveSpeed(GLfloat newSpeed) {
+    moveSpeed = newSpeed;
 }
 
 Camera::~Camera() {

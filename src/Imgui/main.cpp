@@ -1,6 +1,7 @@
 // STB
 #define STB_IMAGE_IMPLEMENTATION
 
+// Including all necessary headers
 // ImGUI
 #include "GUI.h"
 
@@ -39,6 +40,7 @@
 // Skybox
 #include "Skybox.h"
 
+// Defining all necessary variables
 // Converting to Radians
 const float toRadians = 3.14159265f / 180.0f;
 
@@ -48,7 +50,8 @@ GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosi
         uniformshadingModel = 0,
         uniformIsShaded = 0, uniformIsWireframe = 0, uniformObjectColor = 0, uniformWireframeColor = 0,
         uniformMaterialPreview = 0,
-        uniformMainTexture = 0, uniformNoiseTexture = 0;
+        uniformMainTexture = 0, uniformNoiseTexture = 0,
+        uniformEnvMapping = 0, uniformSkybox = 0, uniformBackgroundColor = 0;
 
 // Our main window
 Window mainWindow;
@@ -185,24 +188,24 @@ void createShaders() {
 void createLights() {
     // Setting up lights
     mainLight = DirectionalLight( 1.0f, 0.85f, 0.65f,
-                                  0.05f, 0.35f,
+                                  0.5f, 0.35f,
                                   2.0f, -1.0f, -2.0f );
 
     // Point Lights
     pointLights[0] = PointLight( 1.0f, 0.0f, 0.0f,
-                                 0.35f, 0.25f,
+                                 0.35f, 0.25,
                                  -2.0f, 0.0f, 0.0f,
                                  0.3f, 0.2f, 0.1f );
     pointLightCount++;
 
     pointLights[1] = PointLight( 0.0f, 1.0f, 0.0f,
-                                 0.35f, 0.25f,
+                                 0.35f, 0.25,
                                  0.0f, 0.0f, 0.0f,
                                  0.3f, 0.1f, 0.1f );
     pointLightCount++;
 
     pointLights[2] = PointLight( 0.0f, 0.0f, 1.0f,
-                                 0.35f, 0.25f,
+                                 0.35f, 0.25,
                                  2.0f, 0.0f, 1.0f,
                                  0.3f, 0.1f, 0.1f );
     pointLightCount++;
@@ -400,6 +403,7 @@ void setShadingModeName() {
     }
 }
 
+// Render Pass - Renders all data in the scene
 void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     // Setting initial GLFW Window
     // glViewport(0, 0, 1366, 768);
@@ -434,6 +438,9 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
         // Preventing multiple inputs
         mainWindow.getKeys()[GLFW_KEY_C] = false;
     }
+
+    // Updating the camera speed
+    camera.updateMoveSpeed(mainGUI.getCameraSpeed());
 
     // Handling input events exclusive to the GLFW Window
     if(!mainGUI.getIO().WantCaptureMouse) {
@@ -504,6 +511,9 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     uniformIsWireframe = shaderList[0].getIsWireframeLocation();
     uniformWireframeColor = shaderList[0].getWireframeColourLocation();
     uniformObjectColor = shaderList[0].getObjectColorLocation();
+    uniformEnvMapping = shaderList[0].getEnvMappingLocation();
+    uniformSkybox = shaderList[0].getSkyboxLocation();
+    uniformBackgroundColor = shaderList[0].getBackgroundColourLocation();
 
     // Getting the texture locations
     uniformMainTexture = shaderList[0].getMainTextureLocation();
@@ -576,6 +586,12 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
                                        mainGUI.getWireframeColor().y,
                                        mainGUI.getWireframeColor().z,
                                        mainGUI.getWireframeColor().w );
+
+    glUniform1i(uniformEnvMapping, mainGUI.getIsEnvMapping());
+    glUniform1i(uniformSkybox, mainGUI.getIsSkyBox());
+    glUniform3f(uniformBackgroundColor, mainGUI.getBackgroundColor().x,
+                                        mainGUI.getBackgroundColor().y,
+                                        mainGUI.getBackgroundColor().z);
 
     // Added the texture disabling functionality in the shader
     renderScene();

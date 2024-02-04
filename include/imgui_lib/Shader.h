@@ -67,7 +67,8 @@ private:
            uniformIsShaded, uniformIsWireframe,
            uniformObjectColor, uniformWireframeColor,
            uniformMaterialPreview,
-           uniformMainTexture, uniformNoiseTexture;
+           uniformMainTexture, uniformNoiseTexture,
+           uniformEnvMapping, uniformSkybox, uniformBackgroundColor;
 
     void compileShader(const char* vertexCode, const char* fragmentCode);
 
@@ -107,7 +108,11 @@ public:
     GLuint getObjectColorLocation();
     GLuint getWireframeColourLocation();
     GLuint getMaterialPreviewLocation();
+    GLuint getEnvMappingLocation();
+    GLuint getSkyboxLocation();
+    GLuint getBackgroundColourLocation();
 
+    // Shader ID
     GLuint getShaderIDLocation();
 
     void setDirectionalLight(DirectionalLight* dLight);

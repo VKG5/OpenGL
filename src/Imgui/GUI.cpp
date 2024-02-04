@@ -50,6 +50,9 @@ void GUI::elements(std::string& shadingMode) {
     ImGui::SetWindowFontScale(1.0f);
     ImGui::Checkbox("Material Preview", &materialPreview);
 
+    // Setting the camera speed
+    ImGui::DragFloat("Camera Speed", &cameraSpeed, sliderSpeed);
+
     // Spacing
     ImGui::Spacing();
     ImGui::Checkbox("Wireframe", &wireframe);
@@ -100,6 +103,7 @@ void GUI::elements(std::string& shadingMode) {
     ImGui::Spacing();
     ImGui::Text("Skybox");
     ImGui::Checkbox("Skybox Active", &isSkyBox);
+    ImGui::Checkbox("Envvironment Mapping", &isEnvMapping);
 }
 
 void GUI::render(std::string& shadingMode) {
