@@ -19,6 +19,7 @@ set(
     "SpotLight.h"
     "Model.h"
     "Skybox.h"
+    "Movement.h"
 )
 
 set(

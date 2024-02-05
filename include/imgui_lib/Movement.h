@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-class Camera {
+class Movement {
 private:
     glm::vec3 position;
     glm::vec3 front;
@@ -29,25 +29,19 @@ private:
 
 public:
     // Constructor
-    Camera();
-
-    // Yaw - Front, Pitch - Right
-    Camera( glm::vec3 initialPosition, glm::vec3 initialUp, GLfloat initialYaw,
-            GLfloat initialPitch, GLfloat initialTurnSpeed, GLfloat initialMoveSpeed );
+    Movement();
 
     void keyControl(bool* keys, GLfloat deltaTime);
     void mouseControl(GLfloat xChange, GLfloat yChange);
 
     // Getter for specular highlight data
-    glm::vec3 getCameraPosition();
-    glm::vec3 getCameraDirection();
+    glm::vec3 getMovementPosition();
+    glm::vec3 getMovementDirection();
 
-    glm::mat4 calculateViewMatrix();
+    void updateMoveSpeed(GLfloat newMove, GLfloat newTurn);
 
-    void updateMoveSpeed(GLfloat newSpeed);
-
-    void setPosition(glm::vec3 currPos, glm::vec3 currAngle);
+    glm::vec3 mapRange(const glm::vec3& input);
 
     // Destructor
-    ~Camera();
+    ~Movement();
 };

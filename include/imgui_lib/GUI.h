@@ -34,9 +34,9 @@ private:
     // Directional Light
     float directionalLightColor[3] = {1.0f, 1.0f, 1.0f};
     float directionalLightDirection[3] = {2.0f, -1.0f, -2.0f};
-    float directionalLightAmbient = 0.05f;
-    float directionalLightDiffuse = 0.35f;
-    float cameraSpeed = 5.0f;
+    float directionalLightAmbient = 0.125f;
+    float directionalLightDiffuse = 1.0f;
+    float cameraSpeed = 15.0f;
 
     // Point Lights
     bool isPointLights = false;
@@ -49,6 +49,17 @@ private:
 
     // Environment Mapping
     bool isEnvMapping = false;
+
+    // Controls
+    float planePosition[3] = {0.0f, 0.0f, 0.0f};
+    float planeRotation[3] = {0.0f, 0.0f, 0.0f};
+    float planeSpeed = 5.0f;
+    float planeTurnSpeed = 0.01f;
+    bool isPropeller = true;
+    float propellerSpeed = 0.5f;
+    ImVec2 firstPersonOffset = ImVec2(4.0f, -0.25f);
+    ImVec2 thirdPersonOffset = ImVec2(-6.69f, 25.69f);
+
 
 public:
     // Constructor
@@ -63,7 +74,7 @@ public:
 
     ImGuiIO getIO() const { return io; }
 
-    // Getters for UI elements
+    // Getters for UI elements=========================================================================================
     // Wireframe
     bool getIsWireframe() const { return wireframe; }
     ImVec4 getWireframeColor() const { return wireframeColor; }
@@ -98,6 +109,20 @@ public:
 
     // Environment Mapping Parameters
     bool getIsEnvMapping() const { return isEnvMapping; }
+
+    // Controls
+    const float* getPlanePosition() const { return planePosition; }
+    const float* getPlaneRotation() const { return planeRotation; }
+    float getPlaneSpeed() const { return planeSpeed; }
+    float getPlaneTurnSpeed() const { return planeTurnSpeed; }
+    bool getIsPropeller() const { return isPropeller; }
+    float getPropellerSpeed() const { return propellerSpeed; }
+    ImVec2 getFPOffset() const { return firstPersonOffset; }
+    ImVec2 getTPOffset() const { return thirdPersonOffset; }
+
+    // Setters=========================================================================================================
+    void setPlanePosition(float x, float y, float z);
+    void setPlaneRotation(float x, float y, float z);
 
     // Destructor
     ~GUI();
