@@ -41,12 +41,13 @@ public:
     // Getter for specular highlight data
     glm::vec3 getCameraPosition();
     glm::vec3 getCameraDirection();
+    glm::vec3 getCameraDirectionMagnitude();
 
     glm::mat4 calculateViewMatrix();
 
     void updateMoveSpeed(GLfloat newSpeed);
 
-    void setPosition(glm::vec3 currPos, glm::vec3 currAngle);
+    void setPosition(glm::vec3 currPos);
 
     // Destructor
     ~Camera();

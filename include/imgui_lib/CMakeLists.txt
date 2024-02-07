@@ -20,11 +20,14 @@ set(
     "Model.h"
     "Skybox.h"
     "Movement.h"
+    "algorithms/randomDistribute.h"
 )
 
 set(
     LIBRARY_INCLUDES
     "./"
+    "./deps"
+    "./algorithms"
 )
 
 set(
