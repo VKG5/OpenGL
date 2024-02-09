@@ -50,8 +50,11 @@ void GUI::elements(std::string& shadingMode) {
     ImGui::SetWindowFontScale(1.0f);
     ImGui::Checkbox("Material Preview", &materialPreview);
 
-    // Setting the camera speed
-    ImGui::DragFloat("Camera Speed", &cameraSpeed, sliderSpeed);
+    // Setting camera properties
+    // And environment map
+    ImGui::SliderInt("Skybox", (int*)&skyboxIndex, 1, 6);
+    ImGui::DragFloat("Camera Speed", (float*)&cameraSpeed, sliderSpeed);
+    ImGui::DragFloat3("Camera Position", (float*)&cameraPos, sliderSpeed);
 
     // Spacing
     ImGui::Spacing();
@@ -103,7 +106,22 @@ void GUI::elements(std::string& shadingMode) {
     ImGui::Spacing();
     ImGui::Text("Skybox");
     ImGui::Checkbox("Skybox Active", &isSkyBox);
-    ImGui::Checkbox("Envvironment Mapping", &isEnvMapping);
+    ImGui::Checkbox("Environment Mapping", &isEnvMapping);
+
+    if(isEnvMapping) {
+        ImGui::Checkbox("Reflection", &isReflection);
+        ImGui::Checkbox("Refraction", &isRefraction);
+        ImGui::DragFloat("IOR", (float*)&ior, sliderSpeed);
+        ImGui::DragFloat("Fresnel Reflectance", (float*)&f0, sliderSpeed);
+        ImGui::DragFloat("Dispersion", (float*)&dispersion, sliderSpeed / 10, 0.0f, 1.0f);
+    }
+}
+
+// Setters
+void GUI::setCameraPosition(float x, float y, float z) {
+    cameraPos[0] = x;
+    cameraPos[1] = y;
+    cameraPos[2] = z;
 }
 
 void GUI::render(std::string& shadingMode) {

@@ -3,10 +3,10 @@
 Skybox::Skybox() {
 }
 
-Skybox::Skybox(std::vector<std::string> faceLocations) {
+Skybox::Skybox(std::vector<std::string> faceLocations, bool rgba) {
     // Shader setup
     skyShader = new Shader();
-    skyShader->createFromFiles("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Shaders/skybox.vert", "D:/Programs/C++/Rendering/OpenGL/src/Imgui/Shaders/skybox.frag");
+    skyShader->createFromFiles("D:/Programs/C++/Yumi/src/Imgui/Shaders/skybox.vert", "D:/Programs/C++/Yumi/src/Imgui/Shaders/skybox.frag");
 
     uniformProjection = skyShader->getProjectionLocation();
     uniformView = skyShader->getViewLocation();
@@ -24,8 +24,14 @@ Skybox::Skybox(std::vector<std::string> faceLocations) {
             return;
         }
 
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texData);
+        // Making texture with RGBA
+        if(rgba)
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
 
+        // Making texture with RGB
+        else {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texData);
+        }
         // Removing images from memory
         stbi_image_free(texData);
     }

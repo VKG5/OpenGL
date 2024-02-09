@@ -39,7 +39,7 @@ struct SpotLight {
 struct Material {
     float specularIntensity;
     float shininess;
-    float roughness;
+    float metalness;
 };
 
 // Counter variables
@@ -80,10 +80,40 @@ uniform bool envMapping;
 uniform bool skybox;
 uniform vec3 backgroundColor;
 
-vec3 calcEnvironmentMapping() {
+// Transmission
+uniform bool reflection;
+uniform bool refraction;
+uniform float ior;
+uniform float reflectance;
+uniform float dispersion;
+
+vec3 calcReflection() {
     // Environment Reflection Mapping
-    vec3 reflectedDir = reflect(fragPos - eyePosition, normalize(Normal));
-    return texture(environmentMap, reflectedDir).rgb;
+    vec3 reflectedDir = reflect(-normalize(fragPos - eyePosition), normalize(Normal));
+    return texture(environmentMap, -reflectedDir).rgb;
+}
+
+vec3 calcRefraction() {
+    // Environment Refraction Mapping
+    float ratioR = 1.00 / ior + dispersion;
+    float ratioG = 1.00 / ior;
+    float ratioB = 1.00 / ior - dispersion;
+
+    // Simulating dispersion by adjusting the refraction direction for each channel
+    vec3 refractedDirR = refract(-normalize(fragPos - eyePosition), normalize(Normal), ratioR);
+    vec3 refractedDirG = refract(-normalize(fragPos - eyePosition), normalize(Normal), ratioG);
+    vec3 refractedDirB = refract(-normalize(fragPos - eyePosition), normalize(Normal), ratioB);
+
+    // Combining the various channels
+    float colourR = texture(environmentMap, -refractedDirR).r;
+    float colourG = texture(environmentMap, -refractedDirG).g;
+    float colourB = texture(environmentMap, -refractedDirB).b;
+
+    return vec3(colourR, colourG, colourB);
+}
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0) {
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
 vec4 calcLightByDirection(Light light, vec3 direction) {
@@ -132,18 +162,51 @@ vec4 calcLightByDirection(Light light, vec3 direction) {
 
     if(envMapping) {
         if(skybox) {
-            vec3 envColor = calcEnvironmentMapping();
+            // Setting up empty environment color
+            vec3 envColor = vec3(0.0, 0.0, 0.0);
+
+            // Reflection
+            if(reflection && !refraction) {
+                envColor = calcReflection();
+            }
+
+            // Refraction
+            else if (!reflection && refraction) {
+                envColor = calcRefraction();
+            }
+
+            // Fresnel
+            else if (reflection && refraction) {
+                vec3 incident = -normalize(fragPos - eyePosition);
+                vec3 normal = -normalize(Normal);
+
+                float cosTheta = dot(incident, normal);
+                float sinTheta2 = 1.0 - cosTheta * cosTheta;
+
+                if(sinTheta2 < 0.0) {
+                    envColor = objectColor.rgb;
+                }
+
+                else {
+                    vec3 F0 = vec3(reflectance);
+                    F0 = mix(F0, objectColor.rgb, material.metalness);
+
+                    // Calculate fresnel reflection using Schlick's approximation
+                    vec3 fresenelFactor = fresnelSchlick(cosTheta, F0);
+                    envColor = mix( calcRefraction(), calcReflection(), fresenelFactor );
+                }
+            }
 
             // Combine diffuse and specular with environment reflection
             // return (ambientColour + diffuseColour + specularColour);
-            return  (ambientColour + diffuseColour) + specularColour * (1.0 - material.roughness) +
-                    vec4(envColor * (1.0 - material.roughness) * material.specularIntensity, 1.0 );
+            return  (ambientColour + diffuseColour) + specularColour * (1.0 - material.metalness) +
+                    vec4(envColor * (1.0 - material.metalness) * material.specularIntensity, 1.0 );
         }
 
         else {
             // Combine diffuse and specular with background color
-            return  (ambientColour + diffuseColour) + specularColour * (1.0 - material.roughness) +
-                    vec4(backgroundColor * (1.0 - material.roughness) * material.specularIntensity, 1.0 );
+            return  (ambientColour + diffuseColour) + specularColour * (1.0 - material.metalness) +
+                    vec4(backgroundColor * (1.0 - material.metalness) * material.specularIntensity, 1.0 );
         }
     }
 

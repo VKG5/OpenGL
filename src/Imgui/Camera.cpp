@@ -78,6 +78,13 @@ glm::vec3 Camera::getCameraDirection() {
     return glm::normalize(front);
 }
 
+glm::vec3 Camera::getCameraDirectionMagnitude() {
+    // Function to map values from [-1.0, 1.0] to [-360.0, 360.0]
+    return glm::vec3( glm::clamp((front.x + 1.0f) * 360.0f, 0.0f, 360.0f),
+                      glm::clamp((front.y + 1.0f) * 360.0f, 0.0f, 360.0f),
+                      glm::clamp((front.z + 1.0f) * 360.0f, 0.0f, 360.0f) );
+}
+
 glm::mat4 Camera::calculateViewMatrix() {
     // Position, where we are look at from
     // Thing we are looking at
@@ -115,6 +122,10 @@ void Camera::update() {
 
     right = glm::normalize(glm::cross(front, worldUp));
     up = glm::normalize(glm::cross(right, front));
+}
+
+void Camera::setPosition(glm::vec3 currPos) {
+    position = currPos;
 }
 
 // Changing Move Speed

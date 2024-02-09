@@ -62,6 +62,13 @@ void Shader::compileProgram() {
     uniformIsWireframe = glGetUniformLocation(shaderID, "isWireframe");
     uniformObjectColor = glGetUniformLocation(shaderID, "objectColor");
     uniformWireframeColor = glGetUniformLocation(shaderID, "wireframeColor");
+
+    // Tramission properties
+    uniformIsReflection = glGetUniformLocation(shaderID, "reflection");
+    uniformIsRefraction = glGetUniformLocation(shaderID, "refraction");
+    uniformIOR = glGetUniformLocation(shaderID, "ior");
+    uniformDispersion = glGetUniformLocation(shaderID, "dispersion");
+    uniformFresnelReflectance = glGetUniformLocation(shaderID, "reflectance");
     uniformEnvMapping = glGetUniformLocation(shaderID, "envMapping");
     uniformSkybox = glGetUniformLocation(shaderID, "skybox");
     uniformBackgroundColor = glGetUniformLocation(shaderID, "backgroundColor");
@@ -78,7 +85,7 @@ void Shader::compileProgram() {
     // Material Properties
     uniformShininess = glGetUniformLocation(shaderID, "material.shininess");
     uniformSpecularIntensity = glGetUniformLocation(shaderID, "material.specularIntensity");
-    uniformRoughness = glGetUniformLocation(shaderID, "material.roughness");
+    uniformMetalness = glGetUniformLocation(shaderID, "material.metalness");
 
     // Specular Highlights
     uniformEyePosition = glGetUniformLocation(shaderID, "eyePosition");
@@ -269,8 +276,8 @@ GLuint Shader::getShininessLocation() {
 }
 
 // Getter for Roughness
-GLuint Shader::getRoughnessLocation() {
-    return uniformRoughness;
+GLuint Shader::getMetalnessLocation() {
+    return uniformMetalness;
 }
 
 // Getter for Eye Position
@@ -322,6 +329,27 @@ GLuint Shader::getSkyboxLocation() {
 
 GLuint Shader::getBackgroundColourLocation() {
     return uniformBackgroundColor;
+}
+
+// Tramission Paramters
+GLuint Shader::getIsReflectionLocation() {
+    return uniformIsReflection;
+}
+
+GLuint Shader::getIsRefractionLocation() {
+    return uniformIsRefraction;
+}
+
+GLuint Shader::getIORLocation() {
+    return uniformIOR;
+}
+
+GLuint Shader::getFresnelReflectance() {
+    return uniformFresnelReflectance;
+}
+
+GLuint Shader::getDispersionLocation() {
+    return uniformDispersion;
 }
 
 // Getting the shader ID===============================================================================================

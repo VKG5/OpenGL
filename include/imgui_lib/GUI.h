@@ -21,7 +21,8 @@ private:
     ImVec4 wireframeColor = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Texture/Object Color
-    bool shaded = true;
+    // Default color is Blender's default color
+    bool shaded = false;
     ImVec4 objectColor = ImVec4(151.0f / 255.0f, 153.0f / 255.0f, 153.0f / 255.0f, 1.0f);
 
     // Background Color
@@ -35,8 +36,10 @@ private:
     float directionalLightColor[3] = {1.0f, 1.0f, 1.0f};
     float directionalLightDirection[3] = {2.0f, -1.0f, -2.0f};
     float directionalLightAmbient = 0.125f;
-    float directionalLightDiffuse = 1.0f;
-    float cameraSpeed = 15.0f;
+    float directionalLightDiffuse = 0.250f;
+    int skyboxIndex = 1;
+    float cameraSpeed = 10.0f;
+    float cameraPos[3] = {-0.151f, 1.412f, 19.340f};
 
     // Point Lights
     bool isPointLights = false;
@@ -49,6 +52,11 @@ private:
 
     // Environment Mapping
     bool isEnvMapping = false;
+    bool isReflection = true;
+    bool isRefraction = false;
+    float ior = 1.52f;
+    float f0 = 0.03f;
+    float dispersion = 0.03f;
 
     // Controls
     bool isEuler = true;
@@ -64,8 +72,8 @@ private:
 
     // Procedural Content Generation
     GLuint seed = 0;
-    float floorOffset[3] = {-1.5f, 0.0f, 1.0f};
-    float floorScale[3] = {1.0f, 1.0f, 1.0f};
+    float floorOffset[3] = {-2.5f, 0.0f, 2.0f};
+    float floorScale[3] = {1.2f, 1.0f, 1.2f};
     GLuint gridSize = 10;
     GLuint pointSize = 2;
     GLuint numPoints = 15;
@@ -99,8 +107,10 @@ public:
     // Material Preview Mode
     bool getMaterialPreview() const { return materialPreview; }
 
-    // Camera Speed
+    // Camera
+    int getSkyboxIndex() const { return skyboxIndex; }
     float getCameraSpeed() const { return cameraSpeed; }
+    const float* getCameraPosition() const { return cameraPos; }
 
     // Directional Light Parameters
     const float* getDirectionalLightColor() const { return directionalLightColor; }
@@ -119,6 +129,11 @@ public:
 
     // Environment Mapping Parameters
     bool getIsEnvMapping() const { return isEnvMapping; }
+    bool getIsReflection() const { return isReflection; }
+    bool getIsRefraction() const { return isRefraction; }
+    float getIOR() const { return ior; }
+    float getFresnelReflectance() const { return f0; }
+    float getDispersion() const { return dispersion; }
 
     // Controls
     bool getIsEuler() const { return isEuler; }
@@ -144,6 +159,7 @@ public:
     // Setters=========================================================================================================
     void setPlanePosition(float x, float y, float z);
     void setPlaneRotation(float x, float y, float z);
+    void setCameraPosition(float x, float y, float z);
 
     // Setter to reset the button press value
     void setUpdate(bool updateValue);

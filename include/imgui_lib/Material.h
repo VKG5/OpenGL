@@ -8,15 +8,18 @@ class Material {
 private:
     GLfloat specularIntensity;
     GLfloat shininess;
-    GLfloat roughness;
+    GLfloat metalness;
 
 public:
     // Constructor
     Material();
 
-    Material(GLfloat specIntensity, GLfloat shine, GLfloat rough);
+    Material(GLfloat specIntensity, GLfloat shine, GLfloat metal);
 
-    void useMaterial(GLuint specularIntensityLocation, GLuint shininessLocation, GLuint roughnessLocation);
+    void useMaterial(GLuint specularIntensityLocation, GLuint shininessLocation, GLuint metalnessLocation);
+
+    // Setter
+    void setMaterialParamters(GLfloat specularIntensity, GLfloat shininess, GLfloat metal);
 
     // Destructor
     ~Material();

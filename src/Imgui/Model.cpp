@@ -86,7 +86,7 @@ void Model::loadMaterials(const aiScene * scene) {
                 int idx = std::string(path.data).rfind("\\");
                 std::string fileName = std::string(path.data).substr(idx + 1);
 
-                std::string texPath = std::string("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/") + fileName;
+                std::string texPath = std::string("D:/Programs/C++/Yumi/src/Imgui/Textures/") + fileName;
 
                 // Debugging
                 // printf("Loading Texture from: %s", texPath.c_str());
@@ -105,9 +105,9 @@ void Model::loadMaterials(const aiScene * scene) {
 
         // If there was no texture, plugin default texture
         if(!textureList[i]) {
-            // textureList[i] = new Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/brickHi.png");
+            // textureList[i] = new Texture("D:/Programs/C++/Yumi/src/Imgui/Textures/brickHi.png");
             // textureList[i]->loadTextureA();
-            textureList[i] = new Texture("D:/Programs/C++/Rendering/OpenGL/src/Imgui/Textures/white.jpg");
+            textureList[i] = new Texture("D:/Programs/C++/Yumi/src/Imgui/Textures/white.jpg");
             textureList[i]->loadTexture();
         }
     }

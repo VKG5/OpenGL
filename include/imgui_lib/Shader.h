@@ -22,7 +22,7 @@ private:
 
     GLuint  shaderID, uniformProjection, uniformModel, uniformView,
             uniformEyePosition,
-            uniformSpecularIntensity, uniformShininess, uniformRoughness;
+            uniformSpecularIntensity, uniformShininess, uniformMetalness;
 
     // Creating instance of struct - uniformDirectionalLight
     struct {
@@ -68,7 +68,8 @@ private:
            uniformObjectColor, uniformWireframeColor,
            uniformMaterialPreview,
            uniformMainTexture, uniformNoiseTexture,
-           uniformEnvMapping, uniformSkybox, uniformBackgroundColor;
+           uniformEnvMapping, uniformSkybox, uniformBackgroundColor,
+           uniformIsReflection, uniformIsRefraction, uniformIOR, uniformFresnelReflectance, uniformDispersion;
 
     void compileShader(const char* vertexCode, const char* fragmentCode);
 
@@ -96,7 +97,7 @@ public:
     GLuint getDiffuseDirectionLocation();
     GLuint getSpecularIntensityLocation();
     GLuint getShininessLocation();
-    GLuint getRoughnessLocation();
+    GLuint getMetalnessLocation();
     GLuint getEyePositionLocation();
     GLuint getShadingModelLocation();
     GLuint getMainTextureLocation();
@@ -111,6 +112,13 @@ public:
     GLuint getEnvMappingLocation();
     GLuint getSkyboxLocation();
     GLuint getBackgroundColourLocation();
+
+    // Tramission properties
+    GLuint getIsReflectionLocation();
+    GLuint getIsRefractionLocation();
+    GLuint getIORLocation();
+    GLuint getFresnelReflectance();
+    GLuint getDispersionLocation();
 
     // Shader ID
     GLuint getShaderIDLocation();

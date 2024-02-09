@@ -100,7 +100,6 @@ glm::vec3 Movement::mapRange(const glm::vec3& input) {
     );
 }
 
-
 glm::vec3 Movement::getMovementDirection() {
     // return glm::normalize(front);
     return mapRange(front);
