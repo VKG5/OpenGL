@@ -50,6 +50,18 @@ void GUI::elements(std::string& shadingMode) {
     ImGui::SetWindowFontScale(1.0f);
     ImGui::Checkbox("Material Preview", &materialPreview);
 
+    // Checking different maps
+    // 1. Specular
+    // 2. Normal
+    if(materialPreview) {
+        ImGui::Checkbox("Specular", &specularPreview);
+
+        // Put the next element on the same line
+        ImGui::SameLine();
+
+        ImGui::Checkbox("Normal", &normalPreview);
+    }
+
     // Setting camera properties
     // And environment map
     ImGui::SliderInt("Skybox", (int*)&skyboxIndex, 1, 6);

@@ -26,7 +26,7 @@ public:
 
     // For supporting multiple textures in one shader
     void useTexture();
-    void useTexture(GLenum textureUnit);
+    void useTexture(int textureUnit);
 
     void cleanTexture();
 

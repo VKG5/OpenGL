@@ -66,8 +66,8 @@ private:
     GLuint uniformshadingModel,
            uniformIsShaded, uniformIsWireframe,
            uniformObjectColor, uniformWireframeColor,
-           uniformMaterialPreview,
-           uniformMainTexture, uniformNoiseTexture,
+           uniformMaterialPreview, uniformSpecularPreview, uniformNormalPreview,
+           uniformDiffuseTexture, uniformAmbientOcclusionTexture, uniformSpecularTexture, uniformNormalTexture, uniformNoiseTexture,
            uniformEnvMapping, uniformSkybox, uniformBackgroundColor,
            uniformIsReflection, uniformIsRefraction, uniformIOR, uniformFresnelReflectance, uniformDispersion;
 
@@ -100,18 +100,28 @@ public:
     GLuint getMetalnessLocation();
     GLuint getEyePositionLocation();
     GLuint getShadingModelLocation();
+
+    // Textures
     GLuint getMainTextureLocation();
+    GLuint getSpecularTextureLocation();
+    GLuint getAmbientOcclusionTextureLocation();
+    GLuint getNormalTextureLocation();
     GLuint getNoiseTextureLocation();
 
     // UI Elements
+    // Object Properties
     GLuint getIsShadedLocation();
     GLuint getIsWireframeLocation();
     GLuint getObjectColorLocation();
     GLuint getWireframeColourLocation();
-    GLuint getMaterialPreviewLocation();
     GLuint getEnvMappingLocation();
     GLuint getSkyboxLocation();
     GLuint getBackgroundColourLocation();
+
+    // Material Preview
+    GLuint getMaterialPreviewLocation();
+    GLuint getSpecularPreviewLocation();
+    GLuint getNormalPreviewLocation();
 
     // Tramission properties
     GLuint getIsReflectionLocation();

@@ -36,39 +36,20 @@ bool Texture::loadTexture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Change the RGB type based off of your image
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texData);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    // Unbinding Texture
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // We have already copied the data
-    stbi_image_free(texData);
-
-    return true;
-}
-
-// Load Textures with Alpha Channel
-bool Texture::loadTextureA() {
-    unsigned char *texData = stbi_load(filePath, &width, &height, &bitDepth, 0);
-    if(!texData) {
-        printf("Failed to load: %s\n", filePath);
-        return false;
+    // RGB - 3 channels
+    if(bitDepth == 3) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texData);
     }
 
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    // RGBA - 4 channels
+    else if(bitDepth == 4) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
+    }
 
-    // Setting parameter values
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // For zooming out - Minify
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    // For zooming in - Magnify
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    else {
+            printf("The texture has %i channels, unable to load!", bitDepth);
+    }
 
-    // Change the RGB type based off of your image
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     // Unbinding Texture
@@ -135,9 +116,9 @@ void Texture::useTexture() {
 }
 
 // Manually setting the Texture Unit
-void Texture::useTexture(GLenum textureUnit) {
-    // Texture Unit
-    glActiveTexture(textureUnit);
+void Texture::useTexture(int textureUnit) {
+    // Texture Unit - Incrementing it based on an integer
+    glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(textureUnit));
     glBindTexture(GL_TEXTURE_2D, textureID);
 }
 

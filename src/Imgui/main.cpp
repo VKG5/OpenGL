@@ -64,8 +64,9 @@ GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosi
         uniformSpecularIntensity = 0, uniformShininess = 0, uniformMetalness = 0,
         uniformshadingModel = 0,
         uniformIsShaded = 0, uniformIsWireframe = 0, uniformObjectColor = 0, uniformWireframeColor = 0,
-        uniformMaterialPreview = 0,
-        uniformMainTexture = 0, uniformNoiseTexture = 0,
+        uniformMaterialPreview = 0, uniformSpecularPreview = 0, uniformNormalPreview = 0,
+        uniformDiffuseTexture = 0, uniformAmbientOcclusionTexture = 0, uniformSpecularTexture = 0, uniformNormalTexture = 0,
+        uniformNoiseTexture = 0,
         uniformEnvMapping = 0, uniformSkybox = 0, uniformBackgroundColor = 0,
         uniformIsReflection = 0, uniformIsRefraction = 0, uniformIOR = 0, uniformFresnelReflectance = 0, uniformDispersion = 0;
 
@@ -122,7 +123,7 @@ Material extraShinyMat;
 // 1. Phong Illumination
 // 2. Blinn-Phong Illumination
 // 3. Gooch Shading
-// 4. Photo-realisitc Shading
+// 4. Minnaert Shading
 int shadingModel = 0;
 
 // Models
@@ -130,6 +131,7 @@ Model monkey;
 Model sphere;
 Model teapot;
 Model cube;
+Model crate;
 
 // Delta Time
 GLfloat deltaTime = 0.0f;
@@ -138,12 +140,12 @@ GLfloat lastTime = 0.0f;
 // Vertex Shader
 // Uniform - Global to shader, not associated with a particular vertex
 // Bind data to uniform to get location
-static const char* vertexShader = "D:/Programs/C++/Yumi/src/Imgui/Shaders/finalShader.vert";
+static const char* vertexShader = "D:/Programs/C++/Rendering/OpenGL/src/Rendering/Shaders/finalShader.vert";
 
 // Fragment Shader
-static const char* fragmentShader = "D:/Programs/C++/Yumi/src/Imgui/Shaders/finalShader.frag";
+static const char* fragmentShader = "D:/Programs/C++/Rendering/OpenGL/src/Rendering/Shaders/finalShader.frag";
 
-// Comtains making manual objects
+// Contains making manual objects
 void createObjects() {
     unsigned int indicesFloor[] = {
         0, 1, 2,
@@ -217,81 +219,81 @@ void createLights() {
     // Front, Back
     // Clearing old data
     skyboxFaces.clear();
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Clouds/right.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Clouds/left.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Clouds/top.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Clouds/bottom.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Clouds/front.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Clouds/back.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Clouds/right.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Clouds/left.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Clouds/top.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Clouds/bottom.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Clouds/front.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Clouds/back.png");
 
     // Parameters - Skybox faces, RGB/RGBA
-    skybox_clouds = Skybox(skyboxFaces, true);
+    skybox_clouds = Skybox(skyboxFaces);
 
     // Clearing old data
     skyboxFaces.clear();
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Lake/right.jpg");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Lake/left.jpg");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Lake/top.jpg");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Lake/bottom.jpg");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Lake/front.jpg");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Lake/back.jpg");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Lake/right.jpg");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Lake/left.jpg");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Lake/top.jpg");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Lake/bottom.jpg");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Lake/front.jpg");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Lake/back.jpg");
 
     // Parameters - Skybox faces, RGB/RGBA
-    skybox_lake = Skybox(skyboxFaces, false);
+    skybox_lake = Skybox(skyboxFaces);
 
     // Clearing old data
     skyboxFaces.clear();
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Christmas/right.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Christmas/left.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Christmas/top.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Christmas/bottom.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Christmas/front.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Christmas/back.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Christmas/right.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Christmas/left.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Christmas/top.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Christmas/bottom.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Christmas/front.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Christmas/back.png");
 
     // Parameters - Skybox faces, RGB/RGBA
-    skybox_christmas = Skybox(skyboxFaces, true);
+    skybox_christmas = Skybox(skyboxFaces);
 
     // Clearing old data
     skyboxFaces.clear();
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Fireplace/right.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Fireplace/left.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Fireplace/top.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Fireplace/bottom.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Fireplace/front.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Fireplace/back.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Fireplace/right.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Fireplace/left.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Fireplace/top.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Fireplace/bottom.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Fireplace/front.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Fireplace/back.png");
 
     // Parameters - Skybox faces, RGB/RGBA
-    skybox_fireplace = Skybox(skyboxFaces, true);
+    skybox_fireplace = Skybox(skyboxFaces);
 
     // Clearing old data
     skyboxFaces.clear();
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Shanghai/right.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Shanghai/left.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Shanghai/top.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Shanghai/bottom.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Shanghai/front.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Shanghai/back.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Shanghai/right.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Shanghai/left.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Shanghai/top.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Shanghai/bottom.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Shanghai/front.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Shanghai/back.png");
 
     // Parameters - Skybox faces, RGB/RGBA
-    skybox_shanghai = Skybox(skyboxFaces, true);
+    skybox_shanghai = Skybox(skyboxFaces);
 
     // Clearing old data
     skyboxFaces.clear();
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Sky_Fire/right.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Sky_Fire/left.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Sky_Fire/top.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Sky_Fire/bottom.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Sky_Fire/front.png");
-    skyboxFaces.push_back("D:/Programs/C++/Yumi/src/Imgui/Textures/Skybox/Sky_Fire/back.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Sky_Fire/right.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Sky_Fire/left.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Sky_Fire/top.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Sky_Fire/bottom.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Sky_Fire/front.png");
+    skyboxFaces.push_back("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Skybox/Sky_Fire/back.png");
 
     // Parameters - Skybox faces, RGB/RGBA
-    skybox_sky_fire = Skybox(skyboxFaces, true);
+    skybox_sky_fire = Skybox(skyboxFaces);
 }
 
 // Contains textures, objects and materials
 void prepareObjects() {
     // Setting up Textures=============================================================================================
-    whiteTexture = Texture("D:/Programs/C++/Yumi/src/Imgui/Textures/white.jpg");
+    whiteTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/white.jpg");
     whiteTexture.loadTexture();
 
     // Generated Noise Texture
@@ -308,16 +310,19 @@ void prepareObjects() {
 
     // Loading Models==================================================================================================
     monkey = Model();
-    monkey.loadModel("D:/Programs/C++/Yumi/src/Imgui/Models/monkey.obj");
+    monkey.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/monkey.obj");
 
     sphere = Model();
-    sphere.loadModel("D:/Programs/C++/Yumi/src/Imgui/Models/sphere.obj");
+    sphere.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/sphere.obj");
 
     teapot = Model();
-    teapot.loadModel("D:/Programs/C++/Yumi/src/Imgui/Models/teapot.obj");
+    teapot.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/teapot.obj");
 
     cube = Model();
-    cube.loadModel("D:/Programs/C++/Yumi/src/Imgui/Models/cube.obj");
+    cube.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/cube.obj");
+
+    crate = Model();
+    crate.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/crate.obj");
 }
 
 // Global parameter for rotating the objects
@@ -327,68 +332,14 @@ float size = 12.0f;
 
 // We are replacing all the texture with realisitc textures to show-case PBR
 void renderScene() {
-    // Cubes=======================================================================================================
-    // Monkey
-    // Rotation values
-    if(rotationAngle < 360.0f)
-        rotationAngle += step;
+    // Objects=========================================================================================================
+    // Crate
+    glm::mat4 crateModel = glm::mat4(1.0f);
 
-    else
-        rotationAngle = 0.0f;
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(crateModel));
 
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
-
-    // Rotating the model
-    model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
-
-    model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-
-    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-    // Texturing the Mesh
     extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
-    monkey.renderModel();
-
-    // Sphere
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(6.0f, 1.0f, 0.0f));
-
-    // Rotating the model
-    model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
-    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-    // Texturing the Mesh
-    extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
-    sphere.renderModel();
-
-    // Teapot
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(-6.0f, -0.7f, 0.0f));
-
-    // Rotating the model
-    model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
-    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-    // Texturing the Mesh
-    extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
-    teapot.renderModel();
-
-    // Cube
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(-12.0f, 1.0f, 0.0f));
-
-    // Rotating the model
-    model = glm::rotate(model, rotationAngle, glm::vec3(0.0f, 1.0, 0.0f));
-
-    // Scaling the model
-    model = glm::scale(model, glm::vec3(size, size, size));
-
-    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-    // Texturing the Mesh
-    extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
-    cube.renderModel();
+    crate.renderModel();
 }
 
 void setShadingModeName() {
@@ -556,13 +507,8 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
 
     /*
     Getting UI Elements
-    1. isWireframe - Enable/Disable Wireframe
-    2. isShaded - Enbable/Disable Textures
-    3. wireframeColor - Sets the color of the wireframe
-    4. objectColor - Sets the color of the objects in the scene
-    5. materialPreview - Disables all lighting to view the textures only
     */
-    uniformMaterialPreview = shaderList[0].getMaterialPreviewLocation();
+    // Object Properties
     uniformIsShaded = shaderList[0].getIsShadedLocation();
     uniformIsWireframe = shaderList[0].getIsWireframeLocation();
     uniformWireframeColor = shaderList[0].getWireframeColourLocation();
@@ -571,6 +517,11 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     uniformSkybox = shaderList[0].getSkyboxLocation();
     uniformBackgroundColor = shaderList[0].getBackgroundColourLocation();
 
+    // Material Preview - Maps
+    uniformMaterialPreview = shaderList[0].getMaterialPreviewLocation();
+    uniformSpecularPreview = shaderList[0].getSpecularPreviewLocation();
+    uniformNormalPreview = shaderList[0].getNormalPreviewLocation();
+
     // Transmission
     uniformIsReflection = shaderList[0].getIsReflectionLocation();
     uniformIsRefraction = shaderList[0].getIsRefractionLocation();
@@ -578,11 +529,16 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     uniformFresnelReflectance = shaderList[0].getFresnelReflectance();
     uniformDispersion = shaderList[0].getDispersionLocation();
 
-    // Getting the texture locations
-    uniformMainTexture = shaderList[0].getMainTextureLocation();
+    // Texture
+    uniformDiffuseTexture = shaderList[0].getMainTextureLocation();
+    uniformSpecularTexture = shaderList[0].getSpecularTextureLocation();
+    uniformAmbientOcclusionTexture = shaderList[0].getAmbientOcclusionTextureLocation();
+    uniformNormalTexture = shaderList[0].getNormalTextureLocation();
 
     // Binding the texture to correct texture units
-    shaderList[0].setTexture(uniformMainTexture, 0);
+    shaderList[0].setTexture(uniformDiffuseTexture, 0);
+    shaderList[0].setTexture(uniformSpecularTexture, 1);
+    shaderList[0].setTexture(uniformNormalTexture, 2);
 
     // TODO : Intergrate this to work like a proper roughness map
     // uniformNoiseTexture = shaderList[0].getNoiseTextureLocation();
@@ -636,7 +592,12 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     glUniform1i(uniformshadingModel, shadingModel);
 
     // Setting the triggers from UI Elements
+    // Material Preview
     glUniform1i(uniformMaterialPreview, mainGUI.getMaterialPreview());
+    glUniform1i(uniformSpecularPreview, mainGUI.getSpecularPreview());
+    glUniform1i(uniformNormalPreview, mainGUI.getNormalPreview());
+
+    // Object Properties
     glUniform1i(uniformIsWireframe, mainGUI.getIsWireframe());
     glUniform1i(uniformIsShaded, mainGUI.getIsShaded());
 

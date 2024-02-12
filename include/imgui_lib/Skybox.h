@@ -29,7 +29,7 @@ public:
     // Constructor
     Skybox();
 
-    Skybox(std::vector<std::string> faceLocations, bool rgba);
+    Skybox(std::vector<std::string> faceLocations);
 
     void drawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix);
 

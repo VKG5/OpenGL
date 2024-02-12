@@ -50,7 +50,11 @@ uniform int shadingModel;
 // Object Color
 uniform vec4 objectColor;
 uniform vec4 wireframeColor;
+
+// Material Preview Mode
 uniform bool materialPreview;
+uniform bool specularPreview;
+uniform bool normalPreview;
 
 // Wireframe or Shaded
 uniform bool isWireframe;
@@ -63,7 +67,10 @@ uniform SpotLight spotLight[MAX_SPOT_LIGHTS];
 
 // Textures
 // Bound at Texture Unit 0
-uniform sampler2D theTexture;
+uniform sampler2D diffuseMap;
+uniform sampler2D ambientOcclusionMap;
+uniform sampler2D specularMap;
+uniform sampler2D normalMap;
 
 // Bound at Texture Unit 1
 // uniform sampler2D noiseTexture;
@@ -154,9 +161,10 @@ vec4 calcLightByDirection(Light light, vec3 direction) {
             specularFactor = 0.0;
         }
 
+        // Clamping and specular highlights
         if (specularFactor > 0.0) {
             specularFactor = pow(specularFactor, material.shininess);
-            specularColour = vec4(light.colour * material.specularIntensity * specularFactor, 1.0);
+            specularColour = vec4((light.colour * material.specularIntensity * texture(specularMap, texCoord).r * specularFactor), 1.0);
         }
     }
 
@@ -199,14 +207,33 @@ vec4 calcLightByDirection(Light light, vec3 direction) {
 
             // Combine diffuse and specular with environment reflection
             // return (ambientColour + diffuseColour + specularColour);
-            return  (ambientColour + diffuseColour) + specularColour * (1.0 - material.metalness) +
-                    vec4(envColor * (1.0 - material.metalness) * material.specularIntensity, 1.0 );
+            // Also using the specular map if shaded
+            if(isShaded) {
+                return  ( ambientColour + diffuseColour) +
+                          specularColour * (1.0 - material.metalness) +
+                          vec4(envColor * (1.0 - material.metalness) * material.specularIntensity * texture(specularMap, texCoord).r, 1.0 );
+            }
+
+            else {
+                return  ( ambientColour + diffuseColour) +
+                          specularColour * (1.0 - material.metalness) +
+                          vec4(envColor * (1.0 - material.metalness) * material.specularIntensity, 1.0 );
+            }
         }
 
         else {
             // Combine diffuse and specular with background color
-            return  (ambientColour + diffuseColour) + specularColour * (1.0 - material.metalness) +
-                    vec4(backgroundColor * (1.0 - material.metalness) * material.specularIntensity, 1.0 );
+            if(isShaded) {
+                return  ( ambientColour + diffuseColour) +
+                          specularColour * (1.0 - material.metalness) +
+                          vec4(backgroundColor * (1.0 - material.metalness) * material.specularIntensity * texture(specularMap, texCoord).r, 1.0 );
+            }
+
+            else {
+                return  ( ambientColour + diffuseColour) +
+                          specularColour * (1.0 - material.metalness) +
+                          vec4(backgroundColor * (1.0 - material.metalness) * material.specularIntensity, 1.0 );
+            }
         }
     }
 
@@ -337,8 +364,19 @@ vec4 calcMinnaert(Light light, vec3 direction) {
 void main() {
     // If we just want to view the textures
     if(materialPreview) {
-        if(isShaded)
-            color = texture(theTexture, texCoord);
+        if(isShaded) {
+            if(specularPreview) {
+                color = texture(specularMap, texCoord);
+            }
+
+            else if(normalPreview) {
+                color = texture(normalMap, texCoord);
+            }
+
+            else {
+                color = texture(diffuseMap, texCoord);
+            }
+        }
 
         else
             color = objectColor;
@@ -363,7 +401,7 @@ void main() {
             finalColour = calcMinnaert(directionalLight.base, directionalLight.direction);
         }
 
-        color = texture(theTexture, texCoord) * finalColour;
+        color = texture(diffuseMap, texCoord) * finalColour;
     }
 
     // If we are not in the wireframe mode

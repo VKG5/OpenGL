@@ -4,11 +4,20 @@ Model::Model() {
 }
 
 void Model::renderModel() {
+    // Iterating over the mesh to render
     for(size_t i = 0; i < meshList.size(); i++) {
         unsigned int materialIndex = meshToTex[i];
 
-        if(materialIndex < textureList.size() && textureList[materialIndex]) {
-            textureList[materialIndex]->useTexture();
+        // Debugging
+        // printf("Material Index : %i, Texture List Size : %i", materialIndex, textureList.size());
+
+        // Iterate over all textures in textureList
+        for (size_t index = 0; index < textureList.size(); index++) {
+            // Checking if the texure exists
+            if (textureList[index]) {
+                // printf("Render Model : %i\n", index);
+                textureList[index]->useTexture(index);
+            }
         }
 
         meshList[i]->renderMesh();
@@ -69,48 +78,137 @@ void Model::loadMesh(aiMesh * mesh, const aiScene * scene) {
     meshToTex.push_back(mesh->mMaterialIndex);
 }
 
-void Model::loadMaterials(const aiScene * scene) {
-    textureList.resize(scene->mNumMaterials);
+// Function to load the maps, since the functionality for loading each map is similar
+void Model::loadMap(aiMaterial* material, aiTextureType textureType, int textureIndex) {
+    aiString path;
 
-    for(size_t i = 0; i < scene->mNumMaterials; i++) {
-        aiMaterial* material = scene->mMaterials[i];
+    // If there is a diffuse map
+    if(material->GetTexture(textureType, 0, &path) == AI_SUCCESS) {
+        int idx = std::string(path.data).rfind("\\");
+        std::string fileName = std::string(path.data).substr(idx + 1);
 
-        textureList[i] = nullptr;
+        std::string texPath = std::string("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/") + fileName;
 
-        // Checking for null maps
-        if(material->GetTextureCount(aiTextureType_DIFFUSE)) {
-            aiString path;
+        // Debugging
+        // printf("Loading Texture from: %s\n", texPath.c_str());
 
-            // If there is a map
-            if(material->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS) {
-                int idx = std::string(path.data).rfind("\\");
-                std::string fileName = std::string(path.data).substr(idx + 1);
+        textureList[textureIndex] = new Texture(texPath.c_str());
 
-                std::string texPath = std::string("D:/Programs/C++/Yumi/src/Imgui/Textures/") + fileName;
+        // Debugging
+        // printf("Loading Texture: %s\n", fileName.c_str());
 
+        if(!textureList[textureIndex]->loadTexture()) {
+            printf("Failed to load texture at: %s\n", texPath.c_str());
+
+            // SAFE_DELETE
+            delete textureList[textureIndex];
+            textureList[textureIndex] = nullptr;
+
+            // Loading an empty Normal Map instead of the default white texture
+            if(textureType == aiTextureType_HEIGHT) {
                 // Debugging
-                // printf("Loading Texture from: %s", texPath.c_str());
+                // printf("Adding default Normal Map\n");
 
-                textureList[i] = new Texture(texPath.c_str());
-
-                if(!textureList[i]->loadTexture()) {
-                    printf("Failed to load texture at: %s\n", texPath.c_str());
-
-                    // SAFE_DELETE
-                    delete textureList[i];
-                    textureList[i] = nullptr;
-                }
+                textureList[textureIndex] = new Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/emptyNormal.png");
+                textureList[textureIndex]->loadTexture();
             }
         }
+    }
+}
 
-        // If there was no texture, plugin default texture
-        if(!textureList[i]) {
-            // textureList[i] = new Texture("D:/Programs/C++/Yumi/src/Imgui/Textures/brickHi.png");
-            // textureList[i]->loadTextureA();
-            textureList[i] = new Texture("D:/Programs/C++/Yumi/src/Imgui/Textures/white.jpg");
-            textureList[i]->loadTexture();
+void Model::loadMaterials(const aiScene * scene) {
+    // Initializing the vector
+    textureList.resize(scene->mNumMaterials);
+
+    // Debugging
+    // printf("Number of Materials : %i\n", scene->mNumMaterials);
+
+    // Checking if already loaded
+    bool diffuse = true, specular = true, normal = true, ambientOcclusion = true;
+
+    /*
+    The code is not using AI_SCENE_FLAGS_INCOMPLETE, hence it will always have 1 material by default
+    To bypass this, iterating over the materials by checking if numMaterials > 1 and using those as texture.
+    */
+    if(scene->mNumMaterials > 1) {
+        // TODO : Remove the magic number 1
+        aiMaterial* material = scene->mMaterials[1];
+
+        // Counting the various textures in the material
+        int textureCount = material->GetTextureCount(aiTextureType_DIFFUSE) +
+                           material->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION) +
+                           material->GetTextureCount(aiTextureType_SPECULAR) +
+                           material->GetTextureCount(aiTextureType_HEIGHT);
+
+        // Debugging
+        // printf("Texture Count : %i\n", textureCount);
+
+        // Resizing list to fit all the textures
+        textureList.resize(textureCount);
+
+        // Iterating over the various textures
+        for(size_t i = 0; i < textureCount; i++) {
+            textureList[i] = nullptr;
+
+            // Debugging
+            // printf("Texture Index : %zi\n", i);
+
+            // Checking for null maps
+            // DIFFUSE MAP - Texture Unit 0
+            if(material->GetTextureCount(aiTextureType_DIFFUSE) && diffuse) {
+                loadMap(material, aiTextureType_DIFFUSE, i);
+                diffuse = false;
+            }
+
+            // SPECULAR MAP - Texture Unit 1
+            else if(material->GetTextureCount(aiTextureType_SPECULAR) && specular) {
+                loadMap(material, aiTextureType_SPECULAR, i);
+                specular = false;
+            }
+
+            // NORMAL MAP - Texture Unit 2
+            // aiTextureType_NORMAL doesn't load normal maps, aiTextureType_HEIGHT does - Wavefront OBJ format
+            else if(material->GetTextureCount(aiTextureType_HEIGHT) && normal) {
+                loadMap(material, aiTextureType_HEIGHT, i);
+                normal = false;
+            }
+
+            // AMBIENT OCCLUSION - Texture Unit 3
+            else if(material->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION) && ambientOcclusion) {
+                loadMap(material, aiTextureType_AMBIENT_OCCLUSION, i);
+                ambientOcclusion = false;
+            }
+
+            // If there was no texture, plugin default texture
+            if(!textureList[i]) {
+                // Debugging
+                // printf("Adding default White Texture\n");
+
+                textureList[i] = new Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/white.jpg");
+                textureList[i]->loadTexture();
+            }
         }
     }
+
+    // Default material/No material
+    else if(scene->mNumMaterials == 1) {
+        aiMaterial* material = scene->mMaterials[0];
+
+        textureList[0] = nullptr;
+
+        // Debugging
+        // printf("Missing materials!\nAdding default texture\n");
+
+        textureList[0] = new Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/white.jpg");
+        textureList[0]->loadTexture();
+    }
+
+    else {
+        printf("Error loading materials!\n");
+    }
+
+    // Debugging
+    // printf("Texture List Size : %i\n", textureList.size());
 }
 
 void Model::loadModel(const std::string filePath) {

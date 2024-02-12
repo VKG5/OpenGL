@@ -10,7 +10,10 @@ Shader::Shader() {
     pointLightCount = 0;
     spotLightCount = 0;
 
-    uniformMainTexture = 0;
+    uniformDiffuseTexture = 0;
+    uniformAmbientOcclusionTexture = 0;
+    uniformSpecularTexture = 0;
+    uniformNormalTexture = 0;
     uniformNoiseTexture = -1;
 }
 
@@ -57,7 +60,12 @@ void Shader::compileProgram() {
     uniformshadingModel = glGetUniformLocation(shaderID, "shadingModel");
 
     // UI Elements
+    // Material Preview
     uniformMaterialPreview = glGetUniformLocation(shaderID, "materialPreview");
+    uniformSpecularPreview = glGetUniformLocation(shaderID, "specularPreview");
+    uniformNormalPreview = glGetUniformLocation(shaderID, "normalPreview");
+
+    // Object Properties
     uniformIsShaded = glGetUniformLocation(shaderID, "isShaded");
     uniformIsWireframe = glGetUniformLocation(shaderID, "isWireframe");
     uniformObjectColor = glGetUniformLocation(shaderID, "objectColor");
@@ -81,6 +89,13 @@ void Shader::compileProgram() {
     // Diffuse Light
     uniformDirectionalLight.uniformDirection = glGetUniformLocation(shaderID, "directionalLight.direction");
     uniformDirectionalLight.uniformDiffuseIntensity = glGetUniformLocation(shaderID, "directionalLight.base.diffuseIntensity");
+
+    // Textures
+    uniformDiffuseTexture = glGetUniformLocation(shaderID, "diffuseMap");
+    uniformAmbientOcclusionTexture = glGetUniformLocation(shaderID, "ambientOcclusionMap");
+    uniformSpecularTexture = glGetUniformLocation(shaderID, "specularMap");
+    uniformNormalTexture = glGetUniformLocation(shaderID, "normalMap");
+    uniformNoiseTexture = glGetUniformLocation(shaderID, "noiseTexture");
 
     // Material Properties
     uniformShininess = glGetUniformLocation(shaderID, "material.shininess");
@@ -151,10 +166,6 @@ void Shader::compileProgram() {
         snprintf(locBuff, sizeof(locBuff), "spotLight[%zd].edge", i);
         uniformSpotLight[i].uniformEdge = glGetUniformLocation(shaderID, locBuff);
     }
-
-    // Textures
-    uniformMainTexture = glGetUniformLocation(shaderID, "theTexture");;
-    uniformNoiseTexture = glGetUniformLocation(shaderID, "noiseTexture");
 }
 
 void Shader::compileShader(const char* vertexCode, const char* fragmentCode) {
@@ -307,18 +318,41 @@ GLuint Shader::getWireframeColourLocation() {
     return uniformWireframeColor;
 }
 
+// Material Preview
 GLuint Shader::getMaterialPreviewLocation() {
     return uniformMaterialPreview;
 }
 
+GLuint Shader::getSpecularPreviewLocation() {
+    return uniformSpecularPreview;
+}
+
+GLuint Shader::getNormalPreviewLocation() {
+    return uniformNormalPreview;
+}
+
+// Textures
 GLuint Shader::getMainTextureLocation() {
-    return uniformMainTexture;
+    return uniformDiffuseTexture;
+}
+
+GLuint Shader::getSpecularTextureLocation() {
+    return uniformSpecularTexture;
+}
+
+GLuint Shader::getAmbientOcclusionTextureLocation() {
+    return uniformAmbientOcclusionTexture;
+}
+
+GLuint Shader::getNormalTextureLocation() {
+    return uniformNormalTexture;
 }
 
 GLuint Shader::getNoiseTextureLocation() {
     return uniformNoiseTexture;
 }
 
+// Environment Mapping
 GLuint Shader::getEnvMappingLocation() {
     return uniformEnvMapping;
 }

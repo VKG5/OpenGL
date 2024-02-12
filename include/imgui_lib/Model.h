@@ -23,6 +23,7 @@ private:
     void loadNode(aiNode *node, const aiScene *scene);
     void loadMesh(aiMesh *mesh, const aiScene *scene);
     void loadMaterials(const aiScene *scene);
+    void loadMap(aiMaterial* material, aiTextureType textureType, int textureIndex);
 
 public:
     // Constructor

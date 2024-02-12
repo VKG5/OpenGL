@@ -22,7 +22,7 @@ private:
 
     // Texture/Object Color
     // Default color is Blender's default color
-    bool shaded = false;
+    bool shaded = true;
     ImVec4 objectColor = ImVec4(151.0f / 255.0f, 153.0f / 255.0f, 153.0f / 255.0f, 1.0f);
 
     // Background Color
@@ -30,6 +30,8 @@ private:
 
     // Material Preview Mode
     bool materialPreview = false;
+    bool specularPreview = false;
+    bool normalPreview = false;
 
     // Light settings
     // Directional Light
@@ -37,7 +39,11 @@ private:
     float directionalLightDirection[3] = {2.0f, -1.0f, -2.0f};
     float directionalLightAmbient = 0.125f;
     float directionalLightDiffuse = 0.250f;
+
+    // Skybox
     int skyboxIndex = 1;
+
+    // Camera
     float cameraSpeed = 10.0f;
     float cameraPos[3] = {-0.151f, 1.412f, 19.340f};
 
@@ -106,6 +112,8 @@ public:
 
     // Material Preview Mode
     bool getMaterialPreview() const { return materialPreview; }
+    bool getSpecularPreview() const { return specularPreview; }
+    bool getNormalPreview() const { return normalPreview; }
 
     // Camera
     int getSkyboxIndex() const { return skyboxIndex; }
