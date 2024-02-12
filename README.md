@@ -5,7 +5,7 @@ A rendering engine written in C++ with OpenGL. WIP, trying to make a ray-tracing
 - [x] Phong Illumination Model (Ambient, Diffuse, Specular)
 - [x] Shadows (Omni-directional)
 - [x] Light Sources (Directional, Point, Spotlight)
-- [x] Model loading
+- [x] Model loading (Now supports multiple textures!)
 - [x] Texture support (Only diffuse)
 - [x] Multi model support
 - [x] Environment Mapping 
@@ -16,7 +16,8 @@ A rendering engine written in C++ with OpenGL. WIP, trying to make a ray-tracing
 - [x] Fresnel
 - [x] Dispersion
 - [x] Specular
-- [x] Metallic 
+- [x] Metallic
+- [x] Multiple Maps - Normal, Specular, Diffuse (TODO : Add Ambient Occlusion and Alpha Maps) 
 
 ## Procedural
 - [x] Basic Procedural Generator
