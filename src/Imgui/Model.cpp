@@ -58,6 +58,19 @@ void Model::loadMesh(aiMesh * mesh, const aiScene * scene) {
         // Adding Normals
         // Adding the reversed values because of the shader code
         vertices.insert(vertices.end(), { -mesh->mNormals[i].x, -mesh->mNormals[i].y, -mesh->mNormals[i].z });
+
+        // Adding Tangents
+        // Checking if the tagnets are availabe
+        if(mesh->mTangents) {
+            // Debugging
+            // std::cout<<mesh->mTangents[i].x<<" "<<mesh->mTangents[i].y<<" "<<mesh->mTangents[i].z<<"\n";
+
+            vertices.insert(vertices.end(), { mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z });
+        }
+
+        else {
+            vertices.insert(vertices.end(), { 0.0f, 0.0f, 0.0f });
+        }
     }
 
     // Adding indices
@@ -218,7 +231,7 @@ void Model::loadModel(const std::string filePath) {
     // aiProcess_FlipUVs - Flip UVs along Y axis (Because of the way our lighting is setup)
     // aiProcess_GenSmoothNormals - We are not handling flat shading
     // aiProcess_JoinIdenticalVertices - If overlapping vertices, will combine them
-    const aiScene *scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
+    const aiScene *scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace );
 
     // If there is no model
     if(!scene) {

@@ -68,7 +68,8 @@ GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosi
         uniformDiffuseTexture = 0, uniformAmbientOcclusionTexture = 0, uniformSpecularTexture = 0, uniformNormalTexture = 0,
         uniformNoiseTexture = 0,
         uniformEnvMapping = 0, uniformSkybox = 0, uniformBackgroundColor = 0,
-        uniformIsReflection = 0, uniformIsRefraction = 0, uniformIOR = 0, uniformFresnelReflectance = 0, uniformDispersion = 0;
+        uniformIsReflection = 0, uniformIsRefraction = 0, uniformIOR = 0, uniformFresnelReflectance = 0, uniformDispersion = 0,
+        uniformNormalStrength = 0;
 
 // Our main window
 Window mainWindow;
@@ -86,10 +87,7 @@ Camera camera;
 bool cursorDisabled = true;
 
 // Textures
-Texture brickTexture;
-Texture dirtTexture;
 Texture whiteTexture;
-Texture blackTexture;
 
 // Noise Texture for random maps
 // Texture noiseTexture;
@@ -132,6 +130,7 @@ Model sphere;
 Model teapot;
 Model cube;
 Model crate;
+Model ground;
 
 // Delta Time
 GLfloat deltaTime = 0.0f;
@@ -140,10 +139,10 @@ GLfloat lastTime = 0.0f;
 // Vertex Shader
 // Uniform - Global to shader, not associated with a particular vertex
 // Bind data to uniform to get location
-static const char* vertexShader = "D:/Programs/C++/Rendering/OpenGL/src/Rendering/Shaders/finalShader.vert";
+static const char* vertexShader = "D:/Programs/C++/Rendering/OpenGL/src/Rendering/Shaders/BRDF_Normals.vert";
 
 // Fragment Shader
-static const char* fragmentShader = "D:/Programs/C++/Rendering/OpenGL/src/Rendering/Shaders/finalShader.frag";
+static const char* fragmentShader = "D:/Programs/C++/Rendering/OpenGL/src/Rendering/Shaders/BRDF_Normals.frag";
 
 // Contains making manual objects
 void createObjects() {
@@ -153,15 +152,15 @@ void createObjects() {
     };
 
     GLfloat verticesFloor[] = {
-        -10.0f, 0.0f, -10.0f,   0.0f, 0.0f,     0.0f, -1.0f, 0.0f,
-        10.0f, 0.0f, -10.0f,    10.0f, 0.0f,    0.0f, -1.0f, 0.0f,
-        -10.0f, 0.0f, 10.0f,    0.0f, 10.0f,    0.0f, -1.0f, 0.0f,
-        10.0f, 0.0f, 10.0f,     10.0f, 10.0f,   0.0f, -1.0f, 0.0f
+        -10.0f, 0.0f, -10.0f,   0.0f, 0.0f,     0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,
+        10.0f, 0.0f, -10.0f,    10.0f, 0.0f,    0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,
+        -10.0f, 0.0f, 10.0f,    0.0f, 10.0f,    0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,
+        10.0f, 0.0f, 10.0f,     10.0f, 10.0f,   0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f
     };
 
     // Floor
     Mesh* floor = new Mesh();
-    floor->createMesh(verticesFloor, indicesFloor, 32, 6);
+    floor->createMesh(verticesFloor, indicesFloor, 44, 6);
 
     // Adding to our meshlist
     meshList.push_back(floor);
@@ -323,6 +322,9 @@ void prepareObjects() {
 
     crate = Model();
     crate.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/crate.obj");
+
+    ground = Model();
+    ground.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/floor.obj");
 }
 
 // Global parameter for rotating the objects
@@ -333,12 +335,22 @@ float size = 12.0f;
 // We are replacing all the texture with realisitc textures to show-case PBR
 void renderScene() {
     // Objects=========================================================================================================
+    // Ground
+    glm::mat4 base = glm::mat4(1.0f);
+
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(base));
+
+    shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
+    ground.renderModel();
+
     // Crate
-    glm::mat4 crateModel = glm::mat4(1.0f);
+    base = glm::mat4(1.0f);
 
-    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(crateModel));
+    glm::translate(base, glm::vec3(5.0f, 0.0f, 0.0f));
 
-    extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(base));
+
+    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
     crate.renderModel();
 }
 
@@ -522,12 +534,13 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     uniformSpecularPreview = shaderList[0].getSpecularPreviewLocation();
     uniformNormalPreview = shaderList[0].getNormalPreviewLocation();
 
-    // Transmission
+    // Material Properties
     uniformIsReflection = shaderList[0].getIsReflectionLocation();
     uniformIsRefraction = shaderList[0].getIsRefractionLocation();
     uniformIOR = shaderList[0].getIORLocation();
     uniformFresnelReflectance = shaderList[0].getFresnelReflectance();
     uniformDispersion = shaderList[0].getDispersionLocation();
+    uniformNormalStrength = shaderList[0].getNormalStrengthLocation();
 
     // Texture
     uniformDiffuseTexture = shaderList[0].getMainTextureLocation();
@@ -617,12 +630,13 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
                                         mainGUI.getBackgroundColor().y,
                                         mainGUI.getBackgroundColor().z);
 
-    // Transmission effects
+    // Material Properties
     glUniform1i(uniformIsReflection, mainGUI.getIsReflection());
     glUniform1i(uniformIsRefraction, mainGUI.getIsRefraction());
     glUniform1f(uniformIOR, mainGUI.getIOR());
     glUniform1f(uniformFresnelReflectance, mainGUI.getFresnelReflectance());
     glUniform1f(uniformDispersion, mainGUI.getDispersion());
+    glUniform1f(uniformNormalStrength, mainGUI.getNormalStrength());
 
     // Added the texture disabling functionality in the shader
     renderScene();

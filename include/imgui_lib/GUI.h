@@ -56,15 +56,16 @@ private:
     // Skybox
     bool isSkyBox = false;
 
-    // Environment Mapping
+    // Environment Mapping - Material Properties
     bool isEnvMapping = false;
     bool isReflection = true;
     bool isRefraction = false;
     float ior = 1.52f;
     float f0 = 0.03f;
     float dispersion = 0.03f;
+    float normalStrength = 0.0f;
 
-    // Controls
+    // Plane Controls
     bool isEuler = true;
     float planePosition[3] = {0.0f, 0.0f, 0.0f};
     float planeRotation[3] = {0.0f, 0.0f, 0.0f};
@@ -135,14 +136,14 @@ public:
     // Skybox Parameters
     bool getIsSkyBox() const { return isSkyBox; }
 
-    // Environment Mapping Parameters
+    // Environment Mapping Parameters - Material Properties
     bool getIsEnvMapping() const { return isEnvMapping; }
     bool getIsReflection() const { return isReflection; }
     bool getIsRefraction() const { return isRefraction; }
     float getIOR() const { return ior; }
     float getFresnelReflectance() const { return f0; }
     float getDispersion() const { return dispersion; }
-
+    float getNormalStrength() const { return normalStrength; }
     // Controls
     bool getIsEuler() const { return isEuler; }
     const float* getPlanePosition() const { return planePosition; }

@@ -36,16 +36,20 @@ void Mesh::createMesh(GLfloat *vertices, unsigned int *indices, unsigned int num
             // Size = Number of elements in 1 row of the array
             // Stride = How many values to skip from beginning
             // Offset = Offset starting from beginning
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 8, 0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 11, 0);
             glEnableVertexAttribArray(0);
 
             // UV values - Texture
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 8, (void*)(sizeof(vertices[0]) * 3));
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 11, (void*)(sizeof(vertices[0]) * 3));
             glEnableVertexAttribArray(1);
 
             // Normals
-            glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 8, (void*)(sizeof(vertices[0]) * 5));
+            glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 11, (void*)(sizeof(vertices[0]) * 5));
             glEnableVertexAttribArray(2);
+
+            // Tangents
+            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 11, (void*)(sizeof(vertices[0]) * 8));
+            glEnableVertexAttribArray(3);
 
         // Un-Binding Buffer Array
         glBindBuffer(GL_ARRAY_BUFFER, 0);

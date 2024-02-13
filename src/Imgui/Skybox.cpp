@@ -83,20 +83,20 @@ Skybox::Skybox(std::vector<std::string> faceLocations) {
     // Placing the images based off of camera values instead of UV
     float skyboxVertices[] = {
         // Back corners
-        -1.0f, 1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
-        -1.0f, -1.0f, -1.0f,   0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
-        1.0f, 1.0f, -1.0f,     0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
-        1.0f, -1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+        -1.0f, 1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,    0.0f, 0.0f, 0.0f,
+        -1.0f, -1.0f, -1.0f,   0.0f, 0.0f,     0.0f, 0.0f, 0.0f,    0.0f, 0.0f, 0.0f,
+        1.0f, 1.0f, -1.0f,     0.0f, 0.0f,     0.0f, 0.0f, 0.0f,    0.0f, 0.0f, 0.0f,
+        1.0f, -1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,    0.0f, 0.0f, 0.0f,
 
         // Front corners
-        -1.0f, 1.0f, 1.0f,     0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
-        1.0f, 1.0f, 1.0f,      0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
-        -1.0f, -1.0f, 1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
-        1.0f, -1.0f, 1.0f,     0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+        -1.0f, 1.0f, 1.0f,     0.0f, 0.0f,     0.0f, 0.0f, 0.0f,    0.0f, 0.0f, 0.0f,
+        1.0f, 1.0f, 1.0f,      0.0f, 0.0f,     0.0f, 0.0f, 0.0f,    0.0f, 0.0f, 0.0f,
+        -1.0f, -1.0f, 1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,    0.0f, 0.0f, 0.0f,
+        1.0f, -1.0f, 1.0f,     0.0f, 0.0f,     0.0f, 0.0f, 0.0f,    0.0f, 0.0f, 0.0f,
     };
 
     skyMesh = new Mesh();
-    skyMesh->createMesh(skyboxVertices, skyboxIndices, 64, 36);
+    skyMesh->createMesh(skyboxVertices, skyboxIndices, 88, 36);
 }
 
 void Skybox::drawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {

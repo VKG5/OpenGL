@@ -62,6 +62,9 @@ void GUI::elements(std::string& shadingMode) {
         ImGui::Checkbox("Normal", &normalPreview);
     }
 
+    // Normal Map Strength
+    ImGui::DragFloat("Normal Strength", (float*)&normalStrength, sliderSpeed, 0.0f, 1.0f);
+
     // Setting camera properties
     // And environment map
     ImGui::SliderInt("Skybox", (int*)&skyboxIndex, 1, 6);

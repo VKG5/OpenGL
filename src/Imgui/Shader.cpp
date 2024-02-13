@@ -101,6 +101,7 @@ void Shader::compileProgram() {
     uniformShininess = glGetUniformLocation(shaderID, "material.shininess");
     uniformSpecularIntensity = glGetUniformLocation(shaderID, "material.specularIntensity");
     uniformMetalness = glGetUniformLocation(shaderID, "material.metalness");
+    uniformNormalStrength = glGetUniformLocation(shaderID, "normalStrength");
 
     // Specular Highlights
     uniformEyePosition = glGetUniformLocation(shaderID, "eyePosition");
@@ -365,7 +366,7 @@ GLuint Shader::getBackgroundColourLocation() {
     return uniformBackgroundColor;
 }
 
-// Tramission Paramters
+// Material Paramters
 GLuint Shader::getIsReflectionLocation() {
     return uniformIsReflection;
 }
@@ -384,6 +385,10 @@ GLuint Shader::getFresnelReflectance() {
 
 GLuint Shader::getDispersionLocation() {
     return uniformDispersion;
+}
+
+GLuint Shader::getNormalStrengthLocation() {
+    return uniformNormalStrength;
 }
 
 // Getting the shader ID===============================================================================================

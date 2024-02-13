@@ -69,7 +69,8 @@ private:
            uniformMaterialPreview, uniformSpecularPreview, uniformNormalPreview,
            uniformDiffuseTexture, uniformAmbientOcclusionTexture, uniformSpecularTexture, uniformNormalTexture, uniformNoiseTexture,
            uniformEnvMapping, uniformSkybox, uniformBackgroundColor,
-           uniformIsReflection, uniformIsRefraction, uniformIOR, uniformFresnelReflectance, uniformDispersion;
+           uniformIsReflection, uniformIsRefraction, uniformIOR, uniformFresnelReflectance, uniformDispersion,
+           uniformNormalStrength;
 
     void compileShader(const char* vertexCode, const char* fragmentCode);
 
@@ -123,12 +124,13 @@ public:
     GLuint getSpecularPreviewLocation();
     GLuint getNormalPreviewLocation();
 
-    // Tramission properties
+    // Material properties
     GLuint getIsReflectionLocation();
     GLuint getIsRefractionLocation();
     GLuint getIORLocation();
     GLuint getFresnelReflectance();
     GLuint getDispersionLocation();
+    GLuint getNormalStrengthLocation();
 
     // Shader ID
     GLuint getShaderIDLocation();
