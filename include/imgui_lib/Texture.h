@@ -15,6 +15,9 @@ private:
     // Function to generate noise
     unsigned char* generateNoise();
 
+    // Debugger
+    void printTextureInfo();
+
 public:
     // Constructor
     Texture();
@@ -22,7 +25,7 @@ public:
     Texture(const char* fileLoc);
 
     bool loadTexture();
-    bool loadTextureA();
+    bool loadTexture(int choice);
 
     // For supporting multiple textures in one shader
     void useTexture();

@@ -70,7 +70,7 @@ private:
            uniformDiffuseTexture, uniformAmbientOcclusionTexture, uniformSpecularTexture, uniformNormalTexture, uniformNoiseTexture,
            uniformEnvMapping, uniformSkybox, uniformBackgroundColor,
            uniformIsReflection, uniformIsRefraction, uniformIOR, uniformFresnelReflectance, uniformDispersion,
-           uniformNormalStrength;
+           uniformNormalStrength, uniformSpecularStrength;
 
     void compileShader(const char* vertexCode, const char* fragmentCode);
 
@@ -131,6 +131,7 @@ public:
     GLuint getFresnelReflectance();
     GLuint getDispersionLocation();
     GLuint getNormalStrengthLocation();
+    GLuint getSpecularStrengthLocation();
 
     // Shader ID
     GLuint getShaderIDLocation();

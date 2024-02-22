@@ -1,12 +1,30 @@
 #include "Skybox.h"
 
+// Get the full path of the current source file
+const std::filesystem::path currentSourcePath = __FILE__;
+
+// Extract the directory containing the source file
+const std::filesystem::path currentSourceDir = currentSourcePath.parent_path().parent_path();
+
+// Vertex Shader
+// Uniform - Global to shader, not associated with a particular vertex
+// Bind data to uniform to get location
+std::string skyVertexShaderPath = (currentSourceDir / "Shaders/skybox.vert").string();
+std::string skyVertexShaderFormatted = removeBackslash(skyVertexShaderPath.c_str());
+static const char* skyVertexShader = skyVertexShaderFormatted.c_str();
+
+// Fragment Shader
+std::string skyFragmentShaderPath = (currentSourceDir / "Shaders/skybox.frag").string();
+std::string skyFragmentShaderFormatted = removeBackslash(skyFragmentShaderPath.c_str());
+static const char* skyFragmentShader = skyFragmentShaderFormatted.c_str();
+
 Skybox::Skybox() {
 }
 
 Skybox::Skybox(std::vector<std::string> faceLocations) {
     // Shader setup
     skyShader = new Shader();
-    skyShader->createFromFiles("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Shaders/skybox.vert", "D:/Programs/C++/Rendering/OpenGL/src/Rendering/Shaders/skybox.frag");
+    skyShader->createFromFiles(skyVertexShader, skyFragmentShader);
 
     uniformProjection = skyShader->getProjectionLocation();
     uniformView = skyShader->getViewLocation();

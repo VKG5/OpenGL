@@ -1,6 +1,5 @@
 #include "Utilities.h"
 
-// Averaging Normals for Phong Shading
 void calcAverageNormals( unsigned int* indices, unsigned int indexCount,
                          GLfloat* vertices, unsigned int vertexCount,
                          unsigned int vLength, unsigned int normalOffset ) {
@@ -38,4 +37,62 @@ void calcAverageNormals( unsigned int* indices, unsigned int indexCount,
         vec = glm::normalize(vec);
         vertices[NOffset] = vec.x; vertices[NOffset + 1] = vec.y; vertices[NOffset + 2] = vec.z;
     }
+}
+
+// *Comment out for older code!*
+void setShadingModeName(const GUI& GUI, const int& shadingModel, std::string& shadingMode) {
+    if(GUI.getMaterialPreview()) {
+        shadingMode = "Material Preview";
+    }
+
+    else if(GUI.getIsWireframe()) {
+        shadingMode = "Wireframe";
+    }
+
+    else if(shadingModel == 0) {
+        shadingMode = "Phong Illumination";
+    }
+
+    else if(shadingModel == 1) {
+        shadingMode = "Blinn-Phong Illumination";
+    }
+
+    else if(shadingModel == 2) {
+        shadingMode = "Gooch Shading";
+    }
+
+    else if(shadingModel == 3) {
+        shadingMode = "Minnaert Shading";
+    }
+
+    else {
+        shadingMode = "None";
+    }
+}
+
+// Helpers=============================================================================================================
+void printVec3GUI(const glm::vec3& vector, const int& index) {
+    ImGui::Text("Vector components: (%.2f, %.2f, %.2f)\n", vector.x, vector.y, vector.z);
+}
+
+void printMat4GUI(const glm::mat4& mat, const int& index) {
+    ImGui::Text("Index : %i Matrix:\n", index);
+    for (int row = 0; row < 4; row++) {
+        for (int col = 0; col < 4; col++) {
+            // Print element and a trailing space only after last column
+            ImGui::Text("%.2f%s", mat[col][row], (col == 3) ? "" : " ");
+            ImGui::SameLine();
+        }
+        ImGui::Text("");
+    }
+}
+
+std::string removeBackslash(const char* str) {
+    // Convert const char* to std::string
+    std::string strPath = str;
+
+    // Replace backslashes with forward slashes
+    std::replace(strPath.begin(), strPath.end(), '\\', '/');
+
+    return strPath;
 }

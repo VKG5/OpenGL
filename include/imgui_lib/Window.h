@@ -38,7 +38,7 @@ public:
 
     int initialize();
 
-    GLint getBufferWidht() {
+    GLint getBufferWidth() {
         return bufferWidth;
     }
 

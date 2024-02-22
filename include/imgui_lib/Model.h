@@ -13,6 +13,7 @@
 // Custom libraries
 #include "Mesh.h"
 #include "Texture.h"
+#include "Utilities.h"
 
 class Model {
 private:

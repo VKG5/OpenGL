@@ -37,15 +37,21 @@ private:
     // Directional Light
     float directionalLightColor[3] = {1.0f, 1.0f, 1.0f};
     float directionalLightDirection[3] = {2.0f, -1.0f, -2.0f};
-    float directionalLightAmbient = 0.125f;
-    float directionalLightDiffuse = 0.250f;
+    float directionalLightAmbient = 0.350f;
+    float directionalLightDiffuse = 0.500f;
 
     // Skybox
     int skyboxIndex = 1;
 
     // Camera
-    float cameraSpeed = 10.0f;
-    float cameraPos[3] = {-0.151f, 1.412f, 19.340f};
+    bool cameraIsPerspective = true;
+    bool cameraIsOrthographic = false;
+    float cameraFOV = 45.0f;
+    float cameraOrthoScale = 7.135f;
+    float cameraNearClipping = 0.1f;
+    float cameraFarClipping = 100.0f;
+    float cameraSpeed = 5.0f;
+    float cameraPos[3] = {0.0f, 1.75f, 4.0f};
 
     // Point Lights
     bool isPointLights = false;
@@ -64,18 +70,15 @@ private:
     float f0 = 0.03f;
     float dispersion = 0.03f;
     float normalStrength = 0.0f;
+    float specularSrength = 0.0f;
 
-    // Plane Controls
-    bool isEuler = true;
-    float planePosition[3] = {0.0f, 0.0f, 0.0f};
-    float planeRotation[3] = {0.0f, 0.0f, 0.0f};
-    float planeRotationQuat[3] = {0.0f, 0.0f, 0.0f};
-    float planeSpeed = 5.0f;
-    float planeTurnSpeed = 0.01f;
-    bool isPropeller = true;
-    float propellerSpeed = 0.5f;
-    ImVec2 firstPersonOffset = ImVec2(4.0f, -0.25f);
-    ImVec2 thirdPersonOffset = ImVec2(-6.69f, 25.69f);
+    // IK Controls
+    bool isIK = false;
+    int chainLength = 2;
+    int maxIterations = 1;
+    float tolerance = 1.0f;
+    float targetLocation[3] = {0.0f, 3.5f, 0.0f};
+    float targetSpeed = 0.005f;
 
     // Procedural Content Generation
     GLuint seed = 0;
@@ -93,8 +96,10 @@ public:
     void InitializeImGuiIO();
     void initialize(GLFWwindow* mainWindow);
     void newFrame();
-    void elements(std::string& shadingMode);
-    void render(std::string& shadingMode);
+    void elements(const std::string& shadingMode);
+    void render(const std::string& shadingMode);
+    void warningMessage(const std::string& message);
+    void errorMessage(const std::string& message);
     void shutdown();
 
     ImGuiIO getIO() const { return io; }
@@ -118,6 +123,12 @@ public:
 
     // Camera
     int getSkyboxIndex() const { return skyboxIndex; }
+    bool getCameraIsPerspective() const { return cameraIsPerspective; }
+    bool getCameraIsOrthographic() const { return cameraIsOrthographic; }
+    float getCameraFOV() const { return cameraFOV; }
+    float getCameraScale() const { return cameraOrthoScale; }
+    float getCameraNearClipping() const { return cameraNearClipping; }
+    float getCameraFarClipping() const { return cameraFarClipping; }
     float getCameraSpeed() const { return cameraSpeed; }
     const float* getCameraPosition() const { return cameraPos; }
 
@@ -144,17 +155,15 @@ public:
     float getFresnelReflectance() const { return f0; }
     float getDispersion() const { return dispersion; }
     float getNormalStrength() const { return normalStrength; }
-    // Controls
-    bool getIsEuler() const { return isEuler; }
-    const float* getPlanePosition() const { return planePosition; }
-    const float* getPlaneRotation() const { return planeRotation; }
-    const float* getPlaneRotationQuat() const { return planeRotationQuat; }
-    float getPlaneSpeed() const { return planeSpeed; }
-    float getPlaneTurnSpeed() const { return planeTurnSpeed; }
-    bool getIsPropeller() const { return isPropeller; }
-    float getPropellerSpeed() const { return propellerSpeed; }
-    ImVec2 getFPOffset() const { return firstPersonOffset; }
-    ImVec2 getTPOffset() const { return thirdPersonOffset; }
+    float getSpecularStrength() const { return specularSrength; }
+
+    // IK
+    bool getIsIK() const { return isIK; }
+    int getMaxIterations() const { return maxIterations; }
+    float getTolerance() const { return tolerance; }
+    int getChainLength() const { return chainLength; }
+    const float* getTargetLocation() const { return targetLocation; }
+    float getTargetSpeed() const { return targetSpeed; }
 
     // PCG
     GLuint getSeed() const { return seed; }
@@ -166,8 +175,12 @@ public:
     bool getUpdate() const { return update; }
 
     // Setters=========================================================================================================
-    void setPlanePosition(float x, float y, float z);
-    void setPlaneRotation(float x, float y, float z);
+    void setCameraIsPerspective(bool flag);
+    void setCameraIsOrthographic(bool flag);
+    void setCameraFOV(float fieldOfView);
+    void setCameraScale(float scale);
+    void setCameraClipping(float near, float far);
+    void setTargetLocation(float x, float y, float z);
     void setCameraPosition(float x, float y, float z);
 
     // Setter to reset the button press value

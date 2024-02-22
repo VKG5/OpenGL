@@ -102,6 +102,7 @@ void Shader::compileProgram() {
     uniformSpecularIntensity = glGetUniformLocation(shaderID, "material.specularIntensity");
     uniformMetalness = glGetUniformLocation(shaderID, "material.metalness");
     uniformNormalStrength = glGetUniformLocation(shaderID, "normalStrength");
+    uniformSpecularStrength = glGetUniformLocation(shaderID, "specularStrength");
 
     // Specular Highlights
     uniformEyePosition = glGetUniformLocation(shaderID, "eyePosition");
@@ -389,6 +390,10 @@ GLuint Shader::getDispersionLocation() {
 
 GLuint Shader::getNormalStrengthLocation() {
     return uniformNormalStrength;
+}
+
+GLuint Shader::getSpecularStrengthLocation() {
+    return uniformSpecularStrength;
 }
 
 // Getting the shader ID===============================================================================================

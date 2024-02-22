@@ -37,7 +37,7 @@ void GUI::newFrame() {
     ImGui::NewFrame();
 }
 
-void GUI::elements(std::string& shadingMode) {
+void GUI::elements(const std::string& shadingMode) {
     // Current Shading Mode
     // Set the font size
     ImGui::SetWindowFontScale(1.15f);
@@ -48,100 +48,177 @@ void GUI::elements(std::string& shadingMode) {
     ImGui::Spacing();
     // Set the font size to default
     ImGui::SetWindowFontScale(1.0f);
-    ImGui::Checkbox("Material Preview", &materialPreview);
 
-    // Checking different maps
-    // 1. Specular
-    // 2. Normal
-    if(materialPreview) {
-        ImGui::Checkbox("Specular", &specularPreview);
+    if (ImGui::BeginTabBar("Properties"))
+    {
+        // Material Properties
+        if (ImGui::BeginTabItem("Materials")) {
+            // Spacing
+            ImGui::Spacing();
 
-        // Put the next element on the same line
-        ImGui::SameLine();
+            ImGui::Checkbox("Material Preview", &materialPreview);
+            // Checking different maps
+            // 1. Specular
+            // 2. Normal
+            if(materialPreview) {
+                ImGui::Checkbox("Specular", &specularPreview);
 
-        ImGui::Checkbox("Normal", &normalPreview);
-    }
+                // Put the next element on the same line
+                ImGui::SameLine();
 
-    // Normal Map Strength
-    ImGui::DragFloat("Normal Strength", (float*)&normalStrength, sliderSpeed, 0.0f, 1.0f);
+                ImGui::Checkbox("Normal", &normalPreview);
+            }
 
-    // Setting camera properties
-    // And environment map
-    ImGui::SliderInt("Skybox", (int*)&skyboxIndex, 1, 6);
-    ImGui::DragFloat("Camera Speed", (float*)&cameraSpeed, sliderSpeed);
-    ImGui::DragFloat3("Camera Position", (float*)&cameraPos, sliderSpeed);
+            // Spacing
+            ImGui::Spacing();
+            ImGui::Checkbox("Wireframe", &wireframe);
+            // Options based on wireframe
+            if(wireframe) {
+                ImGui::ColorEdit4("Wire Color", (float*)&wireframeColor);
+            }
 
-    // Spacing
-    ImGui::Spacing();
-    ImGui::Checkbox("Wireframe", &wireframe);
-    // Options based on wireframe
-    if(wireframe) {
-        ImGui::ColorEdit4("Wire Color", (float*)&wireframeColor);
-    }
+            // Spacing
+            // You can also use - ImGui::Dummy(ImVec2(0.0f, 20.0f)); for custom height parameters (horizontal, vertical)
+            ImGui::Spacing();
+            ImGui::Checkbox("Shaded", &shaded);
 
-    // Spacing
-    // You can also use - ImGui::Dummy(ImVec2(0.0f, 20.0f)); for custom height parameters (horizontal, vertical)
-    ImGui::Spacing();
-    ImGui::Checkbox("Shaded", &shaded);
-    // Options based on wireframe
-    if(!shaded) {
-        ImGui::ColorEdit4("Object Color", (float*)&objectColor);
-    }
+            // Options based on wireframe
+            if(!shaded) {
+                ImGui::ColorEdit4("Object Color", (float*)&objectColor);
+            }
 
-    // Spacing
-    ImGui::Spacing();
-    ImGui::ColorEdit4("Background Color", (float*)&bgColor);
+            // Options based on textures
+            else if(shaded) {
+                // Normal Map Strength
+                ImGui::DragFloat("Normal Map", (float*)&normalStrength, sliderSpeed, 0.0f, 1.0f);
 
-    // Lighting
-    // Spacing
-    ImGui::Dummy(ImVec2(0.0f, 5.0f));
-    ImGui::SetWindowFontScale(1.15f);
-    ImGui::Text("Lighting");
+                // Specular Map Strength
+                ImGui::DragFloat("Specular Map", (float*)&specularSrength, sliderSpeed, 0.0f, 1.0f);
+            }
 
-    // Directional Light Controls
-    ImGui::Spacing();
-    ImGui::SetWindowFontScale(1.0f);
-    ImGui::Text("Directional Light");
-    ImGui::ColorEdit3("Color", directionalLightColor);
-    ImGui::DragFloat3("Direction", directionalLightDirection, sliderSpeed, -360.0f, 360.0f, "%.3f");
-    ImGui::DragFloat("Ambient", &directionalLightAmbient, sliderSpeed);
-    ImGui::DragFloat("Diffuse", &directionalLightDiffuse, sliderSpeed);
+            // Environment Settings
+            ImGui::Checkbox("Environment Mapping", &isEnvMapping);
 
-    // TODO : Implement Point Light Controls
-    ImGui::Spacing();
-    ImGui::Text("Point Lights");
-    ImGui::Checkbox("Point Active", &isPointLights);
+            if(isEnvMapping) {
+                ImGui::Checkbox("Reflection", &isReflection);
+                ImGui::Checkbox("Refraction", &isRefraction);
+                ImGui::DragFloat("IOR", (float*)&ior, sliderSpeed);
+                ImGui::DragFloat("Fresnel Reflectance", (float*)&f0, sliderSpeed);
+                ImGui::DragFloat("Dispersion", (float*)&dispersion, sliderSpeed / 10, 0.0f, 1.0f);
+            }
 
-    // TODO : Implement Spot Light Controls
-    ImGui::Spacing();
-    ImGui::Text("Spot Lights");
-    ImGui::Checkbox("Spot Active", &isSpotLights);
+            // End Current Tab
+            ImGui::EndTabItem();
+        }
 
-    // TODO : Implement Skybox Controls
-    ImGui::Spacing();
-    ImGui::Text("Skybox");
-    ImGui::Checkbox("Skybox Active", &isSkyBox);
-    ImGui::Checkbox("Environment Mapping", &isEnvMapping);
+        // Camera Properties
+        if (ImGui::BeginTabItem("Camera")) {
+            // Spacing
+            ImGui::Spacing();
 
-    if(isEnvMapping) {
-        ImGui::Checkbox("Reflection", &isReflection);
-        ImGui::Checkbox("Refraction", &isRefraction);
-        ImGui::DragFloat("IOR", (float*)&ior, sliderSpeed);
-        ImGui::DragFloat("Fresnel Reflectance", (float*)&f0, sliderSpeed);
-        ImGui::DragFloat("Dispersion", (float*)&dispersion, sliderSpeed / 10, 0.0f, 1.0f);
+            // Setting camera properties
+            ImGui::Checkbox("Perspective", &cameraIsPerspective);
+            ImGui::SameLine();
+            ImGui::Checkbox("Orthographic", &cameraIsOrthographic);
+
+            if(cameraIsPerspective) {
+                ImGui::DragFloat("Field of View", (float*)&cameraFOV, 1.0f, 0.0f);
+            }
+
+            else if(cameraIsOrthographic) {
+                ImGui::DragFloat("Scale", (float*)&cameraOrthoScale, sliderSpeed);
+            }
+
+            ImGui::DragFloat("Near Clipping", (float*)&cameraNearClipping, sliderSpeed);
+            ImGui::DragFloat("Far Clipping", (float*)&cameraFarClipping, sliderSpeed);
+            ImGui::DragFloat("Camera Speed", (float*)&cameraSpeed, sliderSpeed);
+            ImGui::DragFloat3("Camera Position", (float*)&cameraPos, sliderSpeed);
+
+            // End Current Tab
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("World")) {
+            // Spacing
+            ImGui::Spacing();
+            ImGui::ColorEdit4("Background Color", (float*)&bgColor);
+
+            // TODO : Implement Skybox Controls
+            ImGui::Spacing();
+            ImGui::Text("Skybox");
+            // Changing Skybox
+            ImGui::SliderInt("Skybox", (int*)&skyboxIndex, 1, 6);
+            ImGui::Checkbox("Skybox Active", &isSkyBox);
+
+            // End Current Tab
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Lighting")) {
+            // Lighting
+            // Spacing
+            ImGui::Dummy(ImVec2(0.0f, 5.0f));
+            ImGui::SetWindowFontScale(1.15f);
+            ImGui::Text("Lighting");
+
+            // Directional Light Controls
+            ImGui::Spacing();
+            ImGui::SetWindowFontScale(1.0f);
+            ImGui::Text("Directional Light");
+            ImGui::ColorEdit3("Color", directionalLightColor);
+            ImGui::DragFloat3("Direction", directionalLightDirection, sliderSpeed, -360.0f, 360.0f, "%.3f");
+            ImGui::DragFloat("Ambient", &directionalLightAmbient, sliderSpeed);
+            ImGui::DragFloat("Diffuse", &directionalLightDiffuse, sliderSpeed);
+
+            // TODO : Implement Point Light Controls
+            ImGui::Spacing();
+            ImGui::Text("Point Lights");
+            ImGui::Checkbox("Point Active", &isPointLights);
+
+            // TODO : Implement Spot Light Controls
+            ImGui::Spacing();
+            ImGui::Text("Spot Lights");
+            ImGui::Checkbox("Spot Active", &isSpotLights);
+
+            // End Current Tab
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
     }
 }
 
-// Setters
+// Setters=============================================================================================================
+void GUI::setCameraIsPerspective(bool flag) {
+    cameraIsPerspective = flag;
+}
+
+void GUI::setCameraIsOrthographic(bool flag) {
+    cameraIsOrthographic = flag;
+}
+
+void GUI::setCameraFOV(float fieldOfView) {
+    cameraFOV = fieldOfView;
+}
+
+void GUI::setCameraScale(float scale) {
+    cameraOrthoScale = scale;
+}
+
+void GUI::setCameraClipping(float near, float far) {
+    cameraNearClipping = near;
+    cameraFarClipping = far;
+}
+
 void GUI::setCameraPosition(float x, float y, float z) {
     cameraPos[0] = x;
     cameraPos[1] = y;
     cameraPos[2] = z;
 }
 
-void GUI::render(std::string& shadingMode) {
+void GUI::render(const std::string& shadingMode) {
     // Render ImGui elements here
-    ImGui::Begin("OpenGL UI");
+    ImGui::Begin("Yumi");
 
     // Elements of the UI
     elements(shadingMode);

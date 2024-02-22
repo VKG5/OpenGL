@@ -1,5 +1,11 @@
 #include "Model.h"
 
+// Get the full path of the current source file
+const std::filesystem::path currentSourcePath = __FILE__;
+
+// Extract the directory containing the source file
+const std::filesystem::path currentSourceDir = currentSourcePath.parent_path();
+
 Model::Model() {
 }
 
@@ -100,7 +106,9 @@ void Model::loadMap(aiMaterial* material, aiTextureType textureType, int texture
         int idx = std::string(path.data).rfind("\\");
         std::string fileName = std::string(path.data).substr(idx + 1);
 
-        std::string texPath = std::string("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/") + fileName;
+        std::string texRealtivePath = (currentSourceDir / "Textures/").string();
+        std::string texRelativeFormatted = removeBackslash(texRealtivePath.c_str());
+        std::string texPath = texRelativeFormatted + fileName;
 
         // Debugging
         // printf("Loading Texture from: %s\n", texPath.c_str());
@@ -122,7 +130,10 @@ void Model::loadMap(aiMaterial* material, aiTextureType textureType, int texture
                 // Debugging
                 // printf("Adding default Normal Map\n");
 
-                textureList[textureIndex] = new Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/emptyNormal.png");
+                std::string texRealtivePath = (currentSourceDir / "Textures/emptyNormal.png").string();
+                std::string texRelativeFormatted = removeBackslash(texRealtivePath.c_str());
+
+                textureList[textureIndex] = new Texture(texRelativeFormatted.c_str());
                 textureList[textureIndex]->loadTexture();
             }
         }
@@ -197,7 +208,10 @@ void Model::loadMaterials(const aiScene * scene) {
                 // Debugging
                 // printf("Adding default White Texture\n");
 
-                textureList[i] = new Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/white.jpg");
+                std::string texRealtivePath = (currentSourceDir / "Textures/white.jpg").string();
+                std::string texRelativeFormatted = removeBackslash(texRealtivePath.c_str());
+
+                textureList[i] = new Texture(texRelativeFormatted.c_str());
                 textureList[i]->loadTexture();
             }
         }
@@ -212,7 +226,10 @@ void Model::loadMaterials(const aiScene * scene) {
         // Debugging
         // printf("Missing materials!\nAdding default texture\n");
 
-        textureList[0] = new Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/white.jpg");
+        std::string texRealtivePath = (currentSourceDir / "Textures/white.jpg").string();
+        std::string texRelativeFormatted = removeBackslash(texRealtivePath.c_str());
+
+        textureList[0] = new Texture(texRelativeFormatted.c_str());
         textureList[0]->loadTexture();
     }
 

@@ -1,22 +1,35 @@
 set(
     EXEC_SOURCES
+    # Main
     "Main.cpp"
+
+    # Project Specific Files
     "Mesh.cpp"
-    "Shader.cpp"
-    "Window.cpp"
-    "Camera.cpp"
-    "deps/imgui_impl_glfw.cpp"
     "GUI.cpp"
-    "Texture.cpp"
-    "Light.cpp"
-    "Utilities.cpp"
-    "Material.cpp"
-    "DirectionalLight.cpp"
-    "PointLight.cpp"
-    "SpotLight.cpp"
     "Model.cpp"
-    "Skybox.cpp"
+
+    # External Dependencies
+    "commons/deps/imgui_impl_glfw.cpp"
+
+    # Custom Algorithms
+    "commons/algorithms/randomDistribute.cpp"
+
+    # General - Sources that are common for all projects - MathFuncs.cpp, Camera.cpp, etc.
+    "commons/Camera.cpp"
+    "commons/DirectionalLight.cpp"
+    "commons/Light.cpp"
+    "commons/Material.cpp"
+    "commons/MathFuncs.cpp"
+    "commons/Movement.cpp"
+    "commons/PointLight.cpp"
+    "commons/Shader.cpp"
+    "commons/Skybox.cpp"
+    "commons/SpotLight.cpp"
+    "commons/Texture.cpp"
+    "commons/Utilities.cpp"
+    "commons/Window.cpp"
 )
+
 
 # Adding the main file as an executable to our project
 add_executable(

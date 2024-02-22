@@ -16,7 +16,13 @@ Texture::Texture(const char* fileLoc) {
     filePath = fileLoc;
 }
 
-// Load Textures without Alpha Channel
+void Texture::printTextureInfo() {
+    printf("Texture ID : %i", textureID);
+    printf("Width, Height, Depth : (%i, %i)", width, height, bitDepth);
+    printf("File Path : %s", filePath);
+}
+
+// Load Textures based on channels
 bool Texture::loadTexture() {
     unsigned char *texData = stbi_load(filePath, &width, &height, &bitDepth, 0);
     if(!texData) {
@@ -30,8 +36,9 @@ bool Texture::loadTexture() {
     // Setting parameter values
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
     // For zooming out - Minify
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     // For zooming in - Magnify
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -51,6 +58,90 @@ bool Texture::loadTexture() {
     }
 
     glGenerateMipmap(GL_TEXTURE_2D);
+
+    // Unbinding Texture
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // We have already copied the data
+    stbi_image_free(texData);
+
+    return true;
+}
+
+// Choosing different types of loading
+bool Texture::loadTexture(int choice) {
+    unsigned char *texData = stbi_load(filePath, &width, &height, &bitDepth, 0);
+    if(!texData) {
+        printf("Failed to load: %s\n", filePath);
+        return false;
+    }
+
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    // Setting parameter values
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    // Choices
+    // 1. No Interpolation and No MIP Maps
+    // 2. No Interpolation and MIP Maps
+    // 3. Interpolation and MIP Maps Near
+    // 4. Intepolation and MIP Maps Interpolation
+    /*
+    *Source : https://www.learnopengles.com/tag/mipmap/
+    GL_NEAREST corresponds to nearest-neighbour rendering,
+    GL_LINEAR corresponds to bilinear filtering,
+    GL_LINEAR_MIPMAP_NEAREST corresponds to bilinear filtering with mipmaps,
+    and GL_LINEAR_MIPMAP_LINEAR corresponds to trilinear filtering.
+    */
+    if(choice == 1 || choice == 2) {
+        // Debugging
+        // printf("Using Nearest\n");
+        // For zooming out - Minify
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        // For zooming in - Magnify
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+
+    else if(choice == 3) {
+        // Debugging
+        // printf("Using Linear Nearest\n");
+        // For zooming out - Minify
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+        // For zooming in - Magnify
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+
+    else {
+        // Debugging
+        // printf("Using Linear Linear\n");
+        // For zooming out - Minify
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        // For zooming in - Magnify
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+
+    // Change the RGB type based off of your image
+    // RGB - 3 channels
+    if(bitDepth == 3) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texData);
+    }
+
+    // RGBA - 4 channels
+    else if(bitDepth == 4) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
+    }
+
+    else {
+            printf("The texture has %i channels, unable to load!", bitDepth);
+    }
+
+    if(choice != 1) {
+        // Debugging
+        // printf("Using MIP Map\n");
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
 
     // Unbinding Texture
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -87,13 +178,18 @@ bool Texture::generateRandomTexture(GLuint w, GLuint h, GLuint d) {
     // Setting parameter values
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
     // For zooming out - Minify
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
     // For zooming in - Magnify
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Change the RGB type based off of your image
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texData);
+
     glGenerateMipmap(GL_TEXTURE_2D);
 
     // Unbinding Texture

@@ -43,10 +43,13 @@
 // Procedural Content Generation
 #include "randomDistribute.h"
 
-// Defining all necessary variables
-// Converting to Radians
-const float toRadians = 3.14159265f / 180.0f;
+// Get the full path of the current source file
+const std::filesystem::path currentSourcePath = __FILE__;
 
+// Extract the directory containing the source file
+const std::filesystem::path currentSourceDir = currentSourcePath.parent_path();
+
+// Defining all necessary variables
 // Seed for Procedural Content
 GLuint seed = 165316;
 
@@ -69,7 +72,7 @@ GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosi
         uniformNoiseTexture = 0,
         uniformEnvMapping = 0, uniformSkybox = 0, uniformBackgroundColor = 0,
         uniformIsReflection = 0, uniformIsRefraction = 0, uniformIOR = 0, uniformFresnelReflectance = 0, uniformDispersion = 0,
-        uniformNormalStrength = 0;
+        uniformNormalStrength = 0, uniformSpecularStrength = 0;
 
 // Our main window
 Window mainWindow;
@@ -87,7 +90,12 @@ Camera camera;
 bool cursorDisabled = true;
 
 // Textures
+// TODO : Vectors don't work with these textures? Weird
 Texture whiteTexture;
+Texture ckbSimple;
+Texture ckbNearestMIP;
+Texture ckbLineartMIPNearest;
+Texture ckbLinearMIPLinear;
 
 // Noise Texture for random maps
 // Texture noiseTexture;
@@ -139,12 +147,21 @@ GLfloat lastTime = 0.0f;
 // Vertex Shader
 // Uniform - Global to shader, not associated with a particular vertex
 // Bind data to uniform to get location
-static const char* vertexShader = "D:/Programs/C++/Rendering/OpenGL/src/Rendering/Shaders/BRDF_Normals.vert";
+std::string vertexShaderPath = (currentSourceDir / "Shaders/BRDF_Normals.vert").string();
+std::string vertexShaderFormatted = removeBackslash(vertexShaderPath.c_str());
+static const char* vertexShader = vertexShaderFormatted.c_str();
 
 // Fragment Shader
-static const char* fragmentShader = "D:/Programs/C++/Rendering/OpenGL/src/Rendering/Shaders/BRDF_Normals.frag";
+std::string fragmentShaderPath = (currentSourceDir / "Shaders/BRDF_Normals.frag").string();
+std::string fragmentShaderFormatted = removeBackslash(fragmentShaderPath.c_str());
+static const char* fragmentShader = fragmentShaderFormatted.c_str();
 
+
+// Creating Objects====================================================================================================
 // Contains making manual objects
+const float planeSize = 5.0f;
+const float planeUV = 2.5f;
+
 void createObjects() {
     unsigned int indicesFloor[] = {
         0, 1, 2,
@@ -152,10 +169,11 @@ void createObjects() {
     };
 
     GLfloat verticesFloor[] = {
-        -10.0f, 0.0f, -10.0f,   0.0f, 0.0f,     0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,
-        10.0f, 0.0f, -10.0f,    10.0f, 0.0f,    0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,
-        -10.0f, 0.0f, 10.0f,    0.0f, 10.0f,    0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,
-        10.0f, 0.0f, 10.0f,     10.0f, 10.0f,   0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f
+        // x, y, z                      u, v              Nx, Ny, Nz              Tx, Ty, Tz
+        -planeSize, 0.0f, -planeSize,   0.0f, 0.0f,       0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,
+        planeSize, 0.0f, -planeSize,    planeUV, 0.0f,    0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,
+        -planeSize, 0.0f, planeSize,    0.0f, planeUV,    0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,
+        planeSize, 0.0f, planeSize,     planeUV, planeUV, 0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f
     };
 
     // Floor
@@ -289,11 +307,30 @@ void createLights() {
     skybox_sky_fire = Skybox(skyboxFaces);
 }
 
+
+// Preparing Objects===================================================================================================
 // Contains textures, objects and materials
 void prepareObjects() {
     // Setting up Textures=============================================================================================
     whiteTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/white.jpg");
     whiteTexture.loadTexture();
+
+    // Choices - Parameter : Give the kind of loading you want to do for the particular texture
+    // 1. No Interpolation and No MIP Maps
+    // 2. No Interpolation and MIP Maps
+    // 3. Interpolation and MIP Maps Near
+    // 4. Intepolation and MIP Maps Interpolation
+    ckbSimple = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/checkboard.png");
+    ckbSimple.loadTexture(1);
+
+    ckbNearestMIP = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/checkboard.png");
+    ckbNearestMIP.loadTexture(2);
+
+    ckbLineartMIPNearest = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/checkboard.png");
+    ckbLineartMIPNearest.loadTexture(3);
+
+    ckbLinearMIPLinear = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/checkboard.png");
+    ckbLinearMIPLinear.loadTexture(4);
 
     // Generated Noise Texture
     // Parameters - Width, Height, Channels = 3 (Use 3 channels - RGB)
@@ -327,68 +364,9 @@ void prepareObjects() {
     ground.loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/floor.obj");
 }
 
-// Global parameter for rotating the objects
-float rotationAngle = 0.0f;
-float step = 0.001f;
-float size = 12.0f;
 
-// We are replacing all the texture with realisitc textures to show-case PBR
-void renderScene() {
-    // Objects=========================================================================================================
-    // Ground
-    glm::mat4 base = glm::mat4(1.0f);
-
-    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(base));
-
-    shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
-    ground.renderModel();
-
-    // Crate
-    base = glm::mat4(1.0f);
-
-    glm::translate(base, glm::vec3(5.0f, 0.0f, 0.0f));
-
-    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(base));
-
-    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
-    crate.renderModel();
-}
-
-void setShadingModeName() {
-    if(mainGUI.getMaterialPreview()) {
-        shadingMode = "Material Preview";
-    }
-
-    else if(mainGUI.getIsWireframe()) {
-        shadingMode = "Wireframe";
-    }
-
-    else if(shadingModel == 0) {
-        shadingMode = "Phong Illumination";
-    }
-
-    else if(shadingModel == 1) {
-        shadingMode = "Blinn-Phong Illumination";
-    }
-
-    else if(shadingModel == 2) {
-        shadingMode = "Gooch Shading";
-    }
-
-    else if(shadingModel == 3) {
-        shadingMode = "Minnaert Shading";
-    }
-
-    else {
-        shadingMode = "None";
-    }
-}
-
-// Render Pass - Renders all data in the scene
-void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
-    // Setting initial GLFW Window
-    // glViewport(0, 0, 1366, 768);
-
+// General Settings for all projects===================================================================================
+void generalElements(glm::mat4& projectionMatrix, glm::mat4& viewMatrix) {
     // Clear window
     glClearColor( mainGUI.getBackgroundColor().x,
                   mainGUI.getBackgroundColor().y,
@@ -457,6 +435,39 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     // Setting camera using GUI
     camera.setPosition(glm::vec3(mainGUI.getCameraPosition()[0], mainGUI.getCameraPosition()[1], mainGUI.getCameraPosition()[2]));
 
+    // Projection Matrix
+    camera.setCameraParameters( mainGUI.getCameraFOV(),
+                                mainGUI.getCameraScale(),
+                                mainGUI.getCameraNearClipping(),
+                                mainGUI.getCameraFarClipping() );
+
+    // Numpad 5 for switching between Ortho and Perspective
+    if(mainWindow.getKeys()[GLFW_KEY_KP_5]) {
+        if(mainGUI.getCameraIsPerspective()) {
+            mainGUI.setCameraIsPerspective(false);
+            mainGUI.setCameraIsOrthographic(true);
+        }
+
+        else {
+            mainGUI.setCameraIsOrthographic(false);
+            mainGUI.setCameraIsPerspective(true);
+        }
+
+        mainWindow.getKeys()[GLFW_KEY_KP_5] = false;
+    }
+
+    // Switching to Perspective
+    if(mainGUI.getCameraIsPerspective()) {
+        mainGUI.setCameraIsOrthographic(false);
+        projectionMatrix = camera.calculatePerspectiveProjectionMatrix(mainWindow.getBufferWidth(), mainWindow.getBufferHeight());
+    }
+
+    // Switching to Orthographic
+    if(mainGUI.getCameraIsOrthographic()) {
+        mainGUI.setCameraIsPerspective(false);
+        projectionMatrix = camera.calculateOrthographicProjectionMatrix();
+    }
+
     // Handling input events exclusive to the GLFW Window
     if(!mainGUI.getIO().WantCaptureMouse) {
         // If the cursor is disabled, don't update the camera
@@ -501,61 +512,67 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     else {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
+}
 
+void getUniforms(Shader& shader) {
     // Binding the program
-    shaderList[0].useShader();
-    uniformModel = shaderList[0].getModelLocation();
-    uniformProjection = shaderList[0].getProjectionLocation();
-    uniformView = shaderList[0].getViewLocation();
+    shader.useShader();
+
+    uniformModel = shader.getModelLocation();
+    uniformProjection = shader.getProjectionLocation();
+    uniformView = shader.getViewLocation();
 
     // Specular Light
-    uniformEyePosition = shaderList[0].getEyePositionLocation();
-    uniformSpecularIntensity = shaderList[0].getSpecularIntensityLocation();
-    uniformShininess = shaderList[0].getShininessLocation();
-    uniformMetalness = shaderList[0].getMetalnessLocation();
+    uniformEyePosition = shader.getEyePositionLocation();
+    uniformSpecularIntensity = shader.getSpecularIntensityLocation();
+    uniformShininess = shader.getShininessLocation();
+    uniformMetalness = shader.getMetalnessLocation();
 
     // Getting Shading Mode
-    uniformshadingModel = shaderList[0].getShadingModelLocation();
+    uniformshadingModel = shader.getShadingModelLocation();
 
     /*
     Getting UI Elements
     */
     // Object Properties
-    uniformIsShaded = shaderList[0].getIsShadedLocation();
-    uniformIsWireframe = shaderList[0].getIsWireframeLocation();
-    uniformWireframeColor = shaderList[0].getWireframeColourLocation();
-    uniformObjectColor = shaderList[0].getObjectColorLocation();
-    uniformEnvMapping = shaderList[0].getEnvMappingLocation();
-    uniformSkybox = shaderList[0].getSkyboxLocation();
-    uniformBackgroundColor = shaderList[0].getBackgroundColourLocation();
+    uniformIsShaded = shader.getIsShadedLocation();
+    uniformIsWireframe = shader.getIsWireframeLocation();
+    uniformWireframeColor = shader.getWireframeColourLocation();
+    uniformObjectColor = shader.getObjectColorLocation();
+    uniformEnvMapping = shader.getEnvMappingLocation();
+    uniformSkybox = shader.getSkyboxLocation();
+    uniformBackgroundColor = shader.getBackgroundColourLocation();
 
     // Material Preview - Maps
-    uniformMaterialPreview = shaderList[0].getMaterialPreviewLocation();
-    uniformSpecularPreview = shaderList[0].getSpecularPreviewLocation();
-    uniformNormalPreview = shaderList[0].getNormalPreviewLocation();
+    uniformMaterialPreview = shader.getMaterialPreviewLocation();
+    uniformSpecularPreview = shader.getSpecularPreviewLocation();
+    uniformNormalPreview = shader.getNormalPreviewLocation();
 
     // Material Properties
-    uniformIsReflection = shaderList[0].getIsReflectionLocation();
-    uniformIsRefraction = shaderList[0].getIsRefractionLocation();
-    uniformIOR = shaderList[0].getIORLocation();
-    uniformFresnelReflectance = shaderList[0].getFresnelReflectance();
-    uniformDispersion = shaderList[0].getDispersionLocation();
-    uniformNormalStrength = shaderList[0].getNormalStrengthLocation();
+    uniformIsReflection = shader.getIsReflectionLocation();
+    uniformIsRefraction = shader.getIsRefractionLocation();
+    uniformIOR = shader.getIORLocation();
+    uniformFresnelReflectance = shader.getFresnelReflectance();
+    uniformDispersion = shader.getDispersionLocation();
+    uniformNormalStrength = shader.getNormalStrengthLocation();
+    uniformSpecularStrength = shader.getSpecularStrengthLocation();
 
     // Texture
-    uniformDiffuseTexture = shaderList[0].getMainTextureLocation();
-    uniformSpecularTexture = shaderList[0].getSpecularTextureLocation();
-    uniformAmbientOcclusionTexture = shaderList[0].getAmbientOcclusionTextureLocation();
-    uniformNormalTexture = shaderList[0].getNormalTextureLocation();
+    uniformDiffuseTexture = shader.getMainTextureLocation();
+    uniformSpecularTexture = shader.getSpecularTextureLocation();
+    uniformAmbientOcclusionTexture = shader.getAmbientOcclusionTextureLocation();
+    uniformNormalTexture = shader.getNormalTextureLocation();
+}
 
+void setUniforms(glm::mat4 projectionMatrix, Shader& shader) {
     // Binding the texture to correct texture units
-    shaderList[0].setTexture(uniformDiffuseTexture, 0);
-    shaderList[0].setTexture(uniformSpecularTexture, 1);
-    shaderList[0].setTexture(uniformNormalTexture, 2);
+    shader.setTexture(uniformDiffuseTexture, 0);
+    shader.setTexture(uniformSpecularTexture, 1);
+    shader.setTexture(uniformNormalTexture, 2);
 
     // TODO : Intergrate this to work like a proper roughness map
-    // uniformNoiseTexture = shaderList[0].getNoiseTextureLocation();
-    // shaderList[0].setTexture(uniformNoiseTexture, 1);
+    // uniformNoiseTexture = shader.getNoiseTextureLocation();
+    // shader.setTexture(uniformNoiseTexture, 1);
 
     glm::vec3 lowerLight = camera.getCameraPosition();
     lowerLight.y -= 0.369f;
@@ -573,25 +590,25 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
                            mainGUI.getDirectionalLightDirection()[1],
                            mainGUI.getDirectionalLightDirection()[2] );
 
-    shaderList[0].setDirectionalLight(&mainLight);
+    shader.setDirectionalLight(&mainLight);
 
     // Currently disabling the Point and Spot lights based off a boolean
     // Point Lights
     if(mainGUI.getIsPointLights()) {
-        shaderList[0].setPointLight(pointLights, pointLightCount);
+        shader.setPointLight(pointLights, pointLightCount);
     }
 
     else {
-        shaderList[0].setPointLight(pointLights, 0);
+        shader.setPointLight(pointLights, 0);
     }
 
     // Spot Lights
     if(mainGUI.getIsSpotLights()) {
-        shaderList[0].setSpotLight(spotLights, spotLightCount);
+        shader.setSpotLight(spotLights, spotLightCount);
     }
 
     else {
-        shaderList[0].setSpotLight(spotLights, 0);
+        shader.setSpotLight(spotLights, 0);
     }
 
     // Binding to uniforms in the shader
@@ -637,18 +654,82 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     glUniform1f(uniformFresnelReflectance, mainGUI.getFresnelReflectance());
     glUniform1f(uniformDispersion, mainGUI.getDispersion());
     glUniform1f(uniformNormalStrength, mainGUI.getNormalStrength());
+    glUniform1f(uniformSpecularStrength, mainGUI.getSpecularStrength());
+}
 
-    // Added the texture disabling functionality in the shader
+
+// Scene Properties====================================================================================================
+// Global parameter for rotating the objects
+float rotationAngle = 0.0f;
+float step = 0.001f;
+float size = 12.0f;
+
+// We are replacing all the texture with realisitc textures to show-case PBR
+void renderScene() {
+    // Objects=========================================================================================================
+    // Grounds
+    glm::mat4 base = glm::mat4(1.0f);
+
+    for(int i=0; i < 4; i++) {
+        base = glm::mat4(1.0f);
+
+        // Displacing the ground
+        base = glm::translate(base, glm::vec3((planeSize * 2 + 1.0f) * i, 0.0f, 0.0f));
+        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(base));
+
+        if(i == 1) {
+            ckbSimple.useTexture();
+        }
+
+        else if(i == 2) {
+            ckbNearestMIP.useTexture();
+        }
+
+        else if(i == 3) {
+            ckbLineartMIPNearest.useTexture();
+        }
+
+        else {
+            ckbLinearMIPLinear.useTexture();
+        }
+
+        extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
+        meshList[0]->renderMesh();
+    }
+}
+
+// Render Pass - Renders all data in the scene=========================================================================
+void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
+    // General Pass
+    // Includes the general elements of the program
+    /*
+    1. Background Color, Depth Pass
+    2. Skybox
+    3. GUI - New Frame
+    4. Camera Controls
+    5. Wireframe
+    */
+    // Always called
+    generalElements(projectionMatrix, viewMatrix);
+
+    // Setting Uniforms for a shader
+    getUniforms(shaderList[0]);
+    setUniforms(projectionMatrix, shaderList[0]);
+
+    // Rendering the scene
     renderScene();
 
     // Drawing the UI
-    setShadingModeName();
+    setShadingModeName(mainGUI, shadingModel, shadingMode);
     mainGUI.render(shadingMode);
 }
 
 int main() {
     mainWindow = Window(1366, 768);
     mainWindow.initialize();
+
+    // Debugging
+    // printf("Current Path: %s\n", vertexShader);
 
     createObjects();
     createShaders();
@@ -662,7 +743,8 @@ int main() {
     // Creating the lights=============================================================================================
     createLights();
 
-    glm::mat4 projection = glm::perspective(45.0f, GLfloat(mainWindow.getBufferWidht())/GLfloat(mainWindow.getBufferHeight()), 0.1f, 100.0f);
+    // Projection Matrix===============================================================================================
+    glm::mat4 projection = camera.calculatePerspectiveProjectionMatrix(mainWindow.getBufferWidth(), mainWindow.getBufferHeight());
 
     // ImGUI===========================================================================================================
     mainGUI.initialize(mainWindow.getWindow());

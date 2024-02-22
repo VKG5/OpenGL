@@ -25,6 +25,12 @@ private:
     GLfloat moveSpeed;
     GLfloat turnSpeed;
 
+    // Projection
+    GLfloat FOV;
+    GLfloat scale;
+    GLfloat nearClipping;
+    GLfloat farClipping;
+
     void update();
 
 public:
@@ -38,6 +44,7 @@ public:
     void keyControl(bool* keys, GLfloat deltaTime);
     void mouseControl(GLfloat xChange, GLfloat yChange);
 
+    // Getters=========================================================================================================
     // Getter for specular highlight data
     glm::vec3 getCameraPosition();
     glm::vec3 getCameraDirection();
@@ -45,9 +52,16 @@ public:
 
     glm::mat4 calculateViewMatrix();
 
+    // Projection Matrices
+    glm::mat4 calculatePerspectiveProjectionMatrix(const GLint& width, const GLint& height);
+    glm::mat4 calculateOrthographicProjectionMatrix();
+
+    // Setters=========================================================================================================
     void updateMoveSpeed(GLfloat newSpeed);
 
     void setPosition(glm::vec3 currPos);
+
+    void setCameraParameters(float fieldOfView, float orthoScale, float near, float far);
 
     // Destructor
     ~Camera();

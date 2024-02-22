@@ -11,6 +11,7 @@ out vec4 color;
 // Corrected Normal
 vec3 normalTBN;
 vec3 viewDir;
+float specularMapFactor;
 
 // Should be same as Utilities.h header file
 const int MAX_POINT_LIGHTS = 3;
@@ -103,6 +104,7 @@ uniform float ior;
 uniform float reflectance;
 uniform float dispersion;
 uniform float normalStrength;
+uniform float specularStrength;
 
 vec3 calcReflection() {
     // Environment Reflection Mapping
@@ -176,7 +178,7 @@ vec4 calcLightByDirection(Light light, vec3 direction) {
             specularFactor = pow(specularFactor, material.shininess);
 
             if(isShaded) {
-                specularColour = vec4((light.colour * material.specularIntensity * texture(specularMap, texCoord).r * specularFactor), 1.0);
+                specularColour = vec4((light.colour * material.specularIntensity * specularMapFactor * specularFactor), 1.0);
             }
 
             else {
@@ -228,7 +230,7 @@ vec4 calcLightByDirection(Light light, vec3 direction) {
             if(isShaded) {
                 return  ( ambientColour + diffuseColour ) +
                           specularColour * (1.0 - material.metalness) +
-                          vec4(envColor * (1.0 - material.metalness) * material.specularIntensity * texture(specularMap, texCoord).r, 1.0 );
+                          vec4(envColor * (1.0 - material.metalness) * material.specularIntensity * specularMapFactor, 1.0 );
             }
 
             else {
@@ -243,7 +245,7 @@ vec4 calcLightByDirection(Light light, vec3 direction) {
             if(isShaded) {
                 return  ( ambientColour + diffuseColour ) +
                           specularColour * (1.0 - material.metalness) +
-                          vec4(backgroundColor * (1.0 - material.metalness) * material.specularIntensity * texture(specularMap, texCoord).r, 1.0 );
+                          vec4(backgroundColor * (1.0 - material.metalness) * material.specularIntensity * specularMapFactor, 1.0 );
             }
 
             else {
@@ -379,10 +381,13 @@ vec4 calcMinnaert(Light light, vec3 direction) {
 }
 
 void main() {
+    // Setting specular map strength - Blending between actual map and white
+    specularMapFactor = mix(vec3(1.0, 1.0, 1.0).r, texture(specularMap, texCoord).r, specularStrength);
+
     // Converting to TBN space & blending between Mapped and Empty normal
     normalTBN = mix(vec3(0.216, 0.216, 1.0), texture(normalMap, texCoord).rgb, normalStrength);
 
-    // Mapping from [0.0, 1.0] -> [-1.0, 1.0]
+    // Mapping from 10.0,11.0] -> [-1.0, 1.0]
     normalTBN = normalTBN * 2.0 - 1.0;
 
     normalTBN = -normalize(TBNMatrix * normalTBN);

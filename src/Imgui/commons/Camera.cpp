@@ -11,6 +11,12 @@ Camera::Camera() {
     moveSpeed = 5.0f;
     turnSpeed = 1.0f;
 
+    // Projection
+    FOV = 45.0f;
+    scale = 7.135f;
+    nearClipping = 0.1f;
+    farClipping = 100.f;
+
     update();
 }
 
@@ -25,6 +31,12 @@ Camera::Camera( glm::vec3 initialPosition, glm::vec3 initialUp, GLfloat initialY
 
     moveSpeed = initialMoveSpeed;
     turnSpeed = initialTurnSpeed;
+
+    // Projection
+    FOV = 45.0f;
+    scale = 7.135f;
+    nearClipping = 0.1f;
+    farClipping = 100.f;
 
     update();
 }
@@ -70,28 +82,6 @@ void Camera::keyControl(bool* keys, GLfloat deltaTime) {
     }
 }
 
-glm::vec3 Camera::getCameraPosition() {
-    return position;
-}
-
-glm::vec3 Camera::getCameraDirection() {
-    return glm::normalize(front);
-}
-
-glm::vec3 Camera::getCameraDirectionMagnitude() {
-    // Function to map values from [-1.0, 1.0] to [-360.0, 360.0]
-    return glm::vec3( glm::clamp((front.x + 1.0f) * 360.0f, 0.0f, 360.0f),
-                      glm::clamp((front.y + 1.0f) * 360.0f, 0.0f, 360.0f),
-                      glm::clamp((front.z + 1.0f) * 360.0f, 0.0f, 360.0f) );
-}
-
-glm::mat4 Camera::calculateViewMatrix() {
-    // Position, where we are look at from
-    // Thing we are looking at
-    // Where up is in the world
-    return glm::lookAt(position, position + front, up);
-}
-
 void Camera::mouseControl(GLfloat xChange, GLfloat yChange) {
     xChange *= turnSpeed;
     yChange *= turnSpeed;
@@ -124,6 +114,38 @@ void Camera::update() {
     up = glm::normalize(glm::cross(right, front));
 }
 
+// Getters=============================================================================================================
+glm::vec3 Camera::getCameraPosition() {
+    return position;
+}
+
+glm::vec3 Camera::getCameraDirection() {
+    return glm::normalize(front);
+}
+
+glm::vec3 Camera::getCameraDirectionMagnitude() {
+    // Function to map values from [-1.0, 1.0] to [-360.0, 360.0]
+    return glm::vec3( glm::clamp((front.x + 1.0f) * 360.0f, 0.0f, 360.0f),
+                      glm::clamp((front.y + 1.0f) * 360.0f, 0.0f, 360.0f),
+                      glm::clamp((front.z + 1.0f) * 360.0f, 0.0f, 360.0f) );
+}
+
+glm::mat4 Camera::calculateViewMatrix() {
+    // Position, where we are look at from
+    // Thing we are looking at
+    // Where up is in the world
+    return glm::lookAt(position, position + front, up);
+}
+
+glm::mat4 Camera::calculatePerspectiveProjectionMatrix(const GLint& width, const GLint& height) {
+    return glm::perspective(glm::radians(FOV), GLfloat(width)/GLfloat(height), nearClipping, farClipping);
+}
+
+glm::mat4 Camera::calculateOrthographicProjectionMatrix() {
+    return glm::ortho(-scale, scale, -scale, scale, nearClipping, farClipping);
+}
+
+// Setters=============================================================================================================
 void Camera::setPosition(glm::vec3 currPos) {
     position = currPos;
 }
@@ -131,6 +153,13 @@ void Camera::setPosition(glm::vec3 currPos) {
 // Changing Move Speed
 void Camera::updateMoveSpeed(GLfloat newSpeed) {
     moveSpeed = newSpeed;
+}
+
+void Camera::setCameraParameters(float fieldOfView, float orthoScale, float near, float far) {
+    FOV = fieldOfView;
+    scale = orthoScale;
+    nearClipping = near;
+    farClipping = far;
 }
 
 Camera::~Camera() {
