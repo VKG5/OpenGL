@@ -66,6 +66,7 @@ private:
     bool isEnvMapping = false;
     bool isReflection = true;
     bool isRefraction = false;
+    bool drawSkybox = true;
     float ior = 1.52f;
     float f0 = 0.03f;
     float dispersion = 0.03f;
@@ -74,11 +75,17 @@ private:
 
     // IK Controls
     bool isIK = false;
+    bool isTwoDIK = true;
+    bool isAnimate = false;
     int chainLength = 2;
-    int maxIterations = 1;
+    int maxIterations = 1024;
     float tolerance = 1.0f;
+    float epsilon = 0.01f;
     float targetLocation[3] = {0.0f, 3.5f, 0.0f};
+    float targetEndLocation[3] = {1.0f, 0.75f, 2.5f};
     float targetSpeed = 0.005f;
+    float animationRate = 0.005f;
+    int interpolationType = 1;
 
     // Procedural Content Generation
     GLuint seed = 0;
@@ -146,6 +153,7 @@ public:
 
     // Skybox Parameters
     bool getIsSkyBox() const { return isSkyBox; }
+    bool getDrawSkyBox() const { return drawSkybox; }
 
     // Environment Mapping Parameters - Material Properties
     bool getIsEnvMapping() const { return isEnvMapping; }
@@ -159,11 +167,17 @@ public:
 
     // IK
     bool getIsIK() const { return isIK; }
+    bool getIsTwoDIK() const { return isTwoDIK; }
+    bool getIsAnimate() const { return isAnimate; }
     int getMaxIterations() const { return maxIterations; }
     float getTolerance() const { return tolerance; }
+    float getEpsilon() const { return epsilon; }
     int getChainLength() const { return chainLength; }
     const float* getTargetLocation() const { return targetLocation; }
+    const float* getTargetEndLocation() const { return targetEndLocation; }
     float getTargetSpeed() const { return targetSpeed; }
+    float getAnimationRate() const { return animationRate; }
+    int getInterpolationType() const { return interpolationType; }
 
     // PCG
     GLuint getSeed() const { return seed; }
@@ -182,6 +196,8 @@ public:
     void setCameraClipping(float near, float far);
     void setTargetLocation(float x, float y, float z);
     void setCameraPosition(float x, float y, float z);
+    void setIsAnimate(bool flag);
+    void setIsIK(bool flag);
 
     // Setter to reset the button press value
     void setUpdate(bool updateValue);

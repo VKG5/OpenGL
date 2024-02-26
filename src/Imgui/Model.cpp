@@ -7,9 +7,18 @@ const std::filesystem::path currentSourcePath = __FILE__;
 const std::filesystem::path currentSourceDir = currentSourcePath.parent_path();
 
 Model::Model() {
+    localPosition = glm::vec3(0.0f);
+    localRotation = glm::vec3(0.0f, 1.0f, 0.0f);
+    localScale = glm::vec3(1.0f);
+
+    initialTransform = glm::mat4(1.0f);
+    accumulateTransform = glm::mat4(1.0f);
 }
 
-void Model::renderModel() {
+void Model::renderModel(const GLuint& uniformModel) {
+    // Binding the uniform model
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(accumulateTransform));
+
     // Iterating over the mesh to render
     for(size_t i = 0; i < meshList.size(); i++) {
         unsigned int materialIndex = meshToTex[i];
@@ -27,6 +36,10 @@ void Model::renderModel() {
         }
 
         meshList[i]->renderMesh();
+    }
+
+    for(Model* child : children) {
+        child->renderModel(uniformModel);
     }
 }
 
@@ -241,7 +254,7 @@ void Model::loadMaterials(const aiScene * scene) {
     // printf("Texture List Size : %i\n", textureList.size());
 }
 
-void Model::loadModel(const std::string filePath) {
+void Model::loadModel(const std::string& filePath) {
     Assimp::Importer importer;
 
     // aiProcess_Triangulate - Triangulate quads or mesh
@@ -274,6 +287,103 @@ void Model::clearModel() {
             delete textureList[i];
             textureList[i] = nullptr;
         }
+    }
+}
+
+// Getters=============================================================================================================
+GLuint Model::calculateChainLength() {
+    // Include the current node in the chain length
+    GLuint length = 1;
+
+    // Recursively calculate the chain length for each child
+    for (Model* child : children) {
+        length += child->calculateChainLength();
+    }
+
+    return length;
+}
+
+void Model::clearChildren() {
+    // Safe delete
+    for(Model* child : children) {
+        delete child;
+    }
+
+    children.clear();
+}
+
+// Setters=============================================================================================================
+void Model::setLocalTransforms(glm::vec3 translate, glm::vec3 rotate, glm::vec3 scale) {
+    localPosition = translate;
+    localRotation = rotate;
+    localScale = scale;
+}
+
+void Model::setInitialTransformMatrix() {
+    initialTransform = glm::mat4(1.0f);
+
+    // Convert Euler angles from degrees to radians
+    glm::vec3 rotationRadians = glm::radians(localRotation);
+
+    // Create a quaternion from Euler angles
+    glm::quat rotationQuat = glm::quat(rotationRadians);
+
+    // TRS using quaternions
+    initialTransform = glm::translate(initialTransform, localPosition);
+    initialTransform *= glm::toMat4(rotationQuat);
+    initialTransform = glm::scale(initialTransform, localScale);
+
+    accumulateTransform = initialTransform;
+}
+
+void Model::attachChild(Model * childModel) {
+    if(childModel) {
+        childModel->setInitialTransformMatrix();
+        children.push_back(childModel);
+
+        return;
+    }
+
+    printf("Failed to add child!\n");
+}
+
+void Model::attachParent(Model* parentModel) {
+    if(parentModel) {
+        parent = parentModel;
+
+        return;
+    }
+
+    printf("Failed to attach to parent!\n");
+}
+
+void Model::updateTranslation(glm::vec3 & offset) {
+    initialTransform = glm::translate(initialTransform, offset);
+}
+
+void Model::updateRotation(GLfloat angle, glm::vec3& axis, bool rads) {
+    // Convert angle to radians if it's not already
+    GLfloat angleInRadians = rads ? angle : glm::radians(angle);
+
+    // Create a quaternion from the axis and angle
+    glm::quat rotationQuat = glm::angleAxis(angleInRadians, glm::normalize(axis));
+
+    // Convert quaternion to a rotation matrix
+    glm::mat4 rotationMat = glm::toMat4(rotationQuat);
+
+    // Apply the rotation matrix to the initialTransform
+    initialTransform = initialTransform * rotationMat;
+}
+
+void Model::updateScale(glm::vec3& scale) {
+    initialTransform = glm::scale(initialTransform, scale);
+}
+
+void Model::updateTransform(glm::mat4& parentTransform) {
+    accumulateTransform = parentTransform * initialTransform;
+
+    for(Model* child : children) {
+        child->updateTransform(accumulateTransform);
     }
 }
 

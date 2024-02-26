@@ -149,6 +149,7 @@ void GUI::elements(const std::string& shadingMode) {
             // Changing Skybox
             ImGui::SliderInt("Skybox", (int*)&skyboxIndex, 1, 6);
             ImGui::Checkbox("Skybox Active", &isSkyBox);
+            ImGui::Checkbox("Draw Skybox", &drawSkybox);
 
             // End Current Tab
             ImGui::EndTabItem();

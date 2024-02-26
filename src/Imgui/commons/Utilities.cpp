@@ -72,7 +72,7 @@ void setShadingModeName(const GUI& GUI, const int& shadingModel, std::string& sh
 
 // Helpers=============================================================================================================
 void printVec3GUI(const glm::vec3& vector, const int& index) {
-    ImGui::Text("Vector components: (%.2f, %.2f, %.2f)\n", vector.x, vector.y, vector.z);
+    ImGui::Text("Vector {%i} components: (%.2f, %.2f, %.2f)\n", index, vector.x, vector.y, vector.z);
 }
 
 void printMat4GUI(const glm::mat4& mat, const int& index) {

@@ -91,12 +91,7 @@ Camera camera;
 bool cursorDisabled = true;
 
 // Textures
-// TODO : Vectors don't work with these textures? Weird
 Texture whiteTexture;
-Texture ckbSimple;
-Texture ckbNearestMIP;
-Texture ckbLineartMIPNearest;
-Texture ckbLinearMIPLinear;
 
 // Noise Texture for random maps
 // Texture noiseTexture;
@@ -134,12 +129,10 @@ Material extraShinyMat;
 int shadingModel = 0;
 
 // Models
+Model* bone;
 Model* monkey;
-Model* sphere;
-Model* teapot;
-Model* cube;
-Model* crate;
-Model* ground;
+Model* tracker;
+Model* animTarget;
 
 // Delta Time
 GLfloat deltaTime = 0.0f;
@@ -163,6 +156,7 @@ static const char* fragmentShader = fragmentShaderFormatted.c_str();
 const float planeSize = 5.0f;
 const float planeUV = 2.5f;
 
+// Function to create Manual Objects
 void createObjects() {
     unsigned int indicesFloor[] = {
         0, 1, 2,
@@ -316,23 +310,6 @@ void prepareObjects() {
     whiteTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/white.jpg");
     whiteTexture.loadTexture();
 
-    // Choices - Parameter : Give the kind of loading you want to do for the particular texture
-    // 1. No Interpolation and No MIP Maps
-    // 2. No Interpolation and MIP Maps
-    // 3. Interpolation and MIP Maps Near
-    // 4. Intepolation and MIP Maps Interpolation
-    ckbSimple = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/checkboard.png");
-    ckbSimple.loadTexture(1);
-
-    ckbNearestMIP = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/checkboard.png");
-    ckbNearestMIP.loadTexture(2);
-
-    ckbLineartMIPNearest = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/checkboard.png");
-    ckbLineartMIPNearest.loadTexture(3);
-
-    ckbLinearMIPLinear = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/checkboard.png");
-    ckbLinearMIPLinear.loadTexture(4);
-
     // Generated Noise Texture
     // Parameters - Width, Height, Channels = 3 (Use 3 channels - RGB)
     // noiseTexture = Texture();
@@ -346,23 +323,17 @@ void prepareObjects() {
     extraShinyMat = Material(1.0f, 1024, 0.0125f);
 
     // Loading Models==================================================================================================
+    bone = new Model();
+    bone->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Animation/Models/bone.obj");
+
     monkey = new Model();
-    monkey->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/monkey.obj");
+    monkey->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Animation/Models/monkey.obj");
 
-    sphere = new Model();
-    sphere->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/sphere.obj");
+    tracker = new Model();
+    tracker->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Animation/Models/tracker.obj");
 
-    teapot = new Model();
-    teapot->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/teapot.obj");
-
-    cube = new Model();
-    cube->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/cube.obj");
-
-    crate = new Model();
-    crate->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/crate.obj");
-
-    ground = new Model();
-    ground->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/floor.obj");
+    animTarget = new Model();
+    animTarget->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Animation/Models/cube.obj");
 }
 
 
@@ -377,7 +348,7 @@ void generalElements(glm::mat4& projectionMatrix, glm::mat4& viewMatrix) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Checking for Skybox parameter in UI
-    if(mainGUI.getIsSkyBox() && mainGUI.getDrawSkyBox()) {
+    if(mainGUI.getIsSkyBox()) {
         // Drawing the Skybox before everything else
         // Checking Skybox index
         switch(mainGUI.getSkyboxIndex()) {
@@ -659,58 +630,306 @@ void setUniforms(glm::mat4 projectionMatrix, Shader& shader) {
 }
 
 
-// Scene Properties====================================================================================================
-// Global parameter for rotating the objects
-float rotationAngle = 0.0f;
-float step = 0.001f;
-float size = 12.0f;
+// IK==================================================================================================================
+// Helper functions
+// Bone Offset is the initial bone's offset, hence the START of the IK Chain
+float boneLength = 1.0f;
 
-// We are replacing all the texture with realisitc textures to show-case PBR
-void renderScene() {
-    // Objects=========================================================================================================
-    // Grounds
-    glm::mat4 base = glm::mat4(1.0f);
+// Tolerance for increasing target reach range
+float tolerance = 0.01f;
 
-    for(int i=0; i < 4; i++) {
-        base = glm::mat4(1.0f);
+// Max iterations
+int maxIterations = 64;
 
-        // Displacing the ground
-        base = glm::translate(base, glm::vec3((planeSize * 2 + 1.0f) * i, 0.0f, 0.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(base));
+// Speed
+float step = 0.005f;
 
-        if(i == 0) {
-            ckbSimple.useTexture(0);
-            ckbSimple.useTexture(1);
-            ckbSimple.useTexture(2);
+// Children Pointers
+std::vector<Model*> bonesList;
+
+// Start Position/Origin
+glm::vec3 startPos = glm::vec3(0.0f);
+std::vector<glm::mat4> transformMatrices(1, glm::mat4(1.0f));
+std::vector<glm::vec3> boneOffsets(1, glm::vec3(0.0f));
+std::vector<glm::vec3> rotationAxis(1, glm::vec3(0.0f, 1.0f, 0.0f));
+std::vector<float> rotationAngle(1, 0.0f);
+
+// GUI for Debugging
+void debuggingGUI( glm::vec3 targetPos,
+                   glm::vec3 vecA, glm::vec3 vecB,
+                   glm::vec3 rotationAxis, float angle, int boneIndex) {
+        ImGui::Begin("Debug Window");
+        // Debugging
+        ImGui::Spacing();
+        ImGui::SetWindowFontScale(1.15f);
+        ImGui::Text("Debugging Bone %i", boneIndex);
+
+        ImGui::Spacing();
+        ImGui::SetWindowFontScale(1.0f);
+        ImGui::Text("Target Position : %.2f, %.2f, %.2f", targetPos.x, targetPos.y, targetPos.z);
+        ImGui::Text("Point A : %.2f, %.2f, %.2f", vecA.x, vecA.y, vecA.z);
+        ImGui::Text("Point B : %.2f, %.2f, %.2f", vecB.x, vecB.y, vecB.z);
+        ImGui::Text("Rotation Axis : %.2f, %.2f, %.2f", rotationAxis.x, rotationAxis.y, rotationAxis.z);
+        ImGui::Text("Current Angle : %.2f", glm::degrees(angle));
+        ImGui::End();
+}
+
+// Return the total length of the chain
+float calcChainLength() {
+    return (mainGUI.getChainLength() * boneLength) + tolerance;
+}
+
+void backwardPass(const glm::vec3& targetPos) {
+    // Debugging
+    // printf("Bone Offset Length : %zi\n", boneOffsets.size());
+    // for(int i=0; i<boneOffsets.size(); i++) {
+    //     printVec3GUI(boneOffsets[i], i+1);
+    // }
+
+    // for(int i=0; i<transformMatrices.size(); i++) {
+    //     printMat4GUI(transformMatrices[i], i+1);
+    // }
+    int lastBoneIndex = boneOffsets.size() - 1;
+
+    boneOffsets[lastBoneIndex] = targetPos;
+
+    for(int i = lastBoneIndex - 1; i >= 0; i--) {
+        float distance = glm::distance(boneOffsets[i], boneOffsets[i+1]);
+
+        // Optimal Position reached
+        if(distance < mainGUI.getEpsilon()) {
+            return;
         }
 
-        else if(i == 1) {
-            ckbNearestMIP.useTexture();
+        float length = boneLength;
+        boneOffsets[i] = boneOffsets[i+1] + (boneOffsets[i] - boneOffsets[i+1]) * length /  distance;
+    }
+}
+
+void forwardPass(const glm::vec3& targetPos) {
+    int firstBoneIndex = 0;
+
+    boneOffsets[firstBoneIndex] = startPos;
+
+    for(int i = firstBoneIndex + 1; i < boneOffsets.size(); i++) {
+        float distance = glm::distance(boneOffsets[i], boneOffsets[i-1]);
+
+        // Optimal Position reached
+        if(distance < mainGUI.getEpsilon()) {
+            return;
         }
 
-        else if(i == 2) {
-            ckbLineartMIPNearest.useTexture();
+        float length = boneLength;
+        boneOffsets[i] = boneOffsets[i-1] + (boneOffsets[i] - boneOffsets[i-1]) * length /  distance;
+    }
+}
+
+void calculateIK() {
+    glm::vec3 targetPos = glm::vec3(mainGUI.getTargetLocation()[0],
+                                    mainGUI.getTargetLocation()[1],
+                                    mainGUI.getTargetLocation()[2]);
+
+    if(glm::distance(targetPos, bonesList.back()->getPosition()) <= mainGUI.getEpsilon()) {
+        return;
+    }
+
+    // Initial condition
+    // Checking if the total bone length is greater than target position
+    // If yes, continue
+    // If no, return
+    if(calcChainLength() < calcMagnitude(calculateVector(startPos, targetPos))) {
+        mainGUI.warningMessage("Target out of range!");
+        return;
+    }
+
+    // If the chainLength is greater than target position (Target within range)
+    for(int i=0; i<maxIterations; i++) {
+        backwardPass(targetPos);
+        forwardPass(targetPos);
+    }
+
+    // if(runIK) {
+    for(int i=0; i<bonesList.size() - 1; i++) {
+        glm::vec3 pointO = boneOffsets[i];
+        glm::vec3 pointA = bonesList[i+1]->getPosition();
+        glm::vec3 pointB = boneOffsets[i+1];
+
+        glm::vec3 vecA = calculateVector(pointO, pointA);
+        glm::vec3 vecB = calculateVector(pointO, pointB);
+
+        rotationAngle[i] = glm::clamp(calculateAngleBetween(vecA, vecB), -1.0f, 1.0f);
+        rotationAxis[i] = calculateRotationAxis(vecA, vecB);
+
+        // Check for NaN Angle
+        if (std::isnan(rotationAngle[i])) {
+            rotationAngle[i] = 0.0f;
+        }
+
+        // Check NaN for axis
+        for (int j = 0; j < 3; ++j) {
+            if (std::isnan(rotationAxis[i][j])) {
+                rotationAxis[i][j] = (j == 1) ? 1.0f : 0.0f;
+            }
+        }
+
+        // Setting initial matrix
+        // Updating the rotation at each iteration
+        if(bonesList[i]) {
+            bonesList[i]->setInitialTransformMatrix();
+            bonesList[i]->updateRotation(rotationAngle[i], rotationAxis[i], true);
+            bonesList[i]->updateTransform();
         }
 
         else {
-            ckbLinearMIPLinear.useTexture();
+            mainGUI.errorMessage("Bone invalid!");
         }
 
-        extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
-        meshList[0]->renderMesh();
+        // Debugging
+        printMat4GUI(bonesList[i]->getAccumulateTransformMatrix(), i+1);
+        debuggingGUI(targetPos, vecA, vecB, rotationAxis[i], rotationAngle[i], i+1);
     }
+}
+
+// Scene Properties====================================================================================================
+// We are replacing all the texture with realisitc textures to show-case PBR
+void renderScene() {
+    // Objects=========================================================================================================
+    // To check environment mapping
+    shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
 
     /*
-    General flow for drawing a model
-    1. Set Initial Transform -> This function performs resetting the matrix to glm::mat4(1.0f) and performing any local transforms
-    2. Updation of Transforms -> Update the Translation, Rotation, Scale (Follow TRS)
-    3. Update Transforms -> Call this to update the transform for the root and all children, pass the accumulate matrix of the parent
-    4. Render Models -> Call this to render all the models in the hierarchy
+    General Structure :
+    Root -> Set Initial -> Root Transforms -> (Child -> Child Transforms) -> Update Transform -> Root Render
+    All root functions iterate over the child functions (Updating transforms)
     */
-    crate->setInitialTransformMatrix();
-    crate->updateTranslation(glm::vec3(0.0f, 1.0f, 0.0f));
-    crate->updateTransform();
-    crate->renderModel(uniformModel);
+
+    // Root============================================================================================================
+    // Root and End Effector are always present
+    // Re-creating the list
+    if(bone->calculateChainLength() - 1 != mainGUI.getChainLength()) {
+        printf("Chain length : %i\n", bone->calculateChainLength());
+        printf("Clearing children\n");
+        bone->clearChildren();
+
+        // Clearing out lists
+        bonesList.clear();
+        boneOffsets.clear();
+        transformMatrices.clear();
+        rotationAngle.clear();
+        rotationAxis.clear();
+
+        // Last Bone
+        Model* lastBone = bone;
+        bonesList.push_back(bone);
+        boneOffsets.push_back(glm::vec3(0.0f));
+        transformMatrices.push_back(bone->getAccumulateTransformMatrix());
+        rotationAngle.push_back(0.0f);
+        rotationAxis.push_back(glm::vec3(0.0f));
+
+        for(int i=0; i<mainGUI.getChainLength() - 1; i++) {
+            printf("Adding bone\n");
+            Model* newChild = new Model();
+            newChild->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Animation/Models/bone.obj");
+
+            // Attaching new bone to previous parent
+            newChild->attachParent(lastBone);
+            newChild->setLocalTransforms(glm::vec3(0.0f, boneLength, 0.0f));
+            newChild->setInitialTransformMatrix();
+            lastBone->attachChild(newChild);
+
+            // Adding the bone
+            bonesList.push_back(newChild);
+            boneOffsets.push_back(glm::vec3(0.0f, boneLength * (i + 1), 0.0f));
+            transformMatrices.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, boneLength * (i + 1), 0.0f)));
+            rotationAngle.push_back(0.0f);
+            rotationAxis.push_back(glm::vec3(0.0f));
+
+            // Making new bone the current parent
+            lastBone = newChild;
+        }
+
+
+        // End effector
+        monkey->attachParent(lastBone);
+        monkey->setLocalTransforms(glm::vec3(0.0f, boneLength, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.25f));
+        monkey->setInitialTransformMatrix();
+        lastBone->attachChild(monkey);
+
+        bonesList.push_back(monkey);
+        boneOffsets.push_back(glm::vec3(0.0f, boneLength * mainGUI.getChainLength(), 0.0f));
+        transformMatrices.push_back(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, boneLength * mainGUI.getChainLength(), 0.0f)));
+        rotationAngle.push_back(0.0f);
+        rotationAxis.push_back(glm::vec3(0.0f));
+    }
+
+    if(mainGUI.getIsIK()) {
+        bone->updateTransform();
+        bone->renderModel(uniformModel);
+    }
+
+    else {
+        bone->setInitialTransformMatrix();
+        bone->updateTransform();
+        bone->renderModel(uniformModel);
+    }
+
+
+    // Tracker=========================================================================================================
+    tracker->setInitialTransformMatrix();
+    tracker->updateTranslation(glm::vec3(mainGUI.getTargetLocation()[0],
+                                        mainGUI.getTargetLocation()[1],
+                                        mainGUI.getTargetLocation()[2]));
+    tracker->updateTransform();
+    tracker->renderModel(uniformModel);
+
+    // Anim Target
+    animTarget->setInitialTransformMatrix();
+    animTarget->updateTranslation(glm::vec3(mainGUI.getTargetEndLocation()[0],
+                                        mainGUI.getTargetEndLocation()[1],
+                                        mainGUI.getTargetEndLocation()[2]));
+    animTarget->updateScale(glm::vec3(0.125f));
+    animTarget->updateTransform();
+    animTarget->renderModel(uniformModel);
+}
+
+
+// Animation
+// Functions to animate the selected object (According to render pass)
+// 2 Interpolation Type - 1. Linear, 2. Cubic Bezier
+bool isAnimating = false;
+float animationProgress = 0.0f;
+
+void animateTarget() {
+    // Debugging
+    // printf("Animating\n");
+    glm::vec3 currentPosition = moveFromAToB(mainGUI.getInterpolationType(),
+                                             glm::vec3(mainGUI.getTargetLocation()[0], mainGUI.getTargetLocation()[1], mainGUI.getTargetLocation()[2]),
+                                             glm::vec3(mainGUI.getTargetEndLocation()[0], mainGUI.getTargetEndLocation()[1], mainGUI.getTargetEndLocation()[2]),
+                                             animationProgress);
+
+    // Debugging
+    // printVec3GUI(currentPosition, animationProgress);
+    ImGui::Text("Animating!");
+
+    // Type of interpolation
+    if(mainGUI.getInterpolationType() == 1) {
+        ImGui::Text("Linear Interpolation");
+    }
+
+    else if (mainGUI.getInterpolationType() == 2) {
+        ImGui::Text("Bezier Cubic Interpolation");
+    }
+
+    else {
+        ImGui::Text("!No such interpolation type!");
+    }
+
+    // Update target's position to currentPosition
+    mainGUI.setTargetLocation(
+        currentPosition.x,
+        currentPosition.y,
+        currentPosition.z
+    );
 }
 
 // Render Pass - Renders all data in the scene=========================================================================
@@ -733,6 +952,110 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
 
     // Rendering the scene
     renderScene();
+
+    // Movment of the target cube
+    step = mainGUI.getTargetSpeed();
+
+    // Delta Time
+    GLfloat now = glfwGetTime(); // SDL_GetPerformanceCounter();
+    deltaTime = now - lastTime;  // (now - lastTime)*1000 / SDL_GetPerformanceFrequency(); - ms
+    lastTime = now;
+
+    isAnimating = mainGUI.getIsAnimate();
+
+    // Animating
+    // If animating, don't use key inputs
+    if(isAnimating) {
+        // Update animation progress
+        animationProgress += deltaTime * mainGUI.getAnimationRate();
+
+        // Stop animation after one whole loop
+        // Or press F to stop the animation
+        if( animationProgress > 1.0f ||
+            mainWindow.getKeys()[GLFW_KEY_F] ||
+            areFloatArraysEqual(mainGUI.getTargetLocation(), mainGUI.getTargetEndLocation()) ) {
+            // Debugging
+            // printf("Ending Animation\n");
+
+            // Resetting the animation progress
+            animationProgress = 0.0f;
+
+            // Preventing multiple clicks
+            mainWindow.getKeys()[GLFW_KEY_F] = false;
+            mainGUI.setIsAnimate(false);
+        }
+
+        if(mainGUI.getIsAnimate()) {
+            animateTarget();
+        }
+    }
+
+    // Handling keys to move target
+    else {
+        // Up
+        if(mainWindow.getKeys()[GLFW_KEY_UP]) {
+            mainGUI.setTargetLocation(
+                mainGUI.getTargetLocation()[0],
+                mainGUI.getTargetLocation()[1] + step,
+                mainGUI.getTargetLocation()[2]
+            );
+        }
+
+        // Down
+        else if(mainWindow.getKeys()[GLFW_KEY_DOWN]) {
+            mainGUI.setTargetLocation(
+                mainGUI.getTargetLocation()[0],
+                mainGUI.getTargetLocation()[1] - step,
+                mainGUI.getTargetLocation()[2]
+            );
+        }
+
+        // Left
+        else if(mainWindow.getKeys()[GLFW_KEY_LEFT]) {
+            mainGUI.setTargetLocation(
+                mainGUI.getTargetLocation()[0] - step,
+                mainGUI.getTargetLocation()[1],
+                mainGUI.getTargetLocation()[2]
+            );
+        }
+
+        // Right
+        else if(mainWindow.getKeys()[GLFW_KEY_RIGHT]) {
+            mainGUI.setTargetLocation(
+                mainGUI.getTargetLocation()[0] + step,
+                mainGUI.getTargetLocation()[1],
+                mainGUI.getTargetLocation()[2]
+            );
+        }
+
+        // Checks for the 2D flag, if it is diabled, only then take the inputs
+        // Forward
+        else if(mainWindow.getKeys()[GLFW_KEY_Z] && !mainGUI.getIsTwoDIK()) {
+            mainGUI.setTargetLocation(
+                mainGUI.getTargetLocation()[0],
+                mainGUI.getTargetLocation()[1],
+                mainGUI.getTargetLocation()[2] + step
+            );
+        }
+
+        // Backward
+        else if(mainWindow.getKeys()[GLFW_KEY_X] && !mainGUI.getIsTwoDIK()) {
+            mainGUI.setTargetLocation(
+                mainGUI.getTargetLocation()[0],
+                mainGUI.getTargetLocation()[1],
+                mainGUI.getTargetLocation()[2] - step
+            );
+        }
+    }
+
+    // Running IK
+    if(mainGUI.getIsIK()) {
+        tolerance = mainGUI.getTolerance();
+        maxIterations = mainGUI.getMaxIterations();
+
+        // Calculating Inverse Kinematics
+        calculateIK();
+    }
 
     // Drawing the UI
     setShadingModeName(mainGUI, shadingModel, shadingMode);
@@ -766,11 +1089,6 @@ int main() {
 
     // Main Loop - Running till the window is open=====================================================================
     while(!mainWindow.getShouldClose()) {
-        // For Delta Time
-        GLfloat now = glfwGetTime(); // SDL_GetPerformanceCounter();
-        deltaTime = now - lastTime;  // (now - lastTime)*1000 / SDL_GetPerformanceFrequency(); - ms
-        lastTime = now;
-
         // Get + Handle user input events
         glfwPollEvents();
 
