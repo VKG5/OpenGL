@@ -334,6 +334,10 @@ void Model::setInitialTransformMatrix() {
     initialTransform = glm::scale(initialTransform, localScale);
 
     accumulateTransform = initialTransform;
+
+    for(Model* child : children) {
+        child->setInitialTransformMatrix();
+    }
 }
 
 void Model::attachChild(Model * childModel) {
@@ -357,8 +361,20 @@ void Model::attachParent(Model* parentModel) {
     printf("Failed to attach to parent!\n");
 }
 
-void Model::updateTranslation(glm::vec3 & offset) {
-    initialTransform = glm::translate(initialTransform, offset);
+void Model::updateTranslation(glm::vec3& offset) {
+    accumulateTransform = glm::translate(accumulateTransform, offset);
+}
+
+void Model::setPosition(glm::vec3& pos) {
+    localPosition = pos;
+}
+
+void Model::setRotation(glm::vec3& rot) {
+    localRotation = rot;
+}
+
+void Model::setScale(glm::vec3& scale) {
+    localScale = scale;
 }
 
 void Model::updateRotation(GLfloat angle, glm::vec3& axis, bool rads) {
@@ -372,18 +388,36 @@ void Model::updateRotation(GLfloat angle, glm::vec3& axis, bool rads) {
     glm::mat4 rotationMat = glm::toMat4(rotationQuat);
 
     // Apply the rotation matrix to the initialTransform
-    initialTransform = initialTransform * rotationMat;
+    accumulateTransform = accumulateTransform * rotationMat;
 }
 
 void Model::updateScale(glm::vec3& scale) {
-    initialTransform = glm::scale(initialTransform, scale);
+    accumulateTransform = glm::scale(accumulateTransform, scale);
+}
+
+void Model::updateHierarchicalLocation(glm::mat4& transform) {
+    glm::mat4 localTransform = transform * accumulateTransform;
+
+    localPosition = glm::vec3(localTransform[3]);
+
+    for(Model* child : children) {
+        child->updateHierarchicalLocation(localTransform);
+    }
 }
 
 void Model::updateTransform(glm::mat4& parentTransform) {
-    accumulateTransform = parentTransform * initialTransform;
+    accumulateTransform = parentTransform * accumulateTransform;
 
     for(Model* child : children) {
         child->updateTransform(accumulateTransform);
+    }
+}
+
+void Model::resetTransform() {
+    accumulateTransform = initialTransform;
+
+    for(Model* child : children) {
+        child->resetTransform();
     }
 }
 

@@ -742,6 +742,8 @@ void calculateIK() {
         return;
     }
 
+    bonesList[0]->updateHierarchicalLocation();
+
     // If the chainLength is greater than target position (Target within range)
     for(int i=0; i<maxIterations; i++) {
         backwardPass(targetPos);
@@ -749,7 +751,12 @@ void calculateIK() {
     }
 
     // if(runIK) {
-    for(int i=0; i<bonesList.size() - 1; i++) {
+    for(int i=0; i<bonesList.size(); i++) {
+        if(i == bonesList.size() - 1) {
+            bonesList[0]->updateHierarchicalLocation();
+            break;
+        }
+
         glm::vec3 pointO = boneOffsets[i];
         glm::vec3 pointA = bonesList[i+1]->getPosition();
         glm::vec3 pointB = boneOffsets[i+1];
@@ -757,7 +764,7 @@ void calculateIK() {
         glm::vec3 vecA = calculateVector(pointO, pointA);
         glm::vec3 vecB = calculateVector(pointO, pointB);
 
-        rotationAngle[i] = glm::clamp(calculateAngleBetween(vecA, vecB), -1.0f, 1.0f);
+        rotationAngle[i] = calculateAngleBetween(vecA, vecB);
         rotationAxis[i] = calculateRotationAxis(vecA, vecB);
 
         // Check for NaN Angle
@@ -775,9 +782,8 @@ void calculateIK() {
         // Setting initial matrix
         // Updating the rotation at each iteration
         if(bonesList[i]) {
-            bonesList[i]->setInitialTransformMatrix();
             bonesList[i]->updateRotation(rotationAngle[i], rotationAxis[i], true);
-            bonesList[i]->updateTransform();
+            bonesList[0]->updateHierarchicalLocation();
         }
 
         else {
@@ -863,14 +869,21 @@ void renderScene() {
     }
 
     if(mainGUI.getIsIK()) {
+        tolerance = mainGUI.getTolerance();
+        maxIterations = mainGUI.getMaxIterations();
+
+        // Calculating Inverse Kinematics
+        calculateIK();
+
         bone->updateTransform();
         bone->renderModel(uniformModel);
+        bone->resetTransform();
     }
 
     else {
-        bone->setInitialTransformMatrix();
         bone->updateTransform();
         bone->renderModel(uniformModel);
+        bone->resetTransform();
     }
 
 
@@ -1046,15 +1059,6 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
                 mainGUI.getTargetLocation()[2] - step
             );
         }
-    }
-
-    // Running IK
-    if(mainGUI.getIsIK()) {
-        tolerance = mainGUI.getTolerance();
-        maxIterations = mainGUI.getMaxIterations();
-
-        // Calculating Inverse Kinematics
-        calculateIK();
     }
 
     // Drawing the UI

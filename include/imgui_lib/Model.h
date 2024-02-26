@@ -25,7 +25,8 @@ private:
     std::vector<Texture*> textureList;
     std::vector<unsigned int> meshToTex;
 
-    // Local Transforms
+    // Local Transforms for the model
+    // You can change them as needed
     glm::vec3 localPosition;
     glm::vec3 localRotation;
     glm::vec3 localScale;
@@ -56,10 +57,10 @@ public:
     void renderModel(const GLuint& uniformModel);
     void clearModel();
 
-    // Getters
+    // Getters=========================================================================================================
     glm::mat4 getInitialTransformMatrix() { return initialTransform; }
     glm::mat4 getAccumulateTransformMatrix() { return accumulateTransform; }
-    glm::vec3 getPosition() { return glm::vec3(accumulateTransform[3]); }
+    glm::vec3 getPosition() { return localPosition; }
     Model* getParent() { return parent; }
     const std::vector<Model*>& getChildren() const { return children; }
 
@@ -69,13 +70,32 @@ public:
     // Function to clear the list of children
     void clearChildren();
 
-    // Setters
+    // Setters=========================================================================================================
+    // Setting Local Transforms for the model, if you call the default constructor, it will initialize it at origin
     void setLocalTransforms(glm::vec3 translate = glm::vec3(0.0f), glm::vec3 rotate = glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3 scale = glm::vec3(1.0f));
+
+    // Call this only ONCE at the beginning of the code IF you are CHANGING any local transforms
     void setInitialTransformMatrix();
+
+    // Add a child to the list of children
     void attachChild(Model* childModel);
+
+    // Add a SINGLE parent to the child
     void attachParent(Model* parentModel);
-    void resetTransform(glm::mat4& localTransform = glm::mat4(1.0f));
+
+    // Call this after every draw call to reset the accumulate matrix to initial matrix
+    void resetTransform();
+
+    // Updating the final transform
     void updateTransform(glm::mat4& parentTransform = glm::mat4(1.0f));
+
+    // Updating position in a recurive fashion, without updating transforms
+    void updateHierarchicalLocation(glm::mat4& transform = glm::mat4(1.0f));
+
+    // Setters for local transforms of the model - You can call them to permanently change the transformation of the model
+    void setPosition(glm::vec3& pos = glm::vec3(0.0f));
+    void setRotation(glm::vec3& rot);
+    void setScale(glm::vec3& scale);
 
     // TRS
     void updateTranslation(glm::vec3& offset);

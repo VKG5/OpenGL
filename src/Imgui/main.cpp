@@ -82,7 +82,7 @@ std::string shadingMode = "Phong Illumination";
 
 // Creating a vector of the meshes and shaders
 std::vector<Mesh*> meshList;
-std::vector<Shader> shaderList;
+std::vector<Shader*> shaderList;
 
 // Camera
 Camera camera;
@@ -145,19 +145,6 @@ Model* ground;
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
 
-// Vertex Shader
-// Uniform - Global to shader, not associated with a particular vertex
-// Bind data to uniform to get location
-std::string vertexShaderPath = (currentSourceDir / "Shaders/BRDF_Normals.vert").string();
-std::string vertexShaderFormatted = removeBackslash(vertexShaderPath.c_str());
-static const char* vertexShader = vertexShaderFormatted.c_str();
-
-// Fragment Shader
-std::string fragmentShaderPath = (currentSourceDir / "Shaders/BRDF_Normals.frag").string();
-std::string fragmentShaderFormatted = removeBackslash(fragmentShaderPath.c_str());
-static const char* fragmentShader = fragmentShaderFormatted.c_str();
-
-
 // Creating Objects====================================================================================================
 // Contains making manual objects
 const float planeSize = 5.0f;
@@ -187,10 +174,39 @@ void createObjects() {
 
 // Contains preparing base shaders
 void createShaders() {
+    // Shader 1
+    // Vertex Shader
+    // Uniform - Global to shader, not associated with a particular vertex
+    // Bind data to uniform to get location
+    std::string vertexShaderPath = (currentSourceDir / "Shaders/BRDF_Normals.vert").string();
+    std::string vertexShaderFormatted = removeBackslash(vertexShaderPath.c_str());
+    static const char* vertexShader = vertexShaderFormatted.c_str();
+
+    // Fragment Shader
+    std::string fragmentShaderPath = (currentSourceDir / "Shaders/BRDF_Normals.frag").string();
+    std::string fragmentShaderFormatted = removeBackslash(fragmentShaderPath.c_str());
+    static const char* fragmentShader = fragmentShaderFormatted.c_str();
+
     Shader* shader1 = new Shader();
     shader1->createFromFiles(vertexShader, fragmentShader);
 
-    shaderList.push_back(*shader1);
+    shaderList.push_back(shader1);
+
+    // Shader 2
+    // Vertex Shader
+    vertexShaderPath = (currentSourceDir / "Shaders/Simple.vert").string();
+    vertexShaderFormatted = removeBackslash(vertexShaderPath.c_str());
+    vertexShader = vertexShaderFormatted.c_str();
+
+    // Fragment Shader
+    fragmentShaderPath = (currentSourceDir / "Shaders/Simple.frag").string();
+    fragmentShaderFormatted = removeBackslash(fragmentShaderPath.c_str());
+    fragmentShader = fragmentShaderFormatted.c_str();
+
+    Shader* shader2 = new Shader();
+    shader2->createFromFiles(vertexShader, fragmentShader);
+
+    shaderList.push_back(shader2);
 }
 
 // Contains the properties for lights and the Skybox
@@ -515,61 +531,61 @@ void generalElements(glm::mat4& projectionMatrix, glm::mat4& viewMatrix) {
     }
 }
 
-void getUniforms(Shader& shader) {
+void getUniforms(Shader* shader) {
     // Binding the program
-    shader.useShader();
+    shader->useShader();
 
-    uniformModel = shader.getModelLocation();
-    uniformProjection = shader.getProjectionLocation();
-    uniformView = shader.getViewLocation();
+    uniformModel = shader->getModelLocation();
+    uniformProjection = shader->getProjectionLocation();
+    uniformView = shader->getViewLocation();
 
     // Specular Light
-    uniformEyePosition = shader.getEyePositionLocation();
-    uniformSpecularIntensity = shader.getSpecularIntensityLocation();
-    uniformShininess = shader.getShininessLocation();
-    uniformMetalness = shader.getMetalnessLocation();
+    uniformEyePosition = shader->getEyePositionLocation();
+    uniformSpecularIntensity = shader->getSpecularIntensityLocation();
+    uniformShininess = shader->getShininessLocation();
+    uniformMetalness = shader->getMetalnessLocation();
 
     // Getting Shading Mode
-    uniformshadingModel = shader.getShadingModelLocation();
+    uniformshadingModel = shader->getShadingModelLocation();
 
     /*
     Getting UI Elements
     */
     // Object Properties
-    uniformIsShaded = shader.getIsShadedLocation();
-    uniformIsWireframe = shader.getIsWireframeLocation();
-    uniformWireframeColor = shader.getWireframeColourLocation();
-    uniformObjectColor = shader.getObjectColorLocation();
-    uniformEnvMapping = shader.getEnvMappingLocation();
-    uniformSkybox = shader.getSkyboxLocation();
-    uniformBackgroundColor = shader.getBackgroundColourLocation();
+    uniformIsShaded = shader->getIsShadedLocation();
+    uniformIsWireframe = shader->getIsWireframeLocation();
+    uniformWireframeColor = shader->getWireframeColourLocation();
+    uniformObjectColor = shader->getObjectColorLocation();
+    uniformEnvMapping = shader->getEnvMappingLocation();
+    uniformSkybox = shader->getSkyboxLocation();
+    uniformBackgroundColor = shader->getBackgroundColourLocation();
 
     // Material Preview - Maps
-    uniformMaterialPreview = shader.getMaterialPreviewLocation();
-    uniformSpecularPreview = shader.getSpecularPreviewLocation();
-    uniformNormalPreview = shader.getNormalPreviewLocation();
+    uniformMaterialPreview = shader->getMaterialPreviewLocation();
+    uniformSpecularPreview = shader->getSpecularPreviewLocation();
+    uniformNormalPreview = shader->getNormalPreviewLocation();
 
     // Material Properties
-    uniformIsReflection = shader.getIsReflectionLocation();
-    uniformIsRefraction = shader.getIsRefractionLocation();
-    uniformIOR = shader.getIORLocation();
-    uniformFresnelReflectance = shader.getFresnelReflectance();
-    uniformDispersion = shader.getDispersionLocation();
-    uniformNormalStrength = shader.getNormalStrengthLocation();
-    uniformSpecularStrength = shader.getSpecularStrengthLocation();
+    uniformIsReflection = shader->getIsReflectionLocation();
+    uniformIsRefraction = shader->getIsRefractionLocation();
+    uniformIOR = shader->getIORLocation();
+    uniformFresnelReflectance = shader->getFresnelReflectance();
+    uniformDispersion = shader->getDispersionLocation();
+    uniformNormalStrength = shader->getNormalStrengthLocation();
+    uniformSpecularStrength = shader->getSpecularStrengthLocation();
 
     // Texture
-    uniformDiffuseTexture = shader.getMainTextureLocation();
-    uniformSpecularTexture = shader.getSpecularTextureLocation();
-    uniformAmbientOcclusionTexture = shader.getAmbientOcclusionTextureLocation();
-    uniformNormalTexture = shader.getNormalTextureLocation();
+    uniformDiffuseTexture = shader->getMainTextureLocation();
+    uniformSpecularTexture = shader->getSpecularTextureLocation();
+    uniformAmbientOcclusionTexture = shader->getAmbientOcclusionTextureLocation();
+    uniformNormalTexture = shader->getNormalTextureLocation();
 }
 
-void setUniforms(glm::mat4 projectionMatrix, Shader& shader) {
+void setUniforms(glm::mat4 projectionMatrix, Shader* shader) {
     // Binding the texture to correct texture units
-    shader.setTexture(uniformDiffuseTexture, 0);
-    shader.setTexture(uniformSpecularTexture, 1);
-    shader.setTexture(uniformNormalTexture, 2);
+    shader->setTexture(uniformDiffuseTexture, 0);
+    shader->setTexture(uniformSpecularTexture, 1);
+    shader->setTexture(uniformNormalTexture, 2);
 
     // TODO : Intergrate this to work like a proper roughness map
     // uniformNoiseTexture = shader.getNoiseTextureLocation();
@@ -591,25 +607,25 @@ void setUniforms(glm::mat4 projectionMatrix, Shader& shader) {
                            mainGUI.getDirectionalLightDirection()[1],
                            mainGUI.getDirectionalLightDirection()[2] );
 
-    shader.setDirectionalLight(&mainLight);
+    shader->setDirectionalLight(&mainLight);
 
     // Currently disabling the Point and Spot lights based off a boolean
     // Point Lights
     if(mainGUI.getIsPointLights()) {
-        shader.setPointLight(pointLights, pointLightCount);
+        shader->setPointLight(pointLights, pointLightCount);
     }
 
     else {
-        shader.setPointLight(pointLights, 0);
+        shader->setPointLight(pointLights, 0);
     }
 
     // Spot Lights
     if(mainGUI.getIsSpotLights()) {
-        shader.setSpotLight(spotLights, spotLightCount);
+        shader->setSpotLight(spotLights, spotLightCount);
     }
 
     else {
-        shader.setSpotLight(spotLights, 0);
+        shader->setSpotLight(spotLights, 0);
     }
 
     // Binding to uniforms in the shader
@@ -665,41 +681,25 @@ float rotationAngle = 0.0f;
 float step = 0.001f;
 float size = 12.0f;
 
-// We are replacing all the texture with realisitc textures to show-case PBR
+// Details about objects that need to be rendered
 void renderScene() {
     // Objects=========================================================================================================
     // Grounds
     glm::mat4 base = glm::mat4(1.0f);
 
-    for(int i=0; i < 4; i++) {
-        base = glm::mat4(1.0f);
+    // Displacing the ground
+    base = glm::translate(base, glm::vec3(0.0f, 0.0f, 0.0f));
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(base));
 
-        // Displacing the ground
-        base = glm::translate(base, glm::vec3((planeSize * 2 + 1.0f) * i, 0.0f, 0.0f));
-        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(base));
+    ckbSimple.useTexture(0);
+    ckbSimple.useTexture(1);
+    ckbSimple.useTexture(2);
 
-        if(i == 0) {
-            ckbSimple.useTexture(0);
-            ckbSimple.useTexture(1);
-            ckbSimple.useTexture(2);
-        }
+    extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
+    meshList[0]->renderMesh();
+}
 
-        else if(i == 1) {
-            ckbNearestMIP.useTexture();
-        }
-
-        else if(i == 2) {
-            ckbLineartMIPNearest.useTexture();
-        }
-
-        else {
-            ckbLinearMIPLinear.useTexture();
-        }
-
-        extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
-        meshList[0]->renderMesh();
-    }
-
+void renderScenePassTwo() {
     /*
     General flow for drawing a model
     1. Set Initial Transform -> This function performs resetting the matrix to glm::mat4(1.0f) and performing any local transforms
@@ -707,6 +707,7 @@ void renderScene() {
     3. Update Transforms -> Call this to update the transform for the root and all children, pass the accumulate matrix of the parent
     4. Render Models -> Call this to render all the models in the hierarchy
     */
+    shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
     crate->setInitialTransformMatrix();
     crate->updateTranslation(glm::vec3(0.0f, 1.0f, 0.0f));
     crate->updateTransform();
@@ -728,11 +729,18 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     generalElements(projectionMatrix, viewMatrix);
 
     // Setting Uniforms for a shader
+    getUniforms(shaderList[1]);
+    setUniforms(projectionMatrix, shaderList[1]);
+
+    // Rendering the scene
+    renderScene();
+
+    // Setting Uniforms for a shader
     getUniforms(shaderList[0]);
     setUniforms(projectionMatrix, shaderList[0]);
 
     // Rendering the scene
-    renderScene();
+    renderScenePassTwo();
 
     // Drawing the UI
     setShadingModeName(mainGUI, shadingModel, shadingMode);
