@@ -137,8 +137,47 @@ glm::mat4 Camera::calculateViewMatrix() {
     return glm::lookAt(position, position + front, up);
 }
 
+glm::mat4 Camera::calculateViewMatrix(bool isLeftEye, const float& IOD, const float& convergenceDistance) {
+    // Calculate eye offset: half of IOD to the left or right
+    float eyeOffset = (isLeftEye ? -1 : 1) * IOD / 2.0f;
+
+    // Calculate the offset position
+    glm::vec3 right = glm::normalize(glm::cross(front, up));
+    glm::vec3 eyePosition = position + right * eyeOffset;
+
+    // Calculate the convergence point (focal point)
+    glm::vec3 convergencePoint = position + front * convergenceDistance;
+
+    // Calculate the toe-in rotation by adjusting the front vector
+    // Note: This is a simplified approximation. For precise control, consider more complex transformations
+    float toeInAngle = atan(eyeOffset / convergenceDistance);
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), toeInAngle, up);
+    glm::vec3 rotatedFront = glm::vec3(rotation * glm::vec4(front, 0.0f));
+
+    // Return the lookAt matrix using the adjusted position and front vector
+    return glm::lookAt(eyePosition, eyePosition + rotatedFront, up);
+}
+
 glm::mat4 Camera::calculatePerspectiveProjectionMatrix(const GLint& width, const GLint& height) {
     return glm::perspective(glm::radians(FOV), GLfloat(width)/GLfloat(height), nearClipping, farClipping);
+}
+
+glm::mat4  Camera::calculateAsymmetricFrustum(bool isLeftEye, const float& IOD, const float& convergenceDistance, const GLint& width, const GLint& height) {
+    // Calculate eye offset: half of IOD to the left or right
+    float eyeOffset = (isLeftEye ? -1 : 1) * IOD / 2.0f;
+
+    float halfFOV = FOV / 2.0f;
+    float top = tan(halfFOV) * nearClipping;
+    float bottom = -top;
+    float right = (GLfloat(width)/GLfloat(height)) * top;
+    float left = -right;
+
+    // Apply the eye position offset to create an asymmetric frustum
+    left += eyeOffset * nearClipping / convergenceDistance;
+    right += eyeOffset * nearClipping / convergenceDistance;
+
+    // Using GLM to create the frustum matrix
+    return glm::frustum(left, right, bottom, top, nearClipping, farClipping);
 }
 
 glm::mat4 Camera::calculateOrthographicProjectionMatrix() {

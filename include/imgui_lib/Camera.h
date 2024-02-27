@@ -50,7 +50,15 @@ public:
     glm::vec3 getCameraDirection();
     glm::vec3 getCameraDirectionMagnitude();
 
+    // View matrices
     glm::mat4 calculateViewMatrix();
+
+    // Overloads for Anaglyph rendering
+    // For calculating the view matrix for Toed-in method
+    glm::mat4 calculateViewMatrix(bool isLeftEye, const float& IOD, const float& convergenceDistance);
+
+    // For calculating the projection matrix for Asymmetric Frustum Method
+    glm::mat4 calculateAsymmetricFrustum(bool isLeftEye, const float& IOD, const float& convergenceDistance, const GLint& width, const GLint& height);
 
     // Projection Matrices
     glm::mat4 calculatePerspectiveProjectionMatrix(const GLint& width, const GLint& height);

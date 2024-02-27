@@ -133,6 +133,12 @@ Material extraShinyMat;
 // 4. Minnaert Shading
 int shadingModel = 0;
 
+// We have 3 rendering modes at the moment
+// 1. Normal
+// 2. Toed-in Asymmetric
+// 3. Asymmetric Frustum
+int renderingMode = 0;
+
 // Models
 Model* monkey;
 Model* sphere;
@@ -462,6 +468,9 @@ void generalElements(glm::mat4& projectionMatrix, glm::mat4& viewMatrix) {
     if(mainWindow.getKeys()[GLFW_KEY_KP_5]) {
         if(mainGUI.getCameraIsPerspective()) {
             mainGUI.setCameraIsPerspective(false);
+
+            // Turn off Anaglyph for Orthographic view
+            mainGUI.setIsAnaglyph(false);
             mainGUI.setCameraIsOrthographic(true);
         }
 
@@ -471,6 +480,38 @@ void generalElements(glm::mat4& projectionMatrix, glm::mat4& viewMatrix) {
         }
 
         mainWindow.getKeys()[GLFW_KEY_KP_5] = false;
+    }
+
+    // Setting Rendering Mode - 'M'
+    if(mainWindow.getKeys()[GLFW_KEY_M]) {
+        renderingMode = (renderingMode + 1) % 3;
+
+        // Debugging
+        // printf("%i", renderingMode);
+
+        // Default Rendering
+        if(renderingMode == 0) {
+            mainGUI.setIsAnaglyph(false);
+            mainGUI.setIsToedInRendering(false);
+            mainGUI.setIsAsymmetricFrustumRendering(false);
+        }
+
+        // Anaglyph - Toed-In Rendering
+        else if(renderingMode == 1) {
+            mainGUI.setIsAnaglyph(true);
+            mainGUI.setIsToedInRendering(true);
+            mainGUI.setIsAsymmetricFrustumRendering(false);
+        }
+
+        // Anaglyph - Asymmetric Frustum
+        else {
+            mainGUI.setIsAnaglyph(true);
+            mainGUI.setIsToedInRendering(false);
+            mainGUI.setIsAsymmetricFrustumRendering(true);
+        }
+
+        // Stopping multiple inputs from the same key
+        mainWindow.getKeys()[GLFW_KEY_M] = false;
     }
 
     // Switching to Perspective
@@ -581,7 +622,7 @@ void getUniforms(Shader* shader) {
     uniformNormalTexture = shader->getNormalTextureLocation();
 }
 
-void setUniforms(glm::mat4 projectionMatrix, Shader* shader) {
+void setUniforms(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, Shader* shader) {
     // Binding the texture to correct texture units
     shader->setTexture(uniformDiffuseTexture, 0);
     shader->setTexture(uniformSpecularTexture, 1);
@@ -630,7 +671,7 @@ void setUniforms(glm::mat4 projectionMatrix, Shader* shader) {
 
     // Binding to uniforms in the shader
     glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-    glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+    glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
     glUniform3f(uniformEyePosition, camera.getCameraPosition().x,
                                     camera.getCameraPosition().y,
                                     camera.getCameraPosition().z);
@@ -699,20 +740,67 @@ void renderScene() {
     meshList[0]->renderMesh();
 }
 
-void renderScenePassTwo() {
-    /*
-    General flow for drawing a model
-    1. Set Initial Transform -> This function performs resetting the matrix to glm::mat4(1.0f) and performing any local transforms
-    2. Updation of Transforms -> Update the Translation, Rotation, Scale (Follow TRS)
-    3. Update Transforms -> Call this to update the transform for the root and all children, pass the accumulate matrix of the parent
-    4. Render Models -> Call this to render all the models in the hierarchy
+// Calculate Toed-in or Asymmetric Frustum Anaglyph
+void calculateAnaglyph(glm::mat4& projectionMatrix, glm::mat4& viewMatrix) {
+    /* Toed-In Method of Anaglyphical rendering
+    In this method, we change the view matrix to point towards a custom target and offset the
+    Render passes based off of the Inter Ocular Distance (IOD) and Convergence Distance (CD)
+    * Only works for perspective renders
     */
-    shinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
-    crate->setInitialTransformMatrix();
-    crate->updateTranslation(glm::vec3(0.0f, 1.0f, 0.0f));
-    crate->updateTransform();
-    crate->renderModel(uniformModel);
+    //Red pass - Left Eye
+    glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    if(mainGUI.getIsToedInRendering()) {
+        // Modifying the view matrix for left eye here
+        viewMatrix = camera.calculateViewMatrix(true, mainGUI.getInterOcularDistance(), mainGUI.getCovergenceDistance());
+    }
+
+    else if(mainGUI.getIsAsymmetricFrustumRendering()) {
+        // Modifying the projection matrix for left eye here
+        projectionMatrix = camera.calculateAsymmetricFrustum(true,
+                                                            mainGUI.getInterOcularDistance(),
+                                                            mainGUI.getCovergenceDistance(),
+                                                            mainWindow.getBufferWidth(),
+                                                            mainWindow.getBufferHeight());
+    }
+
+    // Setting Uniforms for a shader
+    getUniforms(shaderList[0]);
+    setUniforms(projectionMatrix, viewMatrix, shaderList[0]);
+
+    // Rendering the scene
+    renderScene();
+
+    // Cyan pass - Right Eye
+    glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    if(mainGUI.getIsToedInRendering()) {
+        // Modifying the view matrix for right eye here
+        viewMatrix = camera.calculateViewMatrix(false, mainGUI.getInterOcularDistance(), mainGUI.getCovergenceDistance());
+    }
+
+    else if(mainGUI.getIsAsymmetricFrustumRendering()) {
+        // Modifying the projection matrix for right eye here
+        projectionMatrix = camera.calculateAsymmetricFrustum(false,
+                                                            mainGUI.getInterOcularDistance(),
+                                                            mainGUI.getCovergenceDistance(),
+                                                            mainWindow.getBufferWidth(),
+                                                            mainWindow.getBufferHeight());
+    }
+
+    // Setting Uniforms for a shader
+    getUniforms(shaderList[0]);
+    setUniforms(projectionMatrix, viewMatrix, shaderList[0]);
+
+    // Rendering the scene
+    renderScene();
+
+    // Resetting the color pass to render all colors
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 }
+
 
 // Render Pass - Renders all data in the scene=========================================================================
 void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
@@ -728,26 +816,29 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     // Always called
     generalElements(projectionMatrix, viewMatrix);
 
-    // Setting Uniforms for a shader
-    getUniforms(shaderList[1]);
-    setUniforms(projectionMatrix, shaderList[1]);
+    // Anaglyph Rendering
+    if(mainGUI.getIsAnaglyph()) {
+        calculateAnaglyph(projectionMatrix, viewMatrix);
+    }
 
-    // Rendering the scene
-    renderScene();
+    else {
+        // Setting Uniforms for a shader
+        getUniforms(shaderList[0]);
+        setUniforms(projectionMatrix, viewMatrix, shaderList[0]);
 
-    // Setting Uniforms for a shader
-    getUniforms(shaderList[0]);
-    setUniforms(projectionMatrix, shaderList[0]);
-
-    // Rendering the scene
-    renderScenePassTwo();
+        // Rendering the scene
+        renderScene();
+    }
 
     // Drawing the UI
     setShadingModeName(mainGUI, shadingModel, shadingMode);
     mainGUI.render(shadingMode);
 }
 
-int main() {
+
+// Main Function
+int main()
+{
     mainWindow = Window(1366, 768);
     mainWindow.initialize();
 

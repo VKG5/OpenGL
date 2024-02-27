@@ -10,8 +10,7 @@
 
 #include <string>
 
-class GUI
-{
+class GUI {
 private:
     ImGuiIO io;
 
@@ -52,6 +51,13 @@ private:
     float cameraFarClipping = 100.0f;
     float cameraSpeed = 5.0f;
     float cameraPos[3] = {0.0f, 1.75f, 4.0f};
+
+    // Anaglyph
+    bool isAnaglyph = false;
+    bool isToedIn = false;
+    bool isAsymmetricFrustum = false;
+    float interOcularDistance = 0.065f;
+    float convergeDistance = 2.0f;
 
     // Point Lights
     bool isPointLights = false;
@@ -112,6 +118,7 @@ public:
     ImGuiIO getIO() const { return io; }
 
     // Getters for UI elements=========================================================================================
+    // General UI======================================================================================================
     // Wireframe
     bool getIsWireframe() const { return wireframe; }
     ImVec4 getWireframeColor() const { return wireframeColor; }
@@ -139,6 +146,13 @@ public:
     float getCameraSpeed() const { return cameraSpeed; }
     const float* getCameraPosition() const { return cameraPos; }
 
+    // Anaglyph
+    bool getIsAnaglyph() const { return isAnaglyph; }
+    bool getIsToedInRendering() const { return isToedIn; }
+    bool getIsAsymmetricFrustumRendering() const { return isAsymmetricFrustum; }
+    float getInterOcularDistance() const { return interOcularDistance; }
+    float getCovergenceDistance() const { return convergeDistance; }
+
     // Directional Light Parameters
     const float* getDirectionalLightColor() const { return directionalLightColor; }
     const float* getDirectionalLightDirection() const { return directionalLightDirection; }
@@ -165,6 +179,7 @@ public:
     float getNormalStrength() const { return normalStrength; }
     float getSpecularStrength() const { return specularSrength; }
 
+    // Project specific components=====================================================================================
     // IK
     bool getIsIK() const { return isIK; }
     bool getIsTwoDIK() const { return isTwoDIK; }
@@ -191,6 +206,9 @@ public:
     // Setters=========================================================================================================
     void setCameraIsPerspective(bool flag);
     void setCameraIsOrthographic(bool flag);
+    void setIsAnaglyph(bool flag);
+    void setIsToedInRendering(bool flag);
+    void setIsAsymmetricFrustumRendering(bool flag);
     void setCameraFOV(float fieldOfView);
     void setCameraScale(float scale);
     void setCameraClipping(float near, float far);

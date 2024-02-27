@@ -134,6 +134,25 @@ void GUI::elements(const std::string& shadingMode) {
             ImGui::DragFloat("Camera Speed", (float*)&cameraSpeed, sliderSpeed);
             ImGui::DragFloat3("Camera Position", (float*)&cameraPos, sliderSpeed);
 
+            if(cameraIsPerspective) {
+                ImGui::Spacing();
+
+                // Increasing font size for heading
+                ImGui::SetWindowFontScale(1.15f);
+                ImGui::Text("Anaglyph Rendering");
+
+                // Resetting font size
+                ImGui::SetWindowFontScale(1.0f);
+                ImGui::Checkbox("Anaglyph", &isAnaglyph);
+
+                if(&isAnaglyph) {
+                    ImGui::Checkbox("Toed-In", &isToedIn);
+                    ImGui::Checkbox("Asymmetric Frustum", &isAsymmetricFrustum);
+                    ImGui::DragFloat("IoD (Eye Distance)", (float*)&interOcularDistance, sliderSpeed * 0.1);
+                    ImGui::DragFloat("CD (Convergence Distance)", (float*)&convergeDistance, sliderSpeed * 0.1);
+                }
+            }
+
             // End Current Tab
             ImGui::EndTabItem();
         }
@@ -196,6 +215,18 @@ void GUI::setCameraIsPerspective(bool flag) {
 
 void GUI::setCameraIsOrthographic(bool flag) {
     cameraIsOrthographic = flag;
+}
+
+void GUI::setIsAnaglyph(bool flag) {
+    isAnaglyph = flag;
+}
+
+void GUI::setIsToedInRendering(bool flag) {
+    isToedIn = flag;
+}
+
+void GUI::setIsAsymmetricFrustumRendering(bool flag) {
+    isAsymmetricFrustum = flag;
 }
 
 void GUI::setCameraFOV(float fieldOfView) {
