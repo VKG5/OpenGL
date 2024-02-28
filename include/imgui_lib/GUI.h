@@ -51,10 +51,15 @@ private:
     float cameraFarClipping = 100.0f;
     float cameraSpeed = 5.0f;
     float cameraPos[3] = {0.0f, 1.75f, 4.0f};
+    bool isCameraRotate = false;
+    float cameraRotateRadius = 10.0f;
+    float cameraRotateSpeed = 1.0f;
 
     // Anaglyph
     bool isAnaglyph = false;
     bool isToedIn = false;
+    bool isFlipAnaglyphChannelsToed = true;
+    bool isFlipAnaglyphChannelsFrustum = false;
     bool isAsymmetricFrustum = false;
     float interOcularDistance = 0.065f;
     float convergeDistance = 2.0f;
@@ -94,12 +99,13 @@ private:
     int interpolationType = 1;
 
     // Procedural Content Generation
-    GLuint seed = 0;
-    float floorOffset[3] = {-2.5f, 0.0f, 2.0f};
-    float floorScale[3] = {1.2f, 1.0f, 1.2f};
-    GLuint gridSize = 10;
+    bool isPCG = true;
+    GLuint seed = 165316;
+    float floorOffset[3] = {0.0f, 0.0f, 0.0f};
+    float floorScale[3] = {2.5f, 1.0f, 2.5f};
+    GLuint gridSize = 20;
     GLuint pointSize = 2;
-    GLuint numPoints = 15;
+    GLuint numPoints = 20;
     bool update = false;
 
 public:
@@ -116,6 +122,7 @@ public:
     void shutdown();
 
     ImGuiIO getIO() const { return io; }
+
 
     // Getters for UI elements=========================================================================================
     // General UI======================================================================================================
@@ -145,11 +152,16 @@ public:
     float getCameraFarClipping() const { return cameraFarClipping; }
     float getCameraSpeed() const { return cameraSpeed; }
     const float* getCameraPosition() const { return cameraPos; }
+    bool getIsCameraRotating() const { return isCameraRotate; }
+    float getCameraRotationRadius() const { return cameraRotateRadius; }
+    float getCameraRotationSpeed() const { return cameraRotateSpeed; }
 
     // Anaglyph
     bool getIsAnaglyph() const { return isAnaglyph; }
     bool getIsToedInRendering() const { return isToedIn; }
     bool getIsAsymmetricFrustumRendering() const { return isAsymmetricFrustum; }
+    bool getIsAnaglyphChannelsFlippedToed() const { return isFlipAnaglyphChannelsToed; }
+    bool getIsAnaglyphChannelsFlippedFrustum() const  { return isFlipAnaglyphChannelsFrustum; }
     float getInterOcularDistance() const { return interOcularDistance; }
     float getCovergenceDistance() const { return convergeDistance; }
 
@@ -179,6 +191,17 @@ public:
     float getNormalStrength() const { return normalStrength; }
     float getSpecularStrength() const { return specularSrength; }
 
+    // PCG
+    bool getIsPCG() const { return isPCG; }
+    GLuint getSeed() const { return seed; }
+    const float* getFloorOffset() const { return floorOffset; }
+    const float* getFloorScale() const { return floorScale; }
+    GLuint getGridSize() const { return gridSize; }
+    GLuint getPointSize() const { return pointSize; }
+    GLuint getNumPoints() const { return numPoints; }
+    bool getUpdate() const { return update; }
+
+
     // Project specific components=====================================================================================
     // IK
     bool getIsIK() const { return isIK; }
@@ -194,30 +217,29 @@ public:
     float getAnimationRate() const { return animationRate; }
     int getInterpolationType() const { return interpolationType; }
 
-    // PCG
-    GLuint getSeed() const { return seed; }
-    const float* getFloorOffset() const { return floorOffset; }
-    const float* getFloorScale() const { return floorScale; }
-    GLuint getGridSize() const { return gridSize; }
-    GLuint getPointSize() const { return pointSize; }
-    GLuint getNumPoints() const { return numPoints; }
-    bool getUpdate() const { return update; }
 
     // Setters=========================================================================================================
+    // Camera
     void setCameraIsPerspective(bool flag);
     void setCameraIsOrthographic(bool flag);
-    void setIsAnaglyph(bool flag);
-    void setIsToedInRendering(bool flag);
-    void setIsAsymmetricFrustumRendering(bool flag);
     void setCameraFOV(float fieldOfView);
     void setCameraScale(float scale);
     void setCameraClipping(float near, float far);
+
+    // Anaglyph
+    void setIsAnaglyph(bool flag);
+    void setIsToedInRendering(bool flag);
+    void setIsAsymmetricFrustumRendering(bool flag);
+    void setIsAnaglyphChannelsFlippedToed(bool flag);
+    void setIsAnaglyphChannelsFlippedFrustum(bool flag);
+
+    // IK
     void setTargetLocation(float x, float y, float z);
     void setCameraPosition(float x, float y, float z);
     void setIsAnimate(bool flag);
     void setIsIK(bool flag);
 
-    // Setter to reset the button press value
+    // PCG - Setter to reset the button press value
     void setUpdate(bool updateValue);
 
     // Destructor

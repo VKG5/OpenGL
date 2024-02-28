@@ -15,6 +15,27 @@ Model::Model() {
     accumulateTransform = glm::mat4(1.0f);
 }
 
+void Model::renderModel() {
+    // Iterating over the mesh to render
+    for(size_t i = 0; i < meshList.size(); i++) {
+        unsigned int materialIndex = meshToTex[i];
+
+        // Debugging
+        // printf("Material Index : %i, Texture List Size : %i", materialIndex, textureList.size());
+
+        // Iterate over all textures in textureList
+        for (size_t index = 0; index < textureList.size(); index++) {
+            // Checking if the texure exists
+            if (textureList[index]) {
+                // printf("Render Model : %i\n", index);
+                textureList[index]->useTexture(index);
+            }
+        }
+
+        meshList[i]->renderMesh();
+    }
+}
+
 void Model::renderModel(const GLuint& uniformModel) {
     // Binding the uniform model
     glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(accumulateTransform));
@@ -143,7 +164,7 @@ void Model::loadMap(aiMaterial* material, aiTextureType textureType, int texture
                 // Debugging
                 // printf("Adding default Normal Map\n");
 
-                std::string texRealtivePath = (currentSourceDir / "Textures/emptyNormal.png").string();
+                std::string texRealtivePath = (currentSourceDir / "Textures/Default/emptyNormal.png").string();
                 std::string texRelativeFormatted = removeBackslash(texRealtivePath.c_str());
 
                 textureList[textureIndex] = new Texture(texRelativeFormatted.c_str());
@@ -221,7 +242,7 @@ void Model::loadMaterials(const aiScene * scene) {
                 // Debugging
                 // printf("Adding default White Texture\n");
 
-                std::string texRealtivePath = (currentSourceDir / "Textures/white.jpg").string();
+                std::string texRealtivePath = (currentSourceDir / "Textures/Default/white.jpg").string();
                 std::string texRelativeFormatted = removeBackslash(texRealtivePath.c_str());
 
                 textureList[i] = new Texture(texRelativeFormatted.c_str());
@@ -239,7 +260,7 @@ void Model::loadMaterials(const aiScene * scene) {
         // Debugging
         // printf("Missing materials!\nAdding default texture\n");
 
-        std::string texRealtivePath = (currentSourceDir / "Textures/white.jpg").string();
+        std::string texRealtivePath = (currentSourceDir / "Textures/Default/white.jpg").string();
         std::string texRelativeFormatted = removeBackslash(texRealtivePath.c_str());
 
         textureList[0] = new Texture(texRelativeFormatted.c_str());

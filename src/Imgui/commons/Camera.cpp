@@ -143,7 +143,7 @@ glm::mat4 Camera::calculateViewMatrix(bool isLeftEye, const float& IOD, const fl
 
     // Calculate the offset position
     glm::vec3 right = glm::normalize(glm::cross(front, up));
-    glm::vec3 eyePosition = position + right * eyeOffset;
+    glm::vec3 eyePosition = position + (right * eyeOffset);
 
     // Calculate the convergence point (focal point)
     glm::vec3 convergencePoint = position + front * convergenceDistance;
@@ -199,6 +199,10 @@ void Camera::setCameraParameters(float fieldOfView, float orthoScale, float near
     scale = orthoScale;
     nearClipping = near;
     farClipping = far;
+}
+
+void Camera::setCameraTarget(const glm::vec3& target) {
+    front = target;
 }
 
 Camera::~Camera() {

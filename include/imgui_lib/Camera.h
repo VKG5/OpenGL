@@ -71,6 +71,8 @@ public:
 
     void setCameraParameters(float fieldOfView, float orthoScale, float near, float far);
 
+    void setCameraTarget(const glm::vec3& target);
+
     // Destructor
     ~Camera();
 };

@@ -93,10 +93,7 @@ bool cursorDisabled = true;
 // Textures
 // TODO : Vectors don't work with these textures? Weird
 Texture whiteTexture;
-Texture ckbSimple;
-Texture ckbNearestMIP;
-Texture ckbLineartMIPNearest;
-Texture ckbLinearMIPLinear;
+Texture brickTexture;
 
 // Noise Texture for random maps
 // Texture noiseTexture;
@@ -140,16 +137,18 @@ int shadingModel = 0;
 int renderingMode = 0;
 
 // Models
+Model* building0;
+Model* building1;
 Model* monkey;
-Model* sphere;
-Model* teapot;
 Model* cube;
-Model* crate;
-Model* ground;
 
 // Delta Time
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
+
+// Camera Rotation
+float radius = 10.0f;
+float cameraAngle = 0.0f;
 
 // Creating Objects====================================================================================================
 // Contains making manual objects
@@ -157,6 +156,7 @@ const float planeSize = 5.0f;
 const float planeUV = 2.5f;
 
 void createObjects() {
+    // Floor used for PCG
     unsigned int indicesFloor[] = {
         0, 1, 2,
         1, 2, 3
@@ -170,7 +170,6 @@ void createObjects() {
         planeSize, 0.0f, planeSize,     planeUV, planeUV, 0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f
     };
 
-    // Floor
     Mesh* floor = new Mesh();
     floor->createMesh(verticesFloor, indicesFloor, 44, 6);
 
@@ -200,19 +199,19 @@ void createShaders() {
 
     // Shader 2
     // Vertex Shader
-    vertexShaderPath = (currentSourceDir / "Shaders/Simple.vert").string();
-    vertexShaderFormatted = removeBackslash(vertexShaderPath.c_str());
-    vertexShader = vertexShaderFormatted.c_str();
+    // vertexShaderPath = (currentSourceDir / "Shaders/Simple.vert").string();
+    // vertexShaderFormatted = removeBackslash(vertexShaderPath.c_str());
+    // vertexShader = vertexShaderFormatted.c_str();
 
-    // Fragment Shader
-    fragmentShaderPath = (currentSourceDir / "Shaders/Simple.frag").string();
-    fragmentShaderFormatted = removeBackslash(fragmentShaderPath.c_str());
-    fragmentShader = fragmentShaderFormatted.c_str();
+    // // Fragment Shader
+    // fragmentShaderPath = (currentSourceDir / "Shaders/Simple.frag").string();
+    // fragmentShaderFormatted = removeBackslash(fragmentShaderPath.c_str());
+    // fragmentShader = fragmentShaderFormatted.c_str();
 
-    Shader* shader2 = new Shader();
-    shader2->createFromFiles(vertexShader, fragmentShader);
+    // Shader* shader2 = new Shader();
+    // shader2->createFromFiles(vertexShader, fragmentShader);
 
-    shaderList.push_back(shader2);
+    // shaderList.push_back(shader2);
 }
 
 // Contains the properties for lights and the Skybox
@@ -335,25 +334,15 @@ void createLights() {
 // Contains textures, objects and materials
 void prepareObjects() {
     // Setting up Textures=============================================================================================
-    whiteTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/white.jpg");
-    whiteTexture.loadTexture();
-
     // Choices - Parameter : Give the kind of loading you want to do for the particular texture
     // 1. No Interpolation and No MIP Maps
     // 2. No Interpolation and MIP Maps
     // 3. Interpolation and MIP Maps Near
     // 4. Intepolation and MIP Maps Interpolation
-    ckbSimple = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/checkboard.png");
-    ckbSimple.loadTexture(1);
-
-    ckbNearestMIP = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/checkboard.png");
-    ckbNearestMIP.loadTexture(2);
-
-    ckbLineartMIPNearest = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/checkboard.png");
-    ckbLineartMIPNearest.loadTexture(3);
-
-    ckbLinearMIPLinear = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/checkboard.png");
-    ckbLinearMIPLinear.loadTexture(4);
+    whiteTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Default/white.jpg");
+    whiteTexture.loadTexture(4);
+    brickTexture = Texture("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Textures/Default/brickHi.png");
+    brickTexture.loadTexture(4);
 
     // Generated Noise Texture
     // Parameters - Width, Height, Channels = 3 (Use 3 channels - RGB)
@@ -363,28 +352,23 @@ void prepareObjects() {
     // Setting up Materials============================================================================================
     // Make the second parameter (Shine) to be powers of 2
     shinyMat = Material(1.0f, 256, 0.1f);
-    roughMat = Material(0.5f, 32, 0.8f);
+    roughMat = Material(0.5f, 64, 0.8f);
     extraRoughMat = Material(0.125f, 2, 1.0f);
     extraShinyMat = Material(1.0f, 1024, 0.0125f);
 
     // Loading Models==================================================================================================
-    monkey = new Model();
-    monkey->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/monkey.obj");
+    // Default PCG Models
+    building0 = new Model();
+    building0->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/buildings.obj");
 
-    sphere = new Model();
-    sphere->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/sphere.obj");
-
-    teapot = new Model();
-    teapot->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/teapot.obj");
+    building1 = new Model();
+    building1->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/buildings_2.obj");
 
     cube = new Model();
     cube->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/cube.obj");
 
-    crate = new Model();
-    crate->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/crate.obj");
-
-    ground = new Model();
-    ground->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/floor.obj");
+    monkey = new Model();
+    monkey->loadModel("D:/Programs/C++/Rendering/OpenGL/src/Rendering/Models/monkey.obj");
 }
 
 
@@ -476,9 +460,14 @@ void generalElements(glm::mat4& projectionMatrix, glm::mat4& viewMatrix) {
 
         else {
             mainGUI.setCameraIsOrthographic(false);
+
+            // Turn off Anaglyph while switching back to Perspective
+            mainGUI.setIsAnaglyph(false);
             mainGUI.setCameraIsPerspective(true);
         }
 
+        // Reset the rendering mode to Normal on each switch
+        renderingMode = 0;
         mainWindow.getKeys()[GLFW_KEY_KP_5] = false;
     }
 
@@ -539,6 +528,21 @@ void generalElements(glm::mat4& projectionMatrix, glm::mat4& viewMatrix) {
                                        camera.getCameraPosition().z );
         }
 
+        // Rotate around origin
+        if(mainGUI.getIsCameraRotating()) {
+            if(cameraAngle < 360.0f) {
+                cameraAngle += deltaTime * mainGUI.getCameraRotationSpeed();
+            }
+
+            else {
+                cameraAngle = 0.0f;
+            }
+
+            camera.setPosition(glm::vec3(radius * glm::cos(cameraAngle) + mainGUI.getCameraPosition()[0],
+                                         mainGUI.getCameraPosition()[1],
+                                         radius * glm::sin(cameraAngle) + mainGUI.getCameraPosition()[2]));
+        }
+
         // Toggling Spot Light on pressing L
         if(mainWindow.getKeys()[GLFW_KEY_L]) {
             // Debugging
@@ -569,6 +573,28 @@ void generalElements(glm::mat4& projectionMatrix, glm::mat4& viewMatrix) {
 
     else {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    // Updating the Procedural Content on button press
+    if(mainGUI.getUpdate()) {
+        // Debugging
+        // printf("In update!\n");
+        // printf("Grid : %i\nPoint : %i\nNum : %i\nSeed : %i\n",mainGUI.getGridSize(),
+        //                                                     mainGUI.getPointSize(),
+        //                                                     mainGUI.getNumPoints(),
+        //                                                     mainGUI.getSeed() );
+
+        generateRandomPoints(randomPoints,
+                             mainGUI.getGridSize(),
+                             mainGUI.getPointSize(),
+                             mainGUI.getNumPoints(),
+                             mainGUI.getSeed() );
+
+        generateRandomScales(randomScales, randomPoints.size(), seed);
+        generateRandomHeights(randomHeights, randomPoints.size(), seed);
+
+        // To prevent multiple clicking
+        mainGUI.setUpdate(false);
     }
 }
 
@@ -719,25 +745,129 @@ void setUniforms(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, Shader* shade
 // Scene Properties====================================================================================================
 // Global parameter for rotating the objects
 float rotationAngle = 0.0f;
-float step = 0.001f;
+float step = 0.05f;
 float size = 12.0f;
+
+// Contains a basic PCG Scene that can be rendered if enabled
+void renderPCGElements() {
+    // Objects=========================================================================================================
+    // Grounds
+    if(rotationAngle < 360.0f) {
+        rotationAngle += step;
+    }
+
+    else {
+        rotationAngle = 0.0f;
+    }
+
+    // Floor
+    glm::mat4 floor = glm::mat4(1.0f);
+
+    // TRS
+    // To rotate around origin
+    // floor = glm::rotate(floor, glm::radians(rotationAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    floor = glm::translate(floor, glm::vec3(mainGUI.getFloorOffset()[0],
+                                            mainGUI.getFloorOffset()[1],
+                                            mainGUI.getFloorOffset()[2]));
+    floor = glm::scale(floor, glm::vec3(mainGUI.getFloorScale()[0],
+                                        mainGUI.getFloorScale()[1],
+                                        mainGUI.getFloorScale()[2]));
+
+    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(floor));
+    brickTexture.useTexture();
+    roughMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
+    meshList[0]->renderMesh();
+
+
+    // Buildings=======================================================================================================
+    // Randomly placing the buildings
+    for (size_t i=0; i < randomPoints.size(); i++) {
+        const auto& point = randomPoints[i];
+        const auto& scale = randomScales[i];
+        const auto& height = randomHeights[i];
+
+        for (int j = 0; j < height + 1; j++) {
+            float heightOffset = 0.0f;
+            // TODO : Optimize
+            if (point.first % 3 == 0) {
+                heightOffset = 2.64f;
+            }
+
+            else if (point.first % 3 == 1) {
+                heightOffset = 3.29f;
+            }
+
+            else {
+                continue;
+            }
+
+            glm::mat4 buil = glm::mat4(1.0f);
+            // Rotating so that it rotates along the origin then transalte and scale
+            // buil = glm::rotate(buil, glm::radians(rotationAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+
+            // TRS
+            buil = glm::translate(buil, glm::vec3(point.first, j * (heightOffset * scale.y), -point.second));
+            buil = glm::scale(buil, scale);
+
+            glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(buil));
+            roughMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
+
+            // Randomly pick a model
+            // int modelIndex = modelDistribution(gen);
+
+            // Determine which model to render based on some criteria (e.g., point coordinates)
+            if (point.first % 3 == 0) {
+                building0->renderModel();
+            }
+
+            else if (point.first % 3 == 1) {
+                building1->renderModel();
+            }
+
+            else {
+                continue;
+            }
+        }
+    }
+}
 
 // Details about objects that need to be rendered
 void renderScene() {
-    // Objects=========================================================================================================
-    // Grounds
-    glm::mat4 base = glm::mat4(1.0f);
+    // If we want to render PCG Elements
+    if(mainGUI.getIsPCG()) {
+        renderPCGElements();
+    }
 
-    // Displacing the ground
-    base = glm::translate(base, glm::vec3(0.0f, 0.0f, 0.0f));
-    glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(base));
+    else {
+        if(rotationAngle < 360.0f) {
+            rotationAngle += step;
+        }
 
-    ckbSimple.useTexture(0);
-    ckbSimple.useTexture(1);
-    ckbSimple.useTexture(2);
+        else {
+            rotationAngle = 0.0f;
+        }
 
-    extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
-    meshList[0]->renderMesh();
+        glm::mat4 base = glm::mat4(1.0f);
+            // TRS
+            base = glm::translate(base, glm::vec3(0.0f, 2.0f, 0.0f));
+            base = glm::rotate(base, glm::radians(rotationAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+            base = glm::scale(base, glm::vec3(1.5f));
+            glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(base));
+
+        extraShinyMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
+        monkey->renderModel();
+
+        cube->setInitialTransformMatrix();
+            // TRS
+            cube->updateTranslation(glm::vec3(5.0f, 2.0f, 0.0f));
+            cube->updateRotation(rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f), false);
+            cube->updateScale(glm::vec3(1.5f));
+        cube->updateTransform();
+
+        extraRoughMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);
+        cube->renderModel(uniformModel);
+    }
 }
 
 // Calculate Toed-in or Asymmetric Frustum Anaglyph
@@ -751,18 +881,24 @@ void calculateAnaglyph(glm::mat4& projectionMatrix, glm::mat4& viewMatrix) {
     glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
     glClear(GL_DEPTH_BUFFER_BIT);
 
+    // Checking for channel flip
+    bool leftEye = mainGUI.getIsAnaglyphChannelsFlippedToed() ? false : true;
+    bool rightEye = mainGUI.getIsAnaglyphChannelsFlippedFrustum() ? false : true;
+
     if(mainGUI.getIsToedInRendering()) {
         // Modifying the view matrix for left eye here
-        viewMatrix = camera.calculateViewMatrix(true, mainGUI.getInterOcularDistance(), mainGUI.getCovergenceDistance());
+        viewMatrix = camera.calculateViewMatrix(leftEye,
+                                                mainGUI.getInterOcularDistance(),
+                                                mainGUI.getCovergenceDistance());
     }
 
     else if(mainGUI.getIsAsymmetricFrustumRendering()) {
         // Modifying the projection matrix for left eye here
-        projectionMatrix = camera.calculateAsymmetricFrustum(true,
-                                                            mainGUI.getInterOcularDistance(),
-                                                            mainGUI.getCovergenceDistance(),
-                                                            mainWindow.getBufferWidth(),
-                                                            mainWindow.getBufferHeight());
+        projectionMatrix = camera.calculateAsymmetricFrustum(rightEye,
+                                                             mainGUI.getInterOcularDistance(),
+                                                             mainGUI.getCovergenceDistance(),
+                                                             mainWindow.getBufferWidth(),
+                                                             mainWindow.getBufferHeight());
     }
 
     // Setting Uniforms for a shader
@@ -778,16 +914,18 @@ void calculateAnaglyph(glm::mat4& projectionMatrix, glm::mat4& viewMatrix) {
 
     if(mainGUI.getIsToedInRendering()) {
         // Modifying the view matrix for right eye here
-        viewMatrix = camera.calculateViewMatrix(false, mainGUI.getInterOcularDistance(), mainGUI.getCovergenceDistance());
+        viewMatrix = camera.calculateViewMatrix(!leftEye,
+                                                mainGUI.getInterOcularDistance(),
+                                                mainGUI.getCovergenceDistance());
     }
 
     else if(mainGUI.getIsAsymmetricFrustumRendering()) {
         // Modifying the projection matrix for right eye here
-        projectionMatrix = camera.calculateAsymmetricFrustum(false,
-                                                            mainGUI.getInterOcularDistance(),
-                                                            mainGUI.getCovergenceDistance(),
-                                                            mainWindow.getBufferWidth(),
-                                                            mainWindow.getBufferHeight());
+        projectionMatrix = camera.calculateAsymmetricFrustum(!rightEye,
+                                                             mainGUI.getInterOcularDistance(),
+                                                             mainGUI.getCovergenceDistance(),
+                                                             mainWindow.getBufferWidth(),
+                                                             mainWindow.getBufferHeight());
     }
 
     // Setting Uniforms for a shader
@@ -836,7 +974,7 @@ void renderPass(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
 }
 
 
-// Main Function
+// Main Function=======================================================================================================
 int main()
 {
     mainWindow = Window(1366, 768);
@@ -862,6 +1000,11 @@ int main()
 
     // ImGUI===========================================================================================================
     mainGUI.initialize(mainWindow.getWindow());
+
+    // Generating random points - Pre-Loading for faster rendering
+    generateRandomPoints(randomPoints, gridSize, pointSize, numPoints, seed);
+    generateRandomScales(randomScales, randomPoints.size(), seed);
+    generateRandomHeights(randomHeights, randomPoints.size(), seed);
 
     // Main Loop - Running till the window is open=====================================================================
     while(!mainWindow.getShouldClose()) {

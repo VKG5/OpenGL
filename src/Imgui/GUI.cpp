@@ -134,6 +134,14 @@ void GUI::elements(const std::string& shadingMode) {
             ImGui::DragFloat("Camera Speed", (float*)&cameraSpeed, sliderSpeed);
             ImGui::DragFloat3("Camera Position", (float*)&cameraPos, sliderSpeed);
 
+            ImGui::Spacing();
+            ImGui::Checkbox("Rotate", &isCameraRotate);
+
+            if(isCameraRotate) {
+                ImGui::DragFloat("Radius", (float*)&cameraRotateRadius, sliderSpeed);
+                ImGui::DragFloat("Rotation Speed", (float*)&cameraRotateSpeed, sliderSpeed);
+            }
+
             if(cameraIsPerspective) {
                 ImGui::Spacing();
 
@@ -145,9 +153,11 @@ void GUI::elements(const std::string& shadingMode) {
                 ImGui::SetWindowFontScale(1.0f);
                 ImGui::Checkbox("Anaglyph", &isAnaglyph);
 
-                if(&isAnaglyph) {
+                if(isAnaglyph) {
                     ImGui::Checkbox("Toed-In", &isToedIn);
                     ImGui::Checkbox("Asymmetric Frustum", &isAsymmetricFrustum);
+                    ImGui::Checkbox("Flip Channels (Toed)", &isFlipAnaglyphChannelsToed);
+                    ImGui::Checkbox("Flip Channels (Frustum)", &isFlipAnaglyphChannelsFrustum);
                     ImGui::DragFloat("IoD (Eye Distance)", (float*)&interOcularDistance, sliderSpeed * 0.1);
                     ImGui::DragFloat("CD (Convergence Distance)", (float*)&convergeDistance, sliderSpeed * 0.1);
                 }
@@ -204,11 +214,41 @@ void GUI::elements(const std::string& shadingMode) {
             ImGui::EndTabItem();
         }
 
+        if (ImGui::BeginTabItem("PCG")) {
+            // Procedural Content Elements
+            // Spacing
+            ImGui::Dummy(ImVec2(0.0f, 5.0f));
+            ImGui::SetWindowFontScale(1.15f);
+            ImGui::Text("Procedural Content Generation");
+
+            // Seed
+            ImGui::Spacing();
+            ImGui::SetWindowFontScale(1.0f);
+            ImGui::Checkbox("PCG", &isPCG);
+
+            if(isPCG) {
+                ImGui::DragInt("Seed", (int*)&seed);
+                ImGui::DragFloat3("Floor Offset", floorOffset, sliderSpeed);
+                ImGui::DragFloat3("Floor Scale", floorScale, sliderSpeed);
+                ImGui::DragInt("Grid Size", (int*)&gridSize);
+                ImGui::DragInt("Point Size", (int*)&pointSize);
+                ImGui::DragInt("Number of Points", (int*)&numPoints);
+
+                if(ImGui::Button("Update")) {
+                    update = true;
+                }
+            }
+
+            // End Current Tab
+            ImGui::EndTabItem();
+        }
+
         ImGui::EndTabBar();
     }
 }
 
 // Setters=============================================================================================================
+// Camera
 void GUI::setCameraIsPerspective(bool flag) {
     cameraIsPerspective = flag;
 }
@@ -223,6 +263,14 @@ void GUI::setIsAnaglyph(bool flag) {
 
 void GUI::setIsToedInRendering(bool flag) {
     isToedIn = flag;
+}
+
+void GUI::setIsAnaglyphChannelsFlippedToed(bool flag) {
+    isFlipAnaglyphChannelsToed = flag;
+}
+
+void GUI::setIsAnaglyphChannelsFlippedFrustum(bool flag) {
+    isFlipAnaglyphChannelsFrustum = flag;
 }
 
 void GUI::setIsAsymmetricFrustumRendering(bool flag) {
@@ -246,6 +294,11 @@ void GUI::setCameraPosition(float x, float y, float z) {
     cameraPos[0] = x;
     cameraPos[1] = y;
     cameraPos[2] = z;
+}
+
+// PCG
+void GUI::setUpdate(bool updateValue) {
+    update = updateValue;
 }
 
 void GUI::render(const std::string& shadingMode) {

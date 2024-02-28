@@ -54,7 +54,14 @@ public:
     Model();
 
     void loadModel(const std::string& filePath);
+
+    // Render a single model using normal method
+    void renderModel();
+
+    // Render hierarchical model
     void renderModel(const GLuint& uniformModel);
+
+    // Clear data of the selected model
     void clearModel();
 
     // Getters=========================================================================================================
