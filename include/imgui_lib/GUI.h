@@ -84,6 +84,11 @@ private:
     float normalStrength = 0.0f;
     float specularSrength = 0.0f;
 
+    // Material settings
+    float specular = 0.5f;
+    float shininess = 256.0f;
+    float metalness = 0.5f;
+
     // IK Controls
     bool isIK = false;
     bool isTwoDIK = true;
@@ -99,7 +104,7 @@ private:
     int interpolationType = 1;
 
     // Procedural Content Generation
-    bool isPCG = true;
+    bool isPCG = false;
     GLuint seed = 165316;
     float floorOffset[3] = {0.0f, 0.0f, 0.0f};
     float floorScale[3] = {2.5f, 1.0f, 2.5f};
@@ -190,6 +195,11 @@ public:
     float getDispersion() const { return dispersion; }
     float getNormalStrength() const { return normalStrength; }
     float getSpecularStrength() const { return specularSrength; }
+
+    // Materials
+    float getSpecular() const { return specular; }
+    float getShininess() const  { return shininess; }
+    float getMetalness() const { return metalness; }
 
     // PCG
     bool getIsPCG() const { return isPCG; }

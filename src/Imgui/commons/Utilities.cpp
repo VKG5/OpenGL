@@ -96,3 +96,11 @@ std::string removeBackslash(const char* str) {
 
     return strPath;
 }
+
+
+std::string returnPath(const std::filesystem::path currentSourceDir, const std::string fileName) {
+    std::string textureDir = (currentSourceDir / fileName).string();
+    std::string texturePath = removeBackslash(textureDir.c_str());
+
+    return texturePath;
+}

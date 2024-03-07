@@ -23,6 +23,7 @@ set(
     "Movement.h"
     "algorithms/randomDistribute.h"
     "MathFuncs.h"
+    "Scene.h"
 )
 
 set(

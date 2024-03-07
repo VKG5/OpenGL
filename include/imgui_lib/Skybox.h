@@ -21,6 +21,7 @@ class Skybox {
 private:
     Mesh* skyMesh;
     Shader* skyShader;
+    std::vector<std::unique_ptr<Skybox>> defaultSkyboxes;
 
     GLuint textureID;
     GLuint uniformProjection, uniformView;
@@ -31,7 +32,14 @@ public:
 
     Skybox(std::vector<std::string> faceLocations);
 
+    // Loading skyboxes
+    void loadDefaultSkyboxes();
+
+    // Function to draw the skyboxes
     void drawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix);
+
+    // Getters=========================================================================================================
+    const std::vector<std::unique_ptr<Skybox>>& getDefaultSkyboxes() const { return defaultSkyboxes; }
 
     // Destructor
     ~Skybox();

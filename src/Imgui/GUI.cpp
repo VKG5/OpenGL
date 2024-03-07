@@ -107,7 +107,21 @@ void GUI::elements(const std::string& shadingMode) {
                 ImGui::DragFloat("Dispersion", (float*)&dispersion, sliderSpeed / 10, 0.0f, 1.0f);
             }
 
-            // End Current Tab
+            if(ImGui::BeginTabBar("Object Properties")) {
+                if(ImGui::BeginTabItem("Material")) {
+                    ImGui::DragFloat("Specular", (float*)&specular, sliderSpeed, 0.0f, 1.0f);
+                    ImGui::DragFloat("Roughness", (float*)&shininess, 1.0f, 0.0f, 4096.0f);
+                    ImGui::DragFloat("Metalness", (float*)&metalness, sliderSpeed, 0.0f, 1.0f);
+
+                    // End Current Tab Item
+                    ImGui::EndTabItem();
+                }
+
+                // End Current Tab Bar
+                ImGui::EndTabBar();
+            }
+
+            // End Current Tab Item
             ImGui::EndTabItem();
         }
 
@@ -163,7 +177,7 @@ void GUI::elements(const std::string& shadingMode) {
                 }
             }
 
-            // End Current Tab
+            // End Current Tab Item
             ImGui::EndTabItem();
         }
 
@@ -180,7 +194,7 @@ void GUI::elements(const std::string& shadingMode) {
             ImGui::Checkbox("Skybox Active", &isSkyBox);
             ImGui::Checkbox("Draw Skybox", &drawSkybox);
 
-            // End Current Tab
+            // End Current Tab Item
             ImGui::EndTabItem();
         }
 
@@ -210,7 +224,7 @@ void GUI::elements(const std::string& shadingMode) {
             ImGui::Text("Spot Lights");
             ImGui::Checkbox("Spot Active", &isSpotLights);
 
-            // End Current Tab
+            // End Current Tab Item
             ImGui::EndTabItem();
         }
 
@@ -239,10 +253,11 @@ void GUI::elements(const std::string& shadingMode) {
                 }
             }
 
-            // End Current Tab
+            // End Current Tab Item
             ImGui::EndTabItem();
         }
 
+        // End Current Tab Bar
         ImGui::EndTabBar();
     }
 }

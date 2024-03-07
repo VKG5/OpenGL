@@ -9,14 +9,12 @@ const std::filesystem::path currentSourceDir = currentSourcePath.parent_path().p
 // Vertex Shader
 // Uniform - Global to shader, not associated with a particular vertex
 // Bind data to uniform to get location
-std::string skyVertexShaderPath = (currentSourceDir / "Shaders/skybox.vert").string();
-std::string skyVertexShaderFormatted = removeBackslash(skyVertexShaderPath.c_str());
-static const char* skyVertexShader = skyVertexShaderFormatted.c_str();
+std::string skyVertexShaderPath = returnPath(currentSourceDir, "Shaders/skybox.vert");
+static const char* skyVertexShader = skyVertexShaderPath.c_str();
 
 // Fragment Shader
-std::string skyFragmentShaderPath = (currentSourceDir / "Shaders/skybox.frag").string();
-std::string skyFragmentShaderFormatted = removeBackslash(skyFragmentShaderPath.c_str());
-static const char* skyFragmentShader = skyFragmentShaderFormatted.c_str();
+std::string skyFragmentShaderPath = returnPath(currentSourceDir, "Shaders/skybox.frag");
+static const char* skyFragmentShader = skyFragmentShaderPath.c_str();
 
 Skybox::Skybox() {
 }
@@ -115,6 +113,96 @@ Skybox::Skybox(std::vector<std::string> faceLocations) {
 
     skyMesh = new Mesh();
     skyMesh->createMesh(skyboxVertices, skyboxIndices, 88, 36);
+}
+
+void Skybox::loadDefaultSkyboxes() {
+    std::vector<std::string> skyboxFaces;
+
+    // Clearing existing Skyboxes from list=
+    defaultSkyboxes.clear();
+
+    // Pushing the textures in a particular order
+    // Right, Left
+    // Up, Down
+    // Front, Back
+    // Clearing old data
+    skyboxFaces.clear();
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Lake/right.jpg"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Lake/left.jpg"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Lake/top.jpg"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Lake/bottom.jpg"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Lake/front.jpg"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Lake/back.jpg"));
+
+    // Parameters - Skybox faces, RGB/RGBA
+    std::unique_ptr<Skybox> skyboxPtr = std::make_unique<Skybox>(skyboxFaces);
+    // Now skyboxPtr is empty again
+    defaultSkyboxes.push_back(std::move(skyboxPtr));
+
+    // Clearing old data
+    skyboxFaces.clear();
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Christmas/right.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Christmas/left.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Christmas/top.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Christmas/bottom.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Christmas/front.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Christmas/back.png"));
+
+    // Parameters - Skybox faces, RGB/RGBA
+    skyboxPtr = std::make_unique<Skybox>(skyboxFaces);
+    defaultSkyboxes.push_back(std::move(skyboxPtr));
+
+    // Clearing old data
+    skyboxFaces.clear();
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Fireplace/right.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Fireplace/left.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Fireplace/top.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Fireplace/bottom.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Fireplace/front.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Fireplace/back.png"));
+
+    // Parameters - Skybox faces, RGB/RGBA
+    skyboxPtr = std::make_unique<Skybox>(skyboxFaces);
+    defaultSkyboxes.push_back(std::move(skyboxPtr));
+
+    // Clearing old data
+    skyboxFaces.clear();
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Clouds/right.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Clouds/left.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Clouds/top.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Clouds/bottom.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Clouds/front.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Clouds/back.png"));
+
+    // Parameters - Skybox faces, RGB/RGBA
+    skyboxPtr = std::make_unique<Skybox>(skyboxFaces);
+    defaultSkyboxes.push_back(std::move(skyboxPtr));
+
+    // Clearing old data
+    skyboxFaces.clear();
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Shanghai/right.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Shanghai/left.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Shanghai/top.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Shanghai/bottom.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Shanghai/front.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Shanghai/back.png"));
+
+    // Parameters - Skybox faces, RGB/RGBA
+    skyboxPtr = std::make_unique<Skybox>(skyboxFaces);
+    defaultSkyboxes.push_back(std::move(skyboxPtr));
+
+    // Clearing old data
+    skyboxFaces.clear();
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Sky_Fire/right.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Sky_Fire/left.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Sky_Fire/top.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Sky_Fire/bottom.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Sky_Fire/front.png"));
+    skyboxFaces.push_back(returnPath(currentSourceDir, "Textures/Skybox/Sky_Fire/back.png"));
+
+    // Parameters - Skybox faces, RGB/RGBA
+    skyboxPtr = std::make_unique<Skybox>(skyboxFaces);
+    defaultSkyboxes.push_back(std::move(skyboxPtr));
 }
 
 void Skybox::drawSkybox(glm::mat4 viewMatrix, glm::mat4 projectionMatrix) {

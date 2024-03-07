@@ -13,6 +13,13 @@ Model::Model() {
 
     initialTransform = glm::mat4(1.0f);
     accumulateTransform = glm::mat4(1.0f);
+
+    matUniformSpecularIntensity = 0;
+    matUniformShininess = 0;
+    matUniformMetalness = 0;
+
+    // Attach default material to each object
+    this->material = Material();
 }
 
 void Model::renderModel() {
@@ -31,6 +38,13 @@ void Model::renderModel() {
                 textureList[index]->useTexture(index);
             }
         }
+
+        // Rendering materials if present
+        // for (auto& material : materials) {
+        //     material.useMaterial();
+        // }
+        // Binding the values to uniform
+        this->material.useMaterial(matUniformSpecularIntensity, matUniformShininess, matUniformMetalness);
 
         meshList[i]->renderMesh();
     }
@@ -396,6 +410,16 @@ void Model::setRotation(glm::vec3& rot) {
 
 void Model::setScale(glm::vec3& scale) {
     localScale = scale;
+}
+
+void Model::updateMaterialProperties(GLfloat specular, GLfloat shine, GLfloat metal) {
+    material.setMaterialParamters(specular, shine, metal);
+}
+
+void Model::setMaterialUniforms(GLuint uniformSpecularIntensity, GLuint uniformShininess, GLuint uniformMetalness) {
+    matUniformSpecularIntensity = uniformSpecularIntensity;
+    matUniformShininess = uniformShininess;
+    matUniformMetalness = uniformMetalness;
 }
 
 void Model::updateRotation(GLfloat angle, glm::vec3& axis, bool rads) {

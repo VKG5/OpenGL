@@ -68,8 +68,14 @@ uniform SpotLight spotLight[MAX_SPOT_LIGHTS];
 // Textures
 // Bound at Texture Unit 0
 uniform sampler2D diffuseMap;
+
+// Bound at Texture Unit 1
 uniform sampler2D ambientOcclusionMap;
+
+// Bound at Texture Unit 2
 uniform sampler2D specularMap;
+
+// Bound at Texture Unit 3
 uniform sampler2D normalMap;
 
 // Bound at Texture Unit 1

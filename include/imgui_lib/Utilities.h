@@ -23,6 +23,7 @@
 const int MAX_POINT_LIGHTS = 3;
 const int MAX_SPOT_LIGHTS = 3;
 const int MAX_SHADING_MODELS = 4;
+const int DEFAULT_SKYBOXES = 6;
 
 // Averaging Normals for Phong Shading
 void calcAverageNormals(unsigned int* indices, unsigned int indexCount, GLfloat* vertices, unsigned int vertexCount, unsigned int vLength, unsigned int normalOffset);
@@ -40,5 +41,8 @@ void printMat4GUI(const glm::mat4& mat, const int& index);
 
 // Removing backslashes from the path
 std::string removeBackslash(const char* str);
+
+// Compound path
+std::string returnPath(const std::filesystem::path currentSourceDir, const std::string fileName);
 
 #endif

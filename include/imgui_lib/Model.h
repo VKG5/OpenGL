@@ -17,6 +17,7 @@
 // Custom libraries
 #include "Mesh.h"
 #include "Texture.h"
+#include "Material.h"
 #include "Utilities.h"
 
 class Model {
@@ -42,6 +43,12 @@ private:
 
     // Transform Matrix with transformations
     glm::mat4 accumulateTransform;
+
+    // Material for the object
+    // TODO : Add support for multiple materials
+    // std::vector<Material> materials;
+    Material material;
+    GLuint matUniformSpecularIntensity, matUniformShininess, matUniformMetalness;
 
     // To load children data
     void loadNode(aiNode *node, const aiScene *scene);
@@ -108,6 +115,10 @@ public:
     void updateTranslation(glm::vec3& offset);
     void updateRotation(GLfloat angle, glm::vec3& axis, bool rads);
     void updateScale(glm::vec3& scale);
+
+    // Materials
+    void setMaterialUniforms(GLuint uniformSpecularIntensity, GLuint uniformShininess, GLuint uniformMetalness);
+    void updateMaterialProperties(GLfloat specular, GLfloat shine, GLfloat metal);
 
     // Destructor
     ~Model();

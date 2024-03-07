@@ -7,6 +7,7 @@ set(
     "Mesh.cpp"
     "GUI.cpp"
     "Model.cpp"
+    "Scene.cpp"
 
     # External Dependencies
     "commons/deps/imgui_impl_glfw.cpp"
