@@ -18,6 +18,10 @@ private:
     // Global up
     glm::vec3 worldUp;
 
+    // Window coordinates
+    GLdouble mouseX;
+    GLdouble mouseY;
+
     GLfloat roll;
     GLfloat pitch;
     GLfloat yaw;
@@ -63,6 +67,11 @@ public:
     // Projection Matrices
     glm::mat4 calculatePerspectiveProjectionMatrix(const GLint& width, const GLint& height);
     glm::mat4 calculateOrthographicProjectionMatrix();
+
+    // Ray Casting
+    // This will be used for object selection and other functionalities
+    glm::vec3 getRayDirection(GLfloat mouseX, GLfloat mouseY, int screenWidth, int screenHeight);
+    glm::vec3 getRayHitCoords(GLfloat mouseX, GLfloat mouseY, int screenWidth, int screenHeight);
 
     // Setters=========================================================================================================
     void updateMoveSpeed(GLfloat newSpeed);

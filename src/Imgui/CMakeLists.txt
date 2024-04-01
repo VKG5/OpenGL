@@ -8,6 +8,7 @@ set(
     "GUI.cpp"
     "Model.cpp"
     "Scene.cpp"
+    "Picking.cpp"
 
     # External Dependencies
     "commons/deps/imgui_impl_glfw.cpp"

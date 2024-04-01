@@ -28,6 +28,7 @@ private:
     // Need static for callback
     static void handleKeys(GLFWwindow* window, int key, int code, int action, int mode);
     static void handleMouse(GLFWwindow* window, double xPos, double yPos);
+    static void handleResizeWindow(GLFWwindow* window, int width, int height);
 
 public:
     // Constructor
@@ -38,6 +39,7 @@ public:
 
     int initialize();
 
+    // Getters=========================================================================================================
     GLint getBufferWidth() {
         return bufferWidth;
     }
@@ -63,11 +65,12 @@ public:
         glfwSwapBuffers(mainWindow);
     }
 
+    // Getters for mouse position in window
+    const GLfloat getXPos() { return lastX; }
+    const GLfloat getYPos() { return lastY; }
+
     // Getter for Window
     GLFWwindow* getWindow() { return mainWindow; }
-
-    // Callback function to handle resizing events
-    // static void resizeWindow(GLFWwindow* window, int width, int height);
 
     // Destructor
     ~Window();

@@ -704,11 +704,15 @@ void Scene::renderScene() {
         monkey->setMaterialUniforms(uniformSpecularIntensity, uniformShininess, uniformMetalness);
         monkey->renderModel();
 
+        // Debugging
+        // ImGui::Text("%i, %i", mainWindow.getBufferWidth(), mainWindow.getBufferHeight());
+
         cube->setInitialTransformMatrix();
             // TRS
-            cube->updateTranslation(glm::vec3(5.0f, 2.0f, 0.0f));
-            cube->updateRotation(rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f), false);
-            cube->updateScale(glm::vec3(1.5f));
+            cube->updateTranslation( camera.getRayHitCoords(mainWindow.getXPos(),
+                                                            mainWindow.getYPos(),
+                                                            mainWindow.getBufferWidth(),
+                                                            mainWindow.getBufferHeight()) );
         cube->updateTransform();
 
         extraRoughMat.useMaterial(uniformSpecularIntensity, uniformShininess, uniformMetalness);

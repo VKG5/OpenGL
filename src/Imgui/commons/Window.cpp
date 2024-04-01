@@ -90,16 +90,10 @@ int Window::initialize() {
     return 0;
 }
 
-// Function to handle window resize events
-void resizeWindow(GLFWwindow* window, int width, int height) {
-    // Set the viewport size to match the resized window
-    glViewport(0, 0, width, height);
-}
-
 void Window::createCallbacks() {
     glfwSetKeyCallback(mainWindow, handleKeys);
     glfwSetCursorPosCallback(mainWindow, handleMouse);
-    glfwSetFramebufferSizeCallback(mainWindow, resizeWindow);
+    glfwSetFramebufferSizeCallback(mainWindow, handleResizeWindow);
 }
 
 GLfloat Window::getXChange() {
@@ -177,11 +171,19 @@ void Window::handleMouse(GLFWwindow* window, double xPos, double yPos) {
     //printf("x:%.6f, y:%.6f\n", theWindow->xChange, theWindow->yChange);
 }
 
-// Function to handle window resize events
-// void Window::resizeWindow(GLFWwindow* window, int width, int height) {
-//     // Set the viewport size to match the resized window
-//     glViewport(0, 0, width, height);
-// }
+void Window::handleResizeWindow(GLFWwindow* window, int width, int height) {
+    // Debugging
+    // printf("Resizing Window");
+
+    // Resizing the frame buffers
+    Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    theWindow->bufferWidth = width;
+    theWindow->bufferHeight = height;
+
+    // Set the viewport size to match the resized window
+    glViewport(0, 0, width, height);
+}
+
 
 Window::~Window() {
     glfwDestroyWindow(mainWindow);

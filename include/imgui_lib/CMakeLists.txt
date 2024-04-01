@@ -24,6 +24,7 @@ set(
     "algorithms/randomDistribute.h"
     "MathFuncs.h"
     "Scene.h"
+    "Picking.h"
 )
 
 set(

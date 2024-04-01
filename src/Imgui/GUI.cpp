@@ -110,7 +110,7 @@ void GUI::elements(const std::string& shadingMode) {
             if(ImGui::BeginTabBar("Object Properties")) {
                 if(ImGui::BeginTabItem("Material")) {
                     ImGui::DragFloat("Specular", (float*)&specular, sliderSpeed, 0.0f, 1.0f);
-                    ImGui::DragFloat("Roughness", (float*)&shininess, 1.0f, 0.0f, 4096.0f);
+                    ImGui::DragFloat("Shininess", (float*)&shininess, 1.0f, 0.0f, 4096.0f);
                     ImGui::DragFloat("Metalness", (float*)&metalness, sliderSpeed, 0.0f, 1.0f);
 
                     // End Current Tab Item
@@ -327,6 +327,18 @@ void GUI::render(const std::string& shadingMode) {
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void GUI::warningMessage(const std::string& message) {
+    ImGui::Begin("Warning");
+    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), message.c_str());
+    ImGui::End();
+}
+
+void GUI::errorMessage(const std::string& message) {
+    ImGui::Begin("Error");
+    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), message.c_str());
+    ImGui::End();
 }
 
 void GUI::shutdown() {

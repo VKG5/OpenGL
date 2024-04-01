@@ -42,7 +42,14 @@ Camera::Camera( glm::vec3 initialPosition, glm::vec3 initialUp, GLfloat initialY
 }
 
 void Camera::keyControl(bool* keys, GLfloat deltaTime) {
-    GLfloat velocity = moveSpeed * deltaTime;
+    GLfloat multiplier = 1.0f;
+
+    // Sprint/Increase speed condition
+    if(keys[GLFW_KEY_LEFT_SHIFT]) {
+        multiplier = 5.0f;
+    }
+
+    GLfloat velocity = moveSpeed * deltaTime * multiplier;
 
     // Move Forward
     if(keys[GLFW_KEY_W]) {
@@ -182,6 +189,40 @@ glm::mat4  Camera::calculateAsymmetricFrustum(bool isLeftEye, const float& IOD, 
 
 glm::mat4 Camera::calculateOrthographicProjectionMatrix() {
     return glm::ortho(-scale, scale, -scale, scale, nearClipping, farClipping);
+}
+
+glm::vec3 Camera::getRayDirection(GLfloat mouseX, GLfloat mouseY, int screenWidth, int screenHeight) {
+    // Converting mouse coordinates to NDC (Normalized Device Coordinates)
+    glm::vec4 rayClip = glm::vec4((2.0f * mouseX) / screenWidth - 1.0f, 1.0f - (2.0f * mouseY) / screenHeight, -1.0f, 1.0f);
+
+    // Transform ray from clip to eye space
+    glm::vec4 rayEye = glm::inverse(this->calculatePerspectiveProjectionMatrix(screenWidth, screenHeight)) * rayClip;
+    rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+
+    // Transform ray from eye to world space
+    glm::vec3 rayWorld = glm::vec3(glm::inverse(this->calculateViewMatrix()) * rayEye);
+    rayWorld = glm::normalize(rayWorld);
+
+    // Gives the direction vector of the ray in world space
+    return rayWorld;
+}
+
+glm::vec3 Camera::getRayHitCoords(GLfloat mouseX, GLfloat mouseY, int screenWidth, int screenHeight) {
+// Read the depth buffer value at the mouse click position
+    float depth;
+    glReadPixels(mouseX, screenHeight - mouseY - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+
+    // Convert the mouse coordinates to OpenGL viewport coordinates (origin bottom left)
+    glm::vec3 screenPos(mouseX, screenHeight - mouseY - 1, depth);
+
+    // Define the viewport as per OpenGL's viewport
+    glm::vec4 viewport = glm::vec4(0, 0, screenWidth, screenHeight);
+
+    // Unproject the screen position back into world coordinates
+    glm::vec3 worldPos = glm::unProject(screenPos, this->calculateViewMatrix(), this->calculatePerspectiveProjectionMatrix(screenWidth, screenHeight), viewport);
+
+    // Return the calculated world position
+    return worldPos;
 }
 
 // Setters=============================================================================================================
