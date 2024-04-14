@@ -23,4 +23,7 @@ A rendering engine written in C++ with OpenGL. WIP, trying to make a ray-tracing
 - [x] Basic Procedural Generator
 
 ## Animation
-- [ ] Animation models   
+- [ ] Animation models
+
+## Path Tracing
+[Supporting Documentation](src/Path_Tracing/Real_Time_Rendering.pdf)
