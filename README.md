@@ -15,13 +15,24 @@ Below are two different render modes (Material Preview and Wireframe). You can r
     <img src="/files/materialPreview.png" width="400"/> <img src="/files/wireframe.png" width="400"/>
 </div> 
 
+## Controls
+The application supports various keyboard and mouse events. Listed below are some of the important ones:
+
+    - WASD : Fly around the scene in "Camera Mode" like a first person game
+    - QE : Fly up and down in "Camera Mode"
+    - Shift + WASD/QE : Speed up in "Camera Mode" as if running in a first person game
+    - C : Toggle "Camera Mode"
+    - B : Cycle through various "Rendering Modes"
+    - M : Cycle through "Anaglyph Rendering Modes"
+    - F (Path Tracer) : Render the current frame to disk
+
 ## Physically Based Rendering Support
 The renderer supports PBR materials with the following properties! There is basic control over combination of various properties and all the switching happens in 1 [Fragment Shader](/src/Imgui/Shaders/BRDF_Normals.frag). There are 4 rendering modes:
 
-    Phong Illumination
-    Blinn-Phong Illumination
-    Gooch Shading
-    Minnaert Shading
+    - Phong Illumination
+    - Blinn-Phong Illumination
+    - Gooch Shading
+    - Minnaert Shading
 
 - [x] Reflective
 - [x] Refractive
