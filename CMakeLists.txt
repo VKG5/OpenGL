@@ -12,7 +12,7 @@
 
 ## Setting the generator in Terminal to a specific version
 # cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_CXX_STANDARD=17 -S path/to/source -B path/to/build
-
+cmake -G "Visual Studio 17 2022"
 cmake_minimum_required(VERSION 3.24)
 
 project(
