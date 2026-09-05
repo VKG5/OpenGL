@@ -11,7 +11,7 @@ set(
     glm::glm
     assimp
     glfw
-    Vulkan-Headers
+    Vulkan::Headers
 )
 
 # Linking the external libraries that we got from FetchContent

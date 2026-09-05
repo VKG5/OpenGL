@@ -39,9 +39,13 @@ add_executable(
     ${EXEC_SOURCES}
 )
 
+# Enabling Experimental Extensions for GLM 1.0+
+target_compile_definitions(${EXECUTABLE_NAME} PRIVATE GLM_ENABLE_EXPERIMENTAL)
+
 # We have inheritance modes - PUBLIC, PRIVATE, INTERFACE
 target_link_libraries(
     ${EXECUTABLE_NAME} PUBLIC
     ${LIBRARY_NAME}
     ${EXTERN_LIBRARY_NAME}
+    yumi::renderer
 )

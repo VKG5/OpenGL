@@ -1,6 +1,9 @@
 prepare:
-	del build
-	mkdir build
+	cmake -E remove_directory build
+	cmake -E make_directory build
 
-dependency:
-	cd build && cmake .. --graphviz=graph.dot && dot -Tpng graph.dot -o graph_image.png
+configure:
+	cmake -S . -B build
+
+build:
+	cmake --build build --config Release
