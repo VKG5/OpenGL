@@ -101,18 +101,18 @@ public:
     void resetTransform();
 
     // Updating the final transform
-    void updateTransform(glm::mat4& parentTransform = glm::mat4(1.0f));
+    void updateTransform(const glm::mat4& parentTransform = glm::mat4(1.0f));
 
     // Updating position in a recurive fashion, without updating transforms
-    void updateHierarchicalLocation(glm::mat4& transform = glm::mat4(1.0f));
+    void updateHierarchicalLocation(const glm::mat4& transform = glm::mat4(1.0f));
 
     // Setters for local transforms of the model - You can call them to permanently change the transformation of the model
-    void setPosition(glm::vec3& pos = glm::vec3(0.0f));
+    void setPosition(const glm::vec3& pos = glm::vec3(0.0f));
     void setRotation(glm::vec3& rot);
     void setScale(glm::vec3& scale);
 
     // TRS
-    void updateTranslation(glm::vec3& offset);
+    void updateTranslation(const glm::vec3& offset);
     void updateRotation(GLfloat angle, glm::vec3& axis, bool rads);
     void updateScale(glm::vec3& scale);
 

@@ -396,11 +396,11 @@ void Model::attachParent(Model* parentModel) {
     printf("Failed to attach to parent!\n");
 }
 
-void Model::updateTranslation(glm::vec3& offset) {
+void Model::updateTranslation(const glm::vec3& offset) {
     accumulateTransform = glm::translate(accumulateTransform, offset);
 }
 
-void Model::setPosition(glm::vec3& pos) {
+void Model::setPosition(const glm::vec3& pos) {
     localPosition = pos;
 }
 
@@ -440,7 +440,7 @@ void Model::updateScale(glm::vec3& scale) {
     accumulateTransform = glm::scale(accumulateTransform, scale);
 }
 
-void Model::updateHierarchicalLocation(glm::mat4& transform) {
+void Model::updateHierarchicalLocation(const glm::mat4& transform) {
     glm::mat4 localTransform = transform * accumulateTransform;
 
     localPosition = glm::vec3(localTransform[3]);
@@ -450,7 +450,7 @@ void Model::updateHierarchicalLocation(glm::mat4& transform) {
     }
 }
 
-void Model::updateTransform(glm::mat4& parentTransform) {
+void Model::updateTransform(const glm::mat4& parentTransform) {
     accumulateTransform = parentTransform * accumulateTransform;
 
     for(Model* child : children) {

@@ -39,15 +39,16 @@ set(
 )
 
 # STATIC/DYNAMIC LINKING OF LIBRARIES
+# Using an interface because there are no source, only header files
 add_library(
-    ${LIBRARY_NAME} STATIC
+    ${LIBRARY_NAME} INTERFACE
     ${LIBRARY_SOURCES}
     ${LIBRARY_HEADERS}
 )
 
 # Including the current directory for libraries
 target_include_directories(
-    ${LIBRARY_NAME} PUBLIC
+    ${LIBRARY_NAME} INTERFACE
     ${LIBRARY_INCLUDES}
 )
 
@@ -57,6 +58,6 @@ target_include_directories(
 # CMakeLists.txt for the library) for FetchContent libs
 # For manual libs, just use the project_name
 target_link_libraries(
-    ${LIBRARY_NAME} PUBLIC
+    ${LIBRARY_NAME} INTERFACE
     ${EXTERN_LIBS}
 )

@@ -20,6 +20,6 @@ set(
 # CMakeLists.txt for the library) for FetchContent libs
 # For manual libs, just use the project_name
 target_link_libraries(
-    ${LIBRARY_NAME} PUBLIC
+    ${LIBRARY_NAME} INTERFACE
     ${EXTERN_LIBS}
 )

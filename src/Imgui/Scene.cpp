@@ -151,7 +151,7 @@ void Scene::setupScene(const std::filesystem::path& currentSourceDir) {
 
     // Loading and creating Objects/Models
     // The plane is necessary for PCG
-    loadObjects();
+    // loadObjects();
 }
 
 void Scene::getUniformsFromShader(Shader * shader) {
