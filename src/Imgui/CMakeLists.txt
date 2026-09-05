@@ -1,7 +1,7 @@
 set(
     EXEC_SOURCES
     # Main
-    "Main.cpp"
+    "main.cpp"
 
     # Project Specific Files
     "Mesh.cpp"
