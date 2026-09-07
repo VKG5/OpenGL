@@ -7,6 +7,20 @@ set(
     LIBRARY_HEADERS
     "core/Defines.hpp"
     "diagnostics/Log.hpp"
+    
+    # RHI Headers
+    "rhi/Buffer.hpp"
+    "rhi/CommandBuffer.hpp"
+    "rhi/CommandQueue.hpp"
+    "rhi/Sampler.hpp"
+    "rhi/Shader.hpp"
+    "rhi/Texture.hpp"
+    "rhi/TextureView.hpp"
+    "rhi/RenderTarget.hpp"
+    "rhi/Pipeline.hpp"
+    "rhi/Fence.hpp"
+    "rhi/Semaphore.hpp"
+    "rhi/Device.hpp"
 )
 
 add_library(
