@@ -8,6 +8,10 @@ set(
     "core/Defines.hpp"
     "diagnostics/Log.hpp"
     
+    # Handles and Registry
+    "core/Handle.hpp"
+    "core/HandleRegistry.hpp"
+    
     # RHI Headers
     "rhi/Buffer.hpp"
     "rhi/CommandBuffer.hpp"
@@ -32,3 +36,6 @@ add_library(
 add_library(yumi::renderer ALIAS ${RENDERER_LIBRARY})
 target_include_directories(${RENDERER_LIBRARY} PUBLIC ${PROJECT_SOURCE_DIR}/src)
 target_link_libraries(${RENDERER_LIBRARY} PUBLIC yumi_warnings)
+
+add_executable(HandleScratch tests/HandleScratch.cpp)
+target_link_libraries(HandleScratch PRIVATE ${RENDERER_LIBRARY})
